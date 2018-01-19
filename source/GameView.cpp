@@ -122,17 +122,353 @@ public:
         }
         return false;
     }
+	//方块交互相关
+	std::pair<std::array<ALfloat,3>,bool> blockInteraction()
+	{
+		double lx = Player::xpos;
+		double ly = Player::ypos + Player::height + Player::heightExt;
+		double lz = Player::zpos;
+		std::array<ALfloat, 3>BlockPos;
+		bool BlockClick;
+		//从玩家位置发射一条线段
+		for (int i = 0; i < selectPrecision * selectDistance; i++) {
+			double lxl = lx;
+			double lyl = ly;
+			double lzl = lz;
 
+			//线段延伸
+			lx += sin(M_PI / 180 * (Player::heading - 180)) * sin(M_PI / 180 * (Player::lookupdown + 90)) / (double)
+				selectPrecision;
+			ly += cos(M_PI / 180 * (Player::lookupdown + 90)) / (double)selectPrecision;
+			lz += cos(M_PI / 180 * (Player::heading - 180)) * sin(M_PI / 180 * (Player::lookupdown + 90)) / (double)
+				selectPrecision;
 
+			//碰到方块
+			if (getBlockInfo(World::getBlock(lround(lx), lround(ly), lround(lz))).isSolid()) {
+				int x = lround(lx);
+				int y = lround(ly);
+				int z = lround(lz);
+				int xl = lround(lxl);
+				int yl = lround(lyl);
+				int zl = lround(lzl);
+
+				selx = x;
+				sely = y;
+				selz = z;
+				sel = true;
+
+				//找方块所在区块及位置
+				selcx = World::getChunkPos(x);
+				selcy = World::getChunkPos(y);
+				selcz = World::getChunkPos(z);
+				selbx = World::getBlockPos(x);
+				selby = World::getBlockPos(y);
+				selbz = World::getBlockPos(z);
+
+				if (auto cp = World::getChunkPtr(selcx, selcy, selcz); cp && cp != World::emptyChunkPtr)
+					selb = cp->getBlock(selbx, selby, selbz);
+
+				selbr = World::getBrightness(xl, yl, zl);
+				selb = World::getBlock(x, y, z);
+				if (mb == 1 || glfwGetKey(MainWindow, GLFW_KEY_ENTER) == GLFW_PRESS) {
+					Particles::throwParticle(selb,
+						float(x + rnd() - 0.5f), float(y + rnd() - 0.2f),
+						float(z + rnd() - 0.5f),
+						float(rnd() * 0.2f - 0.1f), float(rnd() * 0.2f - 0.1f),
+						float(rnd() * 0.2f - 0.1f),
+						float(rnd() * 0.01f + 0.02f), int(rnd() * 30) + 30);
+
+					if (selx != oldselx || sely != oldsely || selz != oldselz) seldes = 0.0;
+					else {
+						float Factor = 1.0;
+						if (Player::inventory[3][Player::indexInHand] == STICK)Factor = 4;
+						else
+							Factor = 30.0 / (getBlockInfo(Player::inventory[3][Player::indexInHand]).getHardness() +
+								0.1);
+						if (Factor < 1.0)Factor = 1.0;
+						if (Factor > 1.7)Factor = 1.7;
+						seldes += getBlockInfo(selb).getHardness() * (Player::gamemode == Player::Creative
+							? 10.0f
+							: 0.3f) * Factor;
+						BlockClick = true;
+						BlockPos[0] = x;
+						BlockPos[1] = y;
+						BlockPos[2] = z;
+					}
+
+					if (seldes >= 100.0) {
+						for (int j = 1; j <= 25; j++) {
+							Particles::throwParticle(selb,
+								float(x + rnd() - 0.5f), float(y + rnd() - 0.2f),
+								float(z + rnd() - 0.5f),
+								float(rnd() * 0.2f - 0.1f), float(rnd() * 0.2f - 0.1f),
+								float(rnd() * 0.2f - 0.1f),
+								float(rnd() * 0.02 + 0.03), int(rnd() * 60) + 30);
+						}
+						World::pickblock(x, y, z);
+						BlockClick = true;
+						BlockPos[0] = x;
+						BlockPos[1] = y;
+						BlockPos[2] = z;
+					}
+				}
+				if ((mb == 2 && !static_cast<bool>(mbp)) || (!chatmode && isPressed(GLFW_KEY_TAB))) {
+					//鼠标右键
+					if (Player::inventoryAmount[3][Player::indexInHand] > 0 && isBlock(
+						Player::inventory[3][Player::indexInHand])) {
+						//放置方块
+						if (Player::putBlock(xl, yl, zl, Player::BlockInHand)) {
+							Player::inventoryAmount[3][Player::indexInHand]--;
+							if (Player::inventoryAmount[3][Player::indexInHand] == 0)
+								Player::inventory[3][Player::
+								indexInHand] = Blocks::AIR;
+
+							BlockClick = true;
+							BlockPos[0] = x;
+							BlockPos[1] = y;
+							BlockPos[2] = z;
+						}
+					}
+					else {
+						//使用物品
+						if (Player::inventory[3][Player::indexInHand] == APPLE) {
+							Player::inventoryAmount[3][Player::indexInHand]--;
+							if (Player::inventoryAmount[3][Player::indexInHand] == 0)
+								Player::inventory[3][Player::
+								indexInHand] = Blocks::AIR;
+							Player::health = Player::healthmax;
+						}
+					}
+				}
+				break;
+			}
+		}
+		return std::make_pair(BlockPos,BlockClick);
+	}
+	//物理动作相关
+	void playerAction(bool& WP,double& Wprstm)
+	{
+		//移动！(生命在于运动)
+		if (glfwGetKey(MainWindow, GLFW_KEY_W) || Player::glidingNow) {
+			if (!WP) {
+				if (Wprstm == 0.0) { Wprstm = timer(); }
+				else {
+					if (timer() - Wprstm <= 0.5) {
+						Player::Running = true;
+						Wprstm = 0.0;
+					}
+					else Wprstm = timer();
+				}
+			}
+			if (Wprstm != 0.0 && timer() - Wprstm > 0.5) Wprstm = 0.0;
+			WP = true;
+			if (!Player::glidingNow) {
+				Player::xa += -sin(Player::heading * M_PI / 180.0) * Player::speed;
+				Player::za += -cos(Player::heading * M_PI / 180.0) * Player::speed;
+			}
+			else {
+				Player::xa = sin(M_PI / 180 * (Player::heading - 180)) * sin(
+					M_PI / 180 * (Player::lookupdown + 90)) * Player::glidingSpeed * speedCast;
+				Player::ya = cos(M_PI / 180 * (Player::lookupdown + 90)) * Player::glidingSpeed * speedCast;
+				Player::za = cos(M_PI / 180 * (Player::heading - 180)) * sin(
+					M_PI / 180 * (Player::lookupdown + 90)) * Player::glidingSpeed * speedCast;
+				if (Player::ya < 0) Player::ya *= 2;
+			}
+		}
+		else {
+			Player::Running = false;
+			WP = false;
+		}
+		if (Player::Running)Player::speed = runspeed;
+		else Player::speed = walkspeed;
+
+		if (glfwGetKey(MainWindow, GLFW_KEY_S) == GLFW_PRESS && !Player::glidingNow) {
+			Player::xa += sin(Player::heading * M_PI / 180.0) * Player::speed;
+			Player::za += cos(Player::heading * M_PI / 180.0) * Player::speed;
+			Wprstm = 0.0;
+		}
+
+		if (glfwGetKey(MainWindow, GLFW_KEY_A) == GLFW_PRESS && !Player::glidingNow) {
+			Player::xa += sin((Player::heading - 90) * M_PI / 180.0) * Player::speed;
+			Player::za += cos((Player::heading - 90) * M_PI / 180.0) * Player::speed;
+			Wprstm = 0.0;
+		}
+
+		if (glfwGetKey(MainWindow, GLFW_KEY_D) == GLFW_PRESS && !Player::glidingNow) {
+			Player::xa += -sin((Player::heading - 90) * M_PI / 180.0) * Player::speed;
+			Player::za += -cos((Player::heading - 90) * M_PI / 180.0) * Player::speed;
+			Wprstm = 0.0;
+		}
+
+		if (!Player::Flying && !Player::CrossWall) {
+			double horizontalSpeed = sqrt(Player::xa * Player::xa + Player::za * Player::za);
+			if (horizontalSpeed > Player::speed && !Player::glidingNow) {
+				Player::xa *= Player::speed / horizontalSpeed;
+				Player::za *= Player::speed / horizontalSpeed;
+			}
+		}
+		else {
+			if (glfwGetKey(MainWindow, GLFW_KEY_R) == GLFW_PRESS && !Player::glidingNow) {
+				if (glfwGetKey(MainWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+					Player::xa = -sin(Player::heading * M_PI / 180.0) * runspeed * 10;
+					Player::za = -cos(Player::heading * M_PI / 180.0) * runspeed * 10;
+				}
+				else {
+					Player::xa = sin(M_PI / 180 * (Player::heading - 180)) * sin(
+						M_PI / 180 * (Player::lookupdown + 90)) * runspeed * 20;
+					Player::ya = cos(M_PI / 180 * (Player::lookupdown + 90)) * runspeed * 20;
+					Player::za = cos(M_PI / 180 * (Player::heading - 180)) * sin(
+						M_PI / 180 * (Player::lookupdown + 90)) * runspeed * 20;
+				}
+			}
+
+			if (glfwGetKey(MainWindow, GLFW_KEY_F) == GLFW_PRESS && !Player::glidingNow) {
+				if (glfwGetKey(MainWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+					Player::xa = sin(Player::heading * M_PI / 180.0) * runspeed * 10;
+					Player::za = cos(Player::heading * M_PI / 180.0) * runspeed * 10;
+				}
+				else {
+					Player::xa = -sin(M_PI / 180 * (Player::heading - 180)) * sin(
+						M_PI / 180 * (Player::lookupdown + 90)) * runspeed * 20;
+					Player::ya = -cos(M_PI / 180 * (Player::lookupdown + 90)) * runspeed * 20;
+					Player::za = -cos(M_PI / 180 * (Player::heading - 180)) * sin(
+						M_PI / 180 * (Player::lookupdown + 90)) * runspeed * 20;
+				}
+			}
+		}
+
+		//切换方块
+		if (isPressed(GLFW_KEY_Z) && Player::indexInHand > 0) Player::indexInHand--;
+		if (isPressed(GLFW_KEY_X) && Player::indexInHand < 9) Player::indexInHand++;
+		if ((int)Player::indexInHand + (mwl - mw) < 0)Player::indexInHand = 0;
+		else if ((int)Player::indexInHand + (mwl - mw) > 9)Player::indexInHand = 9;
+		else Player::indexInHand += (char)(mwl - mw);
+		mwl = mw;
+
+		//起跳！
+		if (isPressed(GLFW_KEY_SPACE)) {
+			if (!Player::inWater) {
+				if ((Player::OnGround || Player::AirJumps < maxAirJumps) && !Player::Flying && !Player::
+					CrossWall) {
+					if (!Player::OnGround) {
+						Player::jump = 0.3;
+						Player::AirJumps++;
+					}
+					else {
+						Player::jump = 0.25;
+						Player::OnGround = false;
+					}
+				}
+				if (Player::Flying || Player::CrossWall) {
+					Player::ya += walkspeed / 2;
+					isPressed(GLFW_KEY_SPACE, true);
+				}
+				Wprstm = 0.0;
+			}
+			else {
+				Player::ya = walkspeed;
+				isPressed(GLFW_KEY_SPACE, true);
+			}
+		}
+
+		if ((glfwGetKey(MainWindow, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(
+			MainWindow, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) && !Player::glidingNow) {
+			if (Player::CrossWall || Player::Flying) Player::ya -= walkspeed / 2;
+			Wprstm = 0.0;
+		}
+
+		if (glfwGetKey(MainWindow, GLFW_KEY_K) && Player::Glide && !Player::OnGround && !Player::glidingNow) {
+			double h = Player::ypos + Player::height + Player::heightExt;
+			Player::glidingEnergy = g * h;
+			Player::glidingSpeed = 0;
+			Player::glidingNow = true;
+		}
+
+		//各种设置切换
+		if (isPressed(GLFW_KEY_F1)) {
+			Player::changeGameMode(Player::gamemode == Player::Creative ? Player::Survival : Player::Creative);
+		}
+		if (isPressed(GLFW_KEY_F2)) shouldGetScreenshot = true;
+		if (isPressed(GLFW_KEY_F3)) DebugMode = !DebugMode;
+		if (isPressed(GLFW_KEY_F4)) Player::CrossWall = !Player::CrossWall;
+		if (isPressed(GLFW_KEY_H) && glfwGetKey(MainWindow, GLFW_KEY_F3) == GLFW_PRESS) {
+			DebugHitbox = !DebugHitbox;
+			DebugMode = true;
+		}
+		if (Renderer::AdvancedRender) {
+			if (isPressed(GLFW_KEY_M) && glfwGetKey(MainWindow, GLFW_KEY_F3) == GLFW_PRESS) {
+				DebugShadow = !DebugShadow;
+				DebugMode = true;
+			}
+		}
+		else DebugShadow = false;
+		if (isPressed(GLFW_KEY_G) && glfwGetKey(MainWindow, GLFW_KEY_F3) == GLFW_PRESS) {
+			DebugMergeFace = !DebugMergeFace;
+			DebugMode = true;
+		}
+		if (isPressed(GLFW_KEY_F4) && Player::gamemode == Player::Creative)
+			Player::CrossWall = !Player::CrossWall;
+		if (isPressed(GLFW_KEY_F5)) GUIrenderswitch = !GUIrenderswitch;
+		if (isPressed(GLFW_KEY_F6)) Player::Glide = !Player::Glide;
+		if (isPressed(GLFW_KEY_F7)) Player::spawn();
+		if (isPressed(GLFW_KEY_SLASH)) chatmode = true; //斜杠将会在下面的if(chatmode)里添加
+	}
+	void playerJump()
+	{
+		//跳跃
+		if (!Player::glidingNow) {
+			if (!Player::inWater) {
+				if (!Player::Flying && !Player::CrossWall) {
+					Player::ya = -0.001;
+					if (Player::OnGround) {
+						Player::jump = 0.0;
+						Player::AirJumps = 0;
+						isPressed(GLFW_KEY_SPACE, true);
+					}
+					else {
+						//自由落体计算
+						Player::jump -= 0.025;
+						Player::ya = Player::jump + 0.5 * 0.6 / 900.0;
+					}
+				}
+				else {
+					Player::jump = 0.0;
+					Player::AirJumps = 0;
+				}
+			}
+			else {
+				Player::jump = 0.0;
+				Player::AirJumps = maxAirJumps;
+				isPressed(GLFW_KEY_SPACE, true);
+				if (Player::ya <= 0.001 && !Player::Flying && !Player::CrossWall) {
+					Player::ya = -0.001;
+					if (!Player::OnGround) Player::ya -= 0.1;
+				}
+			}
+		}
+	}
+	//滑翔相关
+	void playerGlid()
+	{
+		if (Player::glidingNow) {
+			double& E = Player::glidingEnergy;
+			double oldh = Player::ypos + Player::height + Player::heightExt + Player::ya;
+			double h = oldh;
+			if (E - Player::glidingMinimumSpeed < h * g) {
+				//小于最小速度
+				h = (E - Player::glidingMinimumSpeed) / g;
+			}
+			Player::glidingSpeed = sqrt(2 * (E - g * h));
+			E -= EDrop;
+			Player::ya += h - oldh;
+		}
+	}
     void updategame() {
         //Time_updategame_ = timer();
-        static double Wprstm;
-        static bool WP;
+		static double Wprstm;
+		static bool WP;
         //bool chunkupdated = false;
 
-        //用于音效更新
-        bool BlockClick = false;
-        ALfloat BlockPos[3];
 
         Player::BlockInHand = Player::inventory[3][Player::indexInHand];
         //生命值相关
@@ -171,128 +507,20 @@ public:
 
         World::randomChunkUpdation();
 
-        double lx = Player::xpos;
-        double ly = Player::ypos + Player::height + Player::heightExt;
-        double lz = Player::zpos;
+        
 
         sel = false;
         selx = sely = selz = selbx = selby = selbz = selcx = selcy = selcz = selb = selbr = 0;
-
+		//用于音效更新
+		bool BlockClick = false;
+		ALfloat BlockPos[3];
         if (!bagOpened) {
-            //从玩家位置发射一条线段
-            for (int i = 0; i < selectPrecision * selectDistance; i++) {
-                double lxl = lx;
-                double lyl = ly;
-                double lzl = lz;
-
-                //线段延伸
-                lx += sin(M_PI / 180 * (Player::heading - 180)) * sin(M_PI / 180 * (Player::lookupdown + 90)) / (double)
-                    selectPrecision;
-                ly += cos(M_PI / 180 * (Player::lookupdown + 90)) / (double)selectPrecision;
-                lz += cos(M_PI / 180 * (Player::heading - 180)) * sin(M_PI / 180 * (Player::lookupdown + 90)) / (double)
-                    selectPrecision;
-
-                //碰到方块
-                if (getBlockInfo(World::getBlock(lround(lx), lround(ly), lround(lz))).isSolid()) {
-                    int x = lround(lx);
-                    int y = lround(ly);
-                    int z = lround(lz);
-                    int xl = lround(lxl);
-                    int yl = lround(lyl);
-                    int zl = lround(lzl);
-
-                    selx = x;
-                    sely = y;
-                    selz = z;
-                    sel = true;
-
-                    //找方块所在区块及位置
-                    selcx = World::getChunkPos(x);
-                    selcy = World::getChunkPos(y);
-                    selcz = World::getChunkPos(z);
-                    selbx = World::getBlockPos(x);
-                    selby = World::getBlockPos(y);
-                    selbz = World::getBlockPos(z);
-
-                    if (auto cp = World::getChunkPtr(selcx, selcy, selcz); cp && cp != World::emptyChunkPtr)
-                        selb = cp->getBlock(selbx, selby, selbz);
-
-                    selbr = World::getBrightness(xl, yl, zl);
-                    selb = World::getBlock(x, y, z);
-                    if (mb == 1 || glfwGetKey(MainWindow, GLFW_KEY_ENTER) == GLFW_PRESS) {
-                        Particles::throwParticle(selb,
-                                                 float(x + rnd() - 0.5f), float(y + rnd() - 0.2f),
-                                                 float(z + rnd() - 0.5f),
-                                                 float(rnd() * 0.2f - 0.1f), float(rnd() * 0.2f - 0.1f),
-                                                 float(rnd() * 0.2f - 0.1f),
-                                                 float(rnd() * 0.01f + 0.02f), int(rnd() * 30) + 30);
-
-                        if (selx != oldselx || sely != oldsely || selz != oldselz) seldes = 0.0;
-                        else {
-                            float Factor = 1.0;
-                            if (Player::inventory[3][Player::indexInHand] == STICK)Factor = 4;
-                            else
-                                Factor = 30.0 / (getBlockInfo(Player::inventory[3][Player::indexInHand]).getHardness() +
-                                    0.1);
-                            if (Factor < 1.0)Factor = 1.0;
-                            if (Factor > 1.7)Factor = 1.7;
-                            seldes += getBlockInfo(selb).getHardness() * (Player::gamemode == Player::Creative
-                                                                              ? 10.0f
-                                                                              : 0.3f) * Factor;
-                            BlockClick = true;
-                            BlockPos[0] = x;
-                            BlockPos[1] = y;
-                            BlockPos[2] = z;
-                        }
-
-                        if (seldes >= 100.0) {
-                            for (int j = 1; j <= 25; j++) {
-                                Particles::throwParticle(selb,
-                                                         float(x + rnd() - 0.5f), float(y + rnd() - 0.2f),
-                                                         float(z + rnd() - 0.5f),
-                                                         float(rnd() * 0.2f - 0.1f), float(rnd() * 0.2f - 0.1f),
-                                                         float(rnd() * 0.2f - 0.1f),
-                                                         float(rnd() * 0.02 + 0.03), int(rnd() * 60) + 30);
-                            }
-                            World::pickblock(x, y, z);
-                            BlockClick = true;
-                            BlockPos[0] = x;
-                            BlockPos[1] = y;
-                            BlockPos[2] = z;
-                        }
-                    }
-                    if ((mb == 2 && !static_cast<bool>(mbp)) || (!chatmode && isPressed(GLFW_KEY_TAB))) {
-                        //鼠标右键
-                        if (Player::inventoryAmount[3][Player::indexInHand] > 0 && isBlock(
-                            Player::inventory[3][Player::indexInHand])) {
-                            //放置方块
-                            if (Player::putBlock(xl, yl, zl, Player::BlockInHand)) {
-                                Player::inventoryAmount[3][Player::indexInHand]--;
-                                if (Player::inventoryAmount[3][Player::indexInHand] == 0)
-                                    Player::inventory[3][Player::
-                                        indexInHand] = Blocks::AIR;
-
-                                BlockClick = true;
-                                BlockPos[0] = x;
-                                BlockPos[1] = y;
-                                BlockPos[2] = z;
-                            }
-                        }
-                        else {
-                            //使用物品
-                            if (Player::inventory[3][Player::indexInHand] == APPLE) {
-                                Player::inventoryAmount[3][Player::indexInHand]--;
-                                if (Player::inventoryAmount[3][Player::indexInHand] == 0)
-                                    Player::inventory[3][Player::
-                                        indexInHand] = Blocks::AIR;
-                                Player::health = Player::healthmax;
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
-
+			
+			auto blockInfo=blockInteraction();
+			BlockPos[0] = blockInfo.first[0];
+			BlockPos[1] = blockInfo.first[1];
+			BlockPos[2] = blockInfo.first[2];
+			BlockClick = blockInfo.second;
             if (selx != oldselx || sely != oldsely || selz != oldselz || mb == 0 && glfwGetKey(
                 MainWindow, GLFW_KEY_ENTER) != GLFW_PRESS)
                 seldes = 0.0;
@@ -310,170 +538,7 @@ public:
             Player::xlookspeed = Player::ylookspeed = 0.0;
 
             if (!chatmode) {
-                //移动！(生命在于运动)
-                if (glfwGetKey(MainWindow, GLFW_KEY_W) || Player::glidingNow) {
-                    if (!WP) {
-                        if (Wprstm == 0.0) { Wprstm = timer(); }
-                        else {
-                            if (timer() - Wprstm <= 0.5) {
-                                Player::Running = true;
-                                Wprstm = 0.0;
-                            }
-                            else Wprstm = timer();
-                        }
-                    }
-                    if (Wprstm != 0.0 && timer() - Wprstm > 0.5) Wprstm = 0.0;
-                    WP = true;
-                    if (!Player::glidingNow) {
-                        Player::xa += -sin(Player::heading * M_PI / 180.0) * Player::speed;
-                        Player::za += -cos(Player::heading * M_PI / 180.0) * Player::speed;
-                    }
-                    else {
-                        Player::xa = sin(M_PI / 180 * (Player::heading - 180)) * sin(
-                            M_PI / 180 * (Player::lookupdown + 90)) * Player::glidingSpeed * speedCast;
-                        Player::ya = cos(M_PI / 180 * (Player::lookupdown + 90)) * Player::glidingSpeed * speedCast;
-                        Player::za = cos(M_PI / 180 * (Player::heading - 180)) * sin(
-                            M_PI / 180 * (Player::lookupdown + 90)) * Player::glidingSpeed * speedCast;
-                        if (Player::ya < 0) Player::ya *= 2;
-                    }
-                }
-                else {
-                    Player::Running = false;
-                    WP = false;
-                }
-                if (Player::Running)Player::speed = runspeed;
-                else Player::speed = walkspeed;
-
-                if (glfwGetKey(MainWindow, GLFW_KEY_S) == GLFW_PRESS && !Player::glidingNow) {
-                    Player::xa += sin(Player::heading * M_PI / 180.0) * Player::speed;
-                    Player::za += cos(Player::heading * M_PI / 180.0) * Player::speed;
-                    Wprstm = 0.0;
-                }
-
-                if (glfwGetKey(MainWindow, GLFW_KEY_A) == GLFW_PRESS && !Player::glidingNow) {
-                    Player::xa += sin((Player::heading - 90) * M_PI / 180.0) * Player::speed;
-                    Player::za += cos((Player::heading - 90) * M_PI / 180.0) * Player::speed;
-                    Wprstm = 0.0;
-                }
-
-                if (glfwGetKey(MainWindow, GLFW_KEY_D) == GLFW_PRESS && !Player::glidingNow) {
-                    Player::xa += -sin((Player::heading - 90) * M_PI / 180.0) * Player::speed;
-                    Player::za += -cos((Player::heading - 90) * M_PI / 180.0) * Player::speed;
-                    Wprstm = 0.0;
-                }
-
-                if (!Player::Flying && !Player::CrossWall) {
-                    double horizontalSpeed = sqrt(Player::xa * Player::xa + Player::za * Player::za);
-                    if (horizontalSpeed > Player::speed && !Player::glidingNow) {
-                        Player::xa *= Player::speed / horizontalSpeed;
-                        Player::za *= Player::speed / horizontalSpeed;
-                    }
-                }
-                else {
-                    if (glfwGetKey(MainWindow, GLFW_KEY_R) == GLFW_PRESS && !Player::glidingNow) {
-                        if (glfwGetKey(MainWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-                            Player::xa = -sin(Player::heading * M_PI / 180.0) * runspeed * 10;
-                            Player::za = -cos(Player::heading * M_PI / 180.0) * runspeed * 10;
-                        }
-                        else {
-                            Player::xa = sin(M_PI / 180 * (Player::heading - 180)) * sin(
-                                M_PI / 180 * (Player::lookupdown + 90)) * runspeed * 20;
-                            Player::ya = cos(M_PI / 180 * (Player::lookupdown + 90)) * runspeed * 20;
-                            Player::za = cos(M_PI / 180 * (Player::heading - 180)) * sin(
-                                M_PI / 180 * (Player::lookupdown + 90)) * runspeed * 20;
-                        }
-                    }
-
-                    if (glfwGetKey(MainWindow, GLFW_KEY_F) == GLFW_PRESS && !Player::glidingNow) {
-                        if (glfwGetKey(MainWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-                            Player::xa = sin(Player::heading * M_PI / 180.0) * runspeed * 10;
-                            Player::za = cos(Player::heading * M_PI / 180.0) * runspeed * 10;
-                        }
-                        else {
-                            Player::xa = -sin(M_PI / 180 * (Player::heading - 180)) * sin(
-                                M_PI / 180 * (Player::lookupdown + 90)) * runspeed * 20;
-                            Player::ya = -cos(M_PI / 180 * (Player::lookupdown + 90)) * runspeed * 20;
-                            Player::za = -cos(M_PI / 180 * (Player::heading - 180)) * sin(
-                                M_PI / 180 * (Player::lookupdown + 90)) * runspeed * 20;
-                        }
-                    }
-                }
-
-                //切换方块
-                if (isPressed(GLFW_KEY_Z) && Player::indexInHand > 0) Player::indexInHand--;
-                if (isPressed(GLFW_KEY_X) && Player::indexInHand < 9) Player::indexInHand++;
-                if ((int)Player::indexInHand + (mwl - mw) < 0)Player::indexInHand = 0;
-                else if ((int)Player::indexInHand + (mwl - mw) > 9)Player::indexInHand = 9;
-                else Player::indexInHand += (char)(mwl - mw);
-                mwl = mw;
-
-                //起跳！
-                if (isPressed(GLFW_KEY_SPACE)) {
-                    if (!Player::inWater) {
-                        if ((Player::OnGround || Player::AirJumps < maxAirJumps) && !Player::Flying && !Player::
-                            CrossWall) {
-                            if (!Player::OnGround) {
-                                Player::jump = 0.3;
-                                Player::AirJumps++;
-                            }
-                            else {
-                                Player::jump = 0.25;
-                                Player::OnGround = false;
-                            }
-                        }
-                        if (Player::Flying || Player::CrossWall) {
-                            Player::ya += walkspeed / 2;
-                            isPressed(GLFW_KEY_SPACE, true);
-                        }
-                        Wprstm = 0.0;
-                    }
-                    else {
-                        Player::ya = walkspeed;
-                        isPressed(GLFW_KEY_SPACE, true);
-                    }
-                }
-
-                if ((glfwGetKey(MainWindow, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(
-                    MainWindow, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) && !Player::glidingNow) {
-                    if (Player::CrossWall || Player::Flying) Player::ya -= walkspeed / 2;
-                    Wprstm = 0.0;
-                }
-
-                if (glfwGetKey(MainWindow, GLFW_KEY_K) && Player::Glide && !Player::OnGround && !Player::glidingNow) {
-                    double h = Player::ypos + Player::height + Player::heightExt;
-                    Player::glidingEnergy = g * h;
-                    Player::glidingSpeed = 0;
-                    Player::glidingNow = true;
-                }
-
-                //各种设置切换
-                if (isPressed(GLFW_KEY_F1)) {
-                    Player::changeGameMode(Player::gamemode == Player::Creative ? Player::Survival : Player::Creative);
-                }
-                if (isPressed(GLFW_KEY_F2)) shouldGetScreenshot = true;
-                if (isPressed(GLFW_KEY_F3)) DebugMode = !DebugMode;
-                if (isPressed(GLFW_KEY_F4)) Player::CrossWall = !Player::CrossWall;
-                if (isPressed(GLFW_KEY_H) && glfwGetKey(MainWindow, GLFW_KEY_F3) == GLFW_PRESS) {
-                    DebugHitbox = !DebugHitbox;
-                    DebugMode = true;
-                }
-                if (Renderer::AdvancedRender) {
-                    if (isPressed(GLFW_KEY_M) && glfwGetKey(MainWindow, GLFW_KEY_F3) == GLFW_PRESS) {
-                        DebugShadow = !DebugShadow;
-                        DebugMode = true;
-                    }
-                }
-                else DebugShadow = false;
-                if (isPressed(GLFW_KEY_G) && glfwGetKey(MainWindow, GLFW_KEY_F3) == GLFW_PRESS) {
-                    DebugMergeFace = !DebugMergeFace;
-                    DebugMode = true;
-                }
-                if (isPressed(GLFW_KEY_F4) && Player::gamemode == Player::Creative)
-                    Player::CrossWall = !Player::CrossWall;
-                if (isPressed(GLFW_KEY_F5)) GUIrenderswitch = !GUIrenderswitch;
-                if (isPressed(GLFW_KEY_F6)) Player::Glide = !Player::Glide;
-                if (isPressed(GLFW_KEY_F7)) Player::spawn();
-                if (isPressed(GLFW_KEY_SLASH)) chatmode = true; //斜杠将会在下面的if(chatmode)里添加
+				playerAction(WP,Wprstm);
             }
 
             if (isPressed(GLFW_KEY_ENTER) == GLFW_PRESS) {
@@ -522,57 +587,14 @@ public:
                 Player::xlookspeed = Player::ylookspeed = 0.0;
             }
         }
-
-        //跳跃
-        if (!Player::glidingNow) {
-            if (!Player::inWater) {
-                if (!Player::Flying && !Player::CrossWall) {
-                    Player::ya = -0.001;
-                    if (Player::OnGround) {
-                        Player::jump = 0.0;
-                        Player::AirJumps = 0;
-                        isPressed(GLFW_KEY_SPACE, true);
-                    }
-                    else {
-                        //自由落体计算
-                        Player::jump -= 0.025;
-                        Player::ya = Player::jump + 0.5 * 0.6 / 900.0;
-                    }
-                }
-                else {
-                    Player::jump = 0.0;
-                    Player::AirJumps = 0;
-                }
-            }
-            else {
-                Player::jump = 0.0;
-                Player::AirJumps = maxAirJumps;
-                isPressed(GLFW_KEY_SPACE, true);
-                if (Player::ya <= 0.001 && !Player::Flying && !Player::CrossWall) {
-                    Player::ya = -0.001;
-                    if (!Player::OnGround) Player::ya -= 0.1;
-                }
-            }
-        }
-
+		playerJump();
         //爬墙
         //if (Player::NearWall && Player::Flying == false && Player::CrossWall == false){
         //    Player::ya += walkspeed
         //    Player::jump = 0.0
         //}
-
-        if (Player::glidingNow) {
-            double& E = Player::glidingEnergy;
-            double oldh = Player::ypos + Player::height + Player::heightExt + Player::ya;
-            double h = oldh;
-            if (E - Player::glidingMinimumSpeed < h * g) {
-                //小于最小速度
-                h = (E - Player::glidingMinimumSpeed) / g;
-            }
-            Player::glidingSpeed = sqrt(2 * (E - g * h));
-            E -= EDrop;
-            Player::ya += h - oldh;
-        }
+		playerGlid();
+        
 
 
         //音效更新
