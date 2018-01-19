@@ -246,6 +246,8 @@
     <ClInclude Include="source\Mob.h" />
     <ClInclude Include="source\ModSupport.h" />
     <ClInclude Include="source\ModLoader.h" />
+    <ClInclude Include="source\Module\ModuleLoader.h" />
+    <ClInclude Include="source\Module\ModuleWalker.h" />
     <ClInclude Include="source\Object.h" />
     <ClInclude Include="source\Particles.h" />
     <ClInclude Include="source\Player.h" />
@@ -258,6 +260,7 @@
     <ClInclude Include="source\TextRenderer.h" />
     <ClInclude Include="source\Textures.h" />
     <ClInclude Include="source\Typedefs.h" />
+    <ClInclude Include="source\Utils\Dylib.h" />
     <ClInclude Include="source\World.h" />
     <ClInclude Include="source\WorldGen.h" />
     <ClInclude Include="source\WorldRenderer.h" />
@@ -296,6 +299,8 @@
     <ClCompile Include="source\Hitbox.cpp" />
     <ClCompile Include="source\Items.cpp" />
     <ClCompile Include="source\ModLoader.cpp" />
+    <ClCompile Include="source\Module\ModuleLoader.cpp" />
+    <ClCompile Include="source\Module\ModuleWalker.cpp" />
     <ClCompile Include="source\NEWorld.cpp" />
     <ClCompile Include="source\Particles.cpp" />
     <ClCompile Include="source\Player.cpp" />
@@ -305,6 +310,7 @@
     <ClCompile Include="source\ShadowMaps.cpp" />
     <ClCompile Include="source\TextRenderer.cpp" />
     <ClCompile Include="source\Textures.cpp" />
+    <ClCompile Include="source\Utils\Dylib.cpp" />
     <ClCompile Include="source\World.cpp" />
     <ClCompile Include="source\WorldGen.cpp" />
     <ClCompile Include="source\WorldRenderer.cpp" />

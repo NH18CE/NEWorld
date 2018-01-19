@@ -46,7 +46,7 @@ void ApplicationBeforeLaunch() {
 
 void ApplicationAfterLaunch() {
     loadTextures();
-    Mod::ModLoader::loadMods();
+    Module::ModLoader::loadMods();
     //初始化音频系统
     AudioSystem::Init();
 }
@@ -83,7 +83,7 @@ int main() {
 
 void AppCleanUp() {
     World::destroyAllChunks();
-    Mod::ModLoader::unloadMods();
+    Module::ModLoader::unloadMods();
 }
 
 template <typename T>

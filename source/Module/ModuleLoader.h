@@ -1,5 +1,5 @@
 // 
-// NEWorld: API.h
+// NEWorld: ModLoader.h
 // NEWorld: A Free Game with Similar Rules to Minecraft.
 // Copyright (C) 2015-2018 NEWorld Team
 // 
@@ -18,13 +18,3 @@
 // 
 
 #pragma once
-#include <functional>
-#include "ModSupport.h"
-
-extern std::vector<Command> commands;
-
-namespace Module {
-    extern std::map<std::string, void*> sharedData;
-
-    APIPackage getPackage();
-}

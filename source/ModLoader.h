@@ -23,7 +23,16 @@
 #include "ModLoader.h"
 #include "ModSupport.h"
 
-namespace Mod {
+namespace Module {
+    struct Version {
+        int vMajor, vMinor, vRevision, vBuild;
+    };
+
+    struct DependencyInfo {
+        std::string name;
+        Version version;
+    };
+    
     class ModLoader {
     public:
         static std::vector<ModInfo> mods;
@@ -34,11 +43,5 @@ namespace Mod {
         enum ModLoadStatus { Success, MissDependence, InitFailed };
 
         static ModLoadStatus loadSingleMod(const std::string& modPath);
-
-        typedef void* ModCall;
-        using FuncPtr = void (*)();
-        static ModCall loadMod(const std::string& filename);
-        static FuncPtr getFunction(ModCall call, const std::string& functionName);
-        static void unloadMod(ModCall call);
     };
 }

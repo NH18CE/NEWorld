@@ -21,9 +21,9 @@
 #include "Player.h"
 #include "World.h"
 
-std::map<std::string, void*> Mod::sharedData;
+std::map<std::string, void*> Module::sharedData;
 
-APIPackage Mod::getPackage() {
+APIPackage Module::getPackage() {
     static APIPackage api;
     static bool init = false;
     if (init) return api;

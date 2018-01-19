@@ -24,6 +24,8 @@
 #include "Frustum.h"
 #include "Command.h"
 #include "Chunk.h"
+#include "Utils/Dylib.h"
+
 typedef unsigned char uint8_t;
 typedef unsigned int onlineid;
 typedef unsigned short item;
@@ -33,7 +35,7 @@ struct ModInfo {
     char name[128];
     char version[128];
     char dependence[128];
-    void* call;
+    Library lib;
 };
 
 struct PlayerData {
