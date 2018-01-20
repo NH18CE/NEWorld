@@ -581,11 +581,11 @@ namespace World {
         World::sortChunkLoadUnloadList(lround(Player::xpos), lround(Player::ypos), lround(Player::zpos));
 
         //卸载区块(Unload chunks)
-        for (auto&&[dist, cp] : World::chunkUnloadList)
+        for (auto&& [dist, cp] : World::chunkUnloadList)
             World::deleteChunk(cp->cx, cp->cy, cp->cz);
 
         //加载区块(Load chunks)
-        for (auto&&[dist, pos] : World::chunkLoadList) {
+        for (auto&& [dist, pos] : World::chunkLoadList) {
             auto c = World::addChunk(pos.x, pos.y, pos.z);
             c->load(false);
             if (c->mIsEmpty) {

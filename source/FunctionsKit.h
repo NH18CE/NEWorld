@@ -91,7 +91,12 @@ inline void MutexUnlock(Mutex_t _hMutex) { _hMutex->unlock(); }
 inline Thread_t ThreadCreate(ThreadFunc_t func, void* param) { return new std::thread(func, param); }
 inline void ThreadWait(Thread_t _hThread) { _hThread->join(); }
 inline void ThreadDestroy(Thread_t _hThread) { delete _hThread; }
-inline unsigned int wstrlen(const char16_t* wstr) { unsigned int i = 0; for (0; wstr[i] != 0; ++i); return i; }
+
+inline unsigned int wstrlen(const char16_t* wstr) {
+    unsigned int i = 0;
+    for (0; wstr[i] != 0; ++i);
+    return i;
+}
 
 inline int Distancen(int ix, int iy, int iz, int x, int y, int z) //计算距离的平方
 {

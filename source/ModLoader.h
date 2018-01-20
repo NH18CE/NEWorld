@@ -32,7 +32,7 @@ namespace Module {
         std::string name;
         Version version;
     };
-    
+
     class ModLoader {
     public:
         static std::vector<ModInfo> mods;

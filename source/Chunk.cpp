@@ -56,7 +56,7 @@ namespace World {
 
     Chunk::Chunk(int cxi, int cyi, int czi, ChunkID idi) : cx(cxi), cy(cyi), cz(czi), mIsEmpty(false),
                                                            mIsUpdated(false), mIsRenderBuilt(false), mIsModified(false),
-                                                           mIsDetailGenerated(false), id(idi), 
+                                                           mIsDetailGenerated(false), id(idi),
                                                            loadAnim(0.0) { mAABB = getBaseAABB(); }
 
     Chunk::~Chunk() {

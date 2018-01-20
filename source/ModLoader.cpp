@@ -57,16 +57,23 @@ namespace Module {
     // Dependencies ::= eps | Dependency | Dependency Dependencies
     // File ::= Version Version Dependencies
 
-    std::istream& operator >> (std::istream& stream, Version& ver) {
+    std::istream& operator >>(std::istream& stream, Version& ver) {
         stream.ignore(0xEFFFFFFF, 'v');
         for (auto i = 0; i < 4; ++i) {
             auto temp = 0;
-            while(isdigit(stream.peek())) (temp *= 10) += (stream.get() - '0');
+            while (isdigit(stream.peek())) (temp *= 10) += (stream.get() - '0');
             switch (i) {
-            case 0: ver.vMajor = temp; stream.get(); break;
-            case 1: ver.vMinor = temp; stream.get(); break;
-            case 2: ver.vRevision = temp; stream.get(); break;
-            case 3: ver.vBuild = temp; break;
+            case 0: ver.vMajor = temp;
+                stream.get();
+                break;
+            case 1: ver.vMinor = temp;
+                stream.get();
+                break;
+            case 2: ver.vRevision = temp;
+                stream.get();
+                break;
+            case 3: ver.vBuild = temp;
+                break;
             default: break;
             };
         }
@@ -76,23 +83,23 @@ namespace Module {
     void loadModuleInfo(const std::string& name) {
         LoaderEnt ent;
         ent.thisInfo.name = name;
-        std::ifstream info { "Mods/" + name + "MetaInfo.txt" };
+        std::ifstream info{"Mods/" + name + "MetaInfo.txt"};
         if (info.good()) {
             info >> ent.thisInfo.version >> ent.thisInfo.version;
-            for(;;) {
+            for (;;) {
                 DependencyInfo dinfo;
                 info >> dinfo.name >> dinfo.version;
                 if (!info.fail())
                     ent.dependencies.push_back(std::move(dinfo));
                 else
                     break;
-            } 
+            }
             loaderGraph.emplace(name, std::move(ent));
         }
     }
 
     void load(LoaderEnt& meta) {
-        if (!meta.dependencies.empty()) 
+        if (!meta.dependencies.empty())
             for (auto& x : meta.dependencies)
                 load(loaderGraph[x.name]);
         meta.thisInfo.lib.load("Mods/" + meta.thisInfo.name + "/Entry.dll");
@@ -106,8 +113,8 @@ namespace Module {
     }
 
     void load() {
-        for (auto& [name, meta] : loaderGraph) 
-            if (!meta.isLoaded) 
+        for (auto& [name, meta] : loaderGraph)
+            if (!meta.isLoaded)
                 load(meta);
     }
 }
@@ -132,7 +139,7 @@ void Module::ModLoader::loadMods() {
 
 //加载单个Module，loadMods会调用该函数
 Module::ModLoader::ModLoadStatus Module::ModLoader::loadSingleMod(const std::string& modPath) {
-    Library lib { modPath };
+    Library lib{modPath};
     auto init = lib.get<bool(*)(APIPackage)>("init");
     auto info = lib.get<ModInfo(*)()>("getModInfo")(); //获得Module信息
     std::cout << "[Console][Game]Loading Mod " << info.name << "[" << info.version << "]" << std::endl;
@@ -153,6 +160,4 @@ Module::ModLoader::ModLoadStatus Module::ModLoader::loadSingleMod(const std::str
     return Success;
 }
 
-void Module::ModLoader::unloadMods() {
-    mods.clear();
-}
+void Module::ModLoader::unloadMods() { mods.clear(); }

@@ -64,25 +64,27 @@ namespace Renderer {
 
         constexpr VertexFormat() = default;
 
-        constexpr VertexFormat(int textureElementCount, int colorElementCount, int normalElementCount, int coordinateElementCount, int oAttrC = 0)
-            : textureCount(textureElementCount), colorCount(colorElementCount), normalCount(normalElementCount), coordinateCount(coordinateElementCount),
-            vertexAttributeCount(textureElementCount + colorElementCount + normalElementCount + coordinateElementCount + oAttrC) {
-        }
+        constexpr VertexFormat(int textureElementCount, int colorElementCount, int normalElementCount,
+                               int coordinateElementCount, int oAttrC = 0)
+            : textureCount(textureElementCount), colorCount(colorElementCount), normalCount(normalElementCount),
+              coordinateCount(coordinateElementCount),
+              vertexAttributeCount(
+                  textureElementCount + colorElementCount + normalElementCount + coordinateElementCount + oAttrC) { }
     };
 
     class VertexArray {
     public:
         VertexArray(int maxVertexes, const VertexFormat& format) :
             mMaxVertexes(maxVertexes), mVertexes(0), mFormat(format),
-            mData(std::make_unique<float[]>(mMaxVertexes * format.vertexAttributeCount))
-            {}
+            mData(std::make_unique<float[]>(mMaxVertexes * format.vertexAttributeCount)) {}
+
         VertexArray(const VertexArray&) = delete;
         VertexArray& operator=(const VertexArray&) = delete;
         VertexArray(VertexArray&&) = delete;
         VertexArray& operator=(VertexArray&&) = delete;
         ~VertexArray() = default;
 
-        void clear() noexcept {  mVertexes = 0; }
+        void clear() noexcept { mVertexes = 0; }
 
         void addPrimitive(size_t size, std::initializer_list<float> d) noexcept {
             std::copy(d.begin(), d.end(), mData.get() + mVertexes * mFormat.vertexAttributeCount);
@@ -102,7 +104,8 @@ namespace Renderer {
         void setFormat(const VertexFormat& format) {
             if (mFormat.vertexAttributeCount < format.vertexAttributeCount)
                 mData = std::make_unique<float[]>(mMaxVertexes * format.vertexAttributeCount);
-            mVertexes = 0; mFormat = format;
+            mVertexes = 0;
+            mFormat = format;
         }
 
     private:
@@ -132,15 +135,15 @@ namespace Renderer {
         explicit VertexBuffer(const VertexArray& va);
 
         VertexBuffer& operator=(VertexBuffer&& rhs) noexcept {
-            id = rhs.id; vertexes = rhs.vertexes; format = rhs.format;
+            id = rhs.id;
+            vertexes = rhs.vertexes;
+            format = rhs.format;
             rhs.vertexes = rhs.id = 0;
             rhs.format = VertexFormat();
             return *this;
         }
 
-        ~VertexBuffer() {
-            destroy();
-        }
+        ~VertexBuffer() { destroy(); }
 
         // upload new data
         void update(const VertexArray& va);
@@ -151,9 +154,7 @@ namespace Renderer {
         // Destroy vertex buffer
         void destroy();
 
-        bool isEmpty() const noexcept {
-            return vertexes == 0;
-        }
+        bool isEmpty() const noexcept { return vertexes == 0; }
 
     private:
         // Buffer ID

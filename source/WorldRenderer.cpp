@@ -55,7 +55,7 @@ namespace WorldRenderer {
                 m[14] = cr.cz * 16.0f - static_cast<float>(z);
                 Renderer::shaders[Renderer::ActiveShader].setUniform("TransMat", m);
             }
-            cr.chk->vbo[buffer].render();          
+            cr.chk->vbo[buffer].render();
             glPopMatrix();
         }
 

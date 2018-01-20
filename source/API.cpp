@@ -31,7 +31,7 @@ APIPackage Module::getPackage() {
     api.getBlock = [](int x, int y, int z) { return World::getBlock(x, y, z); };
     api.setBlock = [](int x, int y, int z, Block blk) { World::setblock(x, y, z, blk); };
     api.getCommand = [](const std::string& s) -> Command*
-                        {
+                            {
         for (auto& command : commands)
             if (command.identifier == s) return &command;
         return nullptr;
@@ -43,7 +43,7 @@ APIPackage Module::getPackage() {
         return true;
     };
     api.getSharedData = [](const std::string& key) -> void*
-                        {
+                            {
         std::map<std::string, void*>::iterator iter = sharedData.find(key);
         if (iter == sharedData.end()) return nullptr;
         return iter->second;

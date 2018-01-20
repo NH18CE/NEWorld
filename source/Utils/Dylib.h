@@ -39,15 +39,11 @@ public:
 
     ~Library();
 
-    template<class T> 
-    auto get(const std::string& name) const {
-        return get<T>(name.c_str());
-    }
+    template <class T>
+    auto get(const std::string& name) const { return get<T>(name.c_str()); }
 
-    template<class T> 
-    auto get(const char* name) const {
-        return reinterpret_cast<std::decay_t<T>>(getFuncImpl(mDllHandle, name));
-    }
+    template <class T>
+    auto get(const char* name) const { return reinterpret_cast<std::decay_t<T>>(getFuncImpl(mDllHandle, name)); }
 
     explicit operator bool() const noexcept { return isLoaded(); }
 

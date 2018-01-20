@@ -33,9 +33,7 @@ namespace {
         return handle;
     }
 
-    void freeLibrary(Library::HandleType handle) {
-        FreeLibrary(reinterpret_cast<HMODULE>(handle));
-    }
+    void freeLibrary(Library::HandleType handle) { FreeLibrary(reinterpret_cast<HMODULE>(handle)); }
 }
 
 Library::FcnProcAddr Library::getFuncImpl(HandleType handle, const std::string& name) {
@@ -68,10 +66,8 @@ Library::FcnProcAddr Library::getFuncImpl(HandleType handle, const std::string& 
 
 #endif
 
-    
-Library::Library(const std::string& filename) : Library {} {
-    load(filename);
-}
+
+Library::Library(const std::string& filename) : Library {} { load(filename); }
 
 Library::Library(Library&& library) noexcept : Library {} {
     std::swap(library.mDllHandle, mDllHandle);

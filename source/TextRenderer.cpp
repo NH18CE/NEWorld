@@ -125,7 +125,7 @@ namespace TextRenderer {
         for (unsigned int k = 0; k < wstrlen(wstr); k++) {
             const int uc = wstr[k];
             const auto& c = chars[uc];
-            if (!c.aval) 
+            if (!c.aval)
                 loadchar(uc);
             res += c.advance / stretch;
         }
@@ -148,7 +148,7 @@ namespace TextRenderer {
                 span = 0;
                 continue;
             }
-            if (!c.aval) 
+            if (!c.aval)
                 loadchar(uc);
 
             glBindTexture(GL_TEXTURE_2D, c.tex);
