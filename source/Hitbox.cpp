@@ -51,7 +51,7 @@ namespace Hitbox {
         return false;
     }
 
-    bool Hit(const AABB& boxA, const AABB& boxB) {
+    bool hit(const AABB& boxA, const AABB& boxB) {
         return inXclip(boxA, boxB) && inYclip(boxA, boxB) && inZclip(boxA, boxB);
     }
 
@@ -79,7 +79,7 @@ namespace Hitbox {
         return movedist;
     }
 
-    AABB Expand(const AABB& box, double xe, double ye, double ze) {
+    AABB expand(const AABB& box, double xe, double ye, double ze) {
         AABB ret = box;
         if (xe > 0.0) ret.xmax += xe;
         else ret.xmin += xe;
@@ -90,7 +90,7 @@ namespace Hitbox {
         return ret;
     }
 
-    void Move(AABB& box, double xa, double ya, double za) {
+    void move(AABB& box, double xa, double ya, double za) {
         box.xmin += xa;
         box.ymin += ya;
         box.zmin += za;
@@ -99,12 +99,11 @@ namespace Hitbox {
         box.zmax += za;
     }
 
-    void MoveTo(AABB& box, double x, double y, double z) {
-        double l, w, h;
+    void moveTo(AABB& box, double x, double y, double z) {
         //注意在执行这个过程时，参数中的xyz坐标将成为移动后的AABB的中心，而不是初始化AABB时的原点！
-        l = (box.xmax - box.xmin) / 2;
-        w = (box.ymax - box.ymin) / 2;
-        h = (box.zmax - box.zmin) / 2;
+        const auto l = (box.xmax - box.xmin) / 2;
+        const auto w = (box.ymax - box.ymin) / 2;
+        const auto h = (box.zmax - box.zmin) / 2;
         box.xmin = x - l;
         box.ymin = y - w;
         box.zmin = z - h;

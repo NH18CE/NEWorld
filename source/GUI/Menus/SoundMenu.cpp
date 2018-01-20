@@ -22,18 +22,18 @@
 namespace Menus {
     class SoundMenu : public GUI::Form {
     private:
-        GUI::label title;
-        GUI::button backbtn;
-        GUI::trackbar Musicbar, SoundBar;
+        GUI::Label title;
+        GUI::Button backbtn;
+        GUI::Trackbar Musicbar, SoundBar;
 
         void onLoad() override {
-            title = GUI::label(GetStrbyKey("NEWorld.Sound.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
-            Musicbar = GUI::trackbar(GetStrbyKey("NEWorld.Sound.MusicGain"), 100, AudioSystem::BGMGain * 300, -200, 201,
+            title = GUI::Label(GetStrbyKey("NEWorld.Sound.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
+            Musicbar = GUI::Trackbar(GetStrbyKey("NEWorld.Sound.MusicGain"), 100, AudioSystem::BGMGain * 300, -200, 201,
                                      60, 84, 0.5, 0.5, 0.0, 0.0);
-            SoundBar = GUI::trackbar(GetStrbyKey("NEWorld.Sound.SoundGain"), 100, AudioSystem::SoundGain * 300, -200,
+            SoundBar = GUI::Trackbar(GetStrbyKey("NEWorld.Sound.SoundGain"), 100, AudioSystem::SoundGain * 300, -200,
                                      201, 90, 114, 0.5, 0.5, 0.0, 0.0);
-            backbtn = GUI::button(GetStrbyKey("NEWorld.render.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            registerControls(4, &title, &Musicbar, &SoundBar, &backbtn);
+            backbtn = GUI::Button(GetStrbyKey("NEWorld.render.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
+            registerControls({ &title, &Musicbar, &SoundBar, &backbtn });
         }
 
         void onUpdate() override {
@@ -49,9 +49,9 @@ namespace Menus {
             EFX::UpdateEAXprop();
             float Pos[] = {0.0f, 0.0f, 0.0f};
             AudioSystem::Update(Pos, false, false, Pos, false, false);
-            if (backbtn.clicked) GUI::PopPage();
+            if (backbtn.clicked) GUI::popPage();
         }
     };
 
-    void Soundmenu() { PushPage(new SoundMenu); }
+    void Soundmenu() { pushPage(new SoundMenu); }
 }

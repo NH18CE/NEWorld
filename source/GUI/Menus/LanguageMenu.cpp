@@ -23,21 +23,21 @@
 
 struct Langinfo {
     std::string Symbol, EngSymbol, Name;
-    GUI::button* Button;
+    GUI::Button* Button;
 };
 
 namespace Menus {
     class Language : public GUI::Form {
     private:
         std::deque<Langinfo> Langs;
-        GUI::label title;
-        GUI::button backbtn;
+        GUI::Label title;
+        GUI::Button backbtn;
 
         void onLoad() override {
             Langs.clear();
-            title = GUI::label(GetStrbyKey("NEWorld.language.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
-            backbtn = GUI::button(GetStrbyKey("NEWorld.language.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            registerControls(2, &title, &backbtn);
+            title = GUI::Label(GetStrbyKey("NEWorld.language.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
+            backbtn = GUI::Button(GetStrbyKey("NEWorld.language.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
+            registerControls({ &title, &backbtn });
             std::ifstream index("Lang/Langs.txt");
             int count;
             index >> count;
@@ -48,9 +48,9 @@ namespace Menus {
                 std::getline(LF, Info.EngSymbol);
                 std::getline(LF, Info.Name);
                 LF.close();
-                Info.Button = new GUI::button(Info.EngSymbol + "--" + Info.Name, -200, 200, i * 36 + 42, i * 36 + 72,
+                Info.Button = new GUI::Button(Info.EngSymbol + "--" + Info.Name, -200, 200, i * 36 + 42, i * 36 + 72,
                                               0.5, 0.5, 0.0, 0.0);
-                registerControls(1, Info.Button);
+                registerControls({ Info.Button });
                 Langs.push_back(Info);
             }
             index.close();
@@ -62,10 +62,10 @@ namespace Menus {
             EFX::UpdateEAXprop();
             float Pos[] = {0.0f, 0.0f, 0.0f};
             AudioSystem::Update(Pos, false, false, Pos, false, false);
-            if (backbtn.clicked) GUI::PopPage();
+            if (backbtn.clicked) GUI::popPage();
             for (auto& Lang : Langs) {
                 if (Lang.Button->clicked) {
-                    GUI::PopPage();
+                    GUI::popPage();
                     if (Globalization::Cur_Lang != Lang.Symbol) {
                         Globalization::LoadLang(Lang.Symbol);
                         GUI::BackToMain();
@@ -77,7 +77,7 @@ namespace Menus {
 
         void onLeave() override {
             for (auto& Lang : Langs) {
-                for (std::vector<GUI::controls*>::iterator iter = children.begin(); iter != children.end();) {
+                for (std::vector<GUI::Controls*>::iterator iter = children.begin(); iter != children.end();) {
                     if ((*iter)->id == Lang.Button->id) iter = children.erase(iter);
                     else ++iter;
                 }
@@ -87,5 +87,5 @@ namespace Menus {
         }
     };
 
-    void languagemenu() { PushPage(new Language); }
+    void languagemenu() { pushPage(new Language); }
 }

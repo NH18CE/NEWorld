@@ -83,7 +83,7 @@ namespace Module {
     void loadModuleInfo(const std::string& name) {
         LoaderEnt ent;
         ent.thisInfo.name = name;
-        std::ifstream info{"Mods/" + name + "MetaInfo.txt"};
+        std::ifstream info{"Mods/" + name + "/MetaInfo.txt"};
         if (info.good()) {
             info >> ent.thisInfo.version >> ent.thisInfo.version;
             for (;;) {

@@ -145,7 +145,7 @@ namespace World {
                         blockbox.ymax = b + 0.5;
                         blockbox.zmin = c - 0.5;
                         blockbox.zmax = c + 0.5;
-                        if (Hit(box, blockbox)) res.push_back(blockbox);
+                        if (hit(box, blockbox)) res.push_back(blockbox);
                     }
                 }
             }
@@ -165,7 +165,7 @@ namespace World {
                         blockbox.ymax = b + 0.5;
                         blockbox.zmin = c - 0.5;
                         blockbox.zmax = c + 0.5;
-                        if (Hit(box, blockbox)) return true;
+                        if (hit(box, blockbox)) return true;
                     }
                 }
             }

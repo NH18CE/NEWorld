@@ -23,7 +23,6 @@
 #include "Textures.h"
 #include "TextRenderer.h"
 #include "Renderer.h"
-#include "World.h"
 #include "Items.h"
 #include <iostream>
 
@@ -35,7 +34,7 @@ void splashScreen() {
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glBindTexture(GL_TEXTURE_2D, splTex);
-        glColor4f((float)i / 256, (float)i / 256, (float)i / 256, 1.0);
+        glColor3f(static_cast<float>(i) / 256, static_cast<float>(i) / 256, static_cast<float>(i) / 256);
         glBegin(GL_QUADS);
         glTexCoord2f(0.0, 1.0);
         glVertex2i(-1, 1);
@@ -67,7 +66,8 @@ void createWindow() {
     glfwSetMouseButtonCallback(MainWindow, &MouseButtonFunc);
     glfwSetScrollCallback(MainWindow, &MouseScrollFunc);
     glfwSetCharCallback(MainWindow, &CharInputFunc);
-    if (ppistretch) GUI::InitStretch();
+    glfwSetWindowSizeLimits(MainWindow, 640, 360, GLFW_DONT_CARE, GLFW_DONT_CARE);
+    if (ppistretch) GUI::initStretch();
 }
 
 void setupScreen() {
@@ -148,11 +148,8 @@ void loadTextures() {
 }
 
 void WindowSizeFunc(GLFWwindow* win, int width, int height) {
-    if (width < 640) width = 640;
-    if (height < 360) height = 360;
     windowwidth = width;
-    windowheight = height > 0 ? height : 1;
-    glfwSetWindowSize(win, width, height);
+    windowheight = height;
     setupScreen();
 }
 

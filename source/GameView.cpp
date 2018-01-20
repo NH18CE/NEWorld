@@ -1744,7 +1744,7 @@ public:
 };
 
 GameDView* Game = nullptr;
-void GameView() { PushPage(Game = new GameDView); }
+void GameView() { pushPage(Game = new GameDView); }
 
 ThreadFunc updateThreadFunc(void*) {
     Game->GameThreadloop();

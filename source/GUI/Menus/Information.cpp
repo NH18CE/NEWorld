@@ -39,12 +39,12 @@ std::string Str[] = {
 namespace Menus {
     class Info : public GUI::Form {
     private:
-        GUI::label title;
-        GUI::button backbtn;
+        GUI::Label title;
+        GUI::Button backbtn;
 
         void onLoad() override {
-            backbtn = GUI::button(GetStrbyKey("NEWorld.language.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            registerControls(1, &backbtn);
+            backbtn = GUI::Button(GetStrbyKey("NEWorld.language.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
+            registerControls({ &backbtn });
         }
 
         void onRender() override {
@@ -57,9 +57,9 @@ namespace Menus {
             EFX::UpdateEAXprop();
             float Pos[] = {0.0f, 0.0f, 0.0f};
             AudioSystem::Update(Pos, false, false, Pos, false, false);
-            if (backbtn.clicked) GUI::PopPage();
+            if (backbtn.clicked) GUI::popPage();
         }
     };
 
-    void Information() { PushPage(new Info); }
+    void Information() { pushPage(new Info); }
 }

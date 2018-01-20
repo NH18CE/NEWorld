@@ -41,14 +41,14 @@ namespace Particles {
         dy = ptc.ysp;
         dz = ptc.zsp;
 
-        std::vector<Hitbox::AABB> Hitboxes = World::getHitboxes(Expand(ptc.hb, dx, dy, dz));
+        std::vector<Hitbox::AABB> Hitboxes = World::getHitboxes(expand(ptc.hb, dx, dy, dz));
         int hitnum = Hitboxes.size();
         for (int i = 0; i < hitnum; i++) { dy = maxMoveOnYclip(ptc.hb, Hitboxes[i], dy); }
-        Move(ptc.hb, 0.0, dy, 0.0);
+        move(ptc.hb, 0.0, dy, 0.0);
         for (int i = 0; i < hitnum; i++) { dx = maxMoveOnXclip(ptc.hb, Hitboxes[i], dx); }
-        Move(ptc.hb, dx, 0.0, 0.0);
+        move(ptc.hb, dx, 0.0, 0.0);
         for (int i = 0; i < hitnum; i++) { dz = maxMoveOnZclip(ptc.hb, Hitboxes[i], dz); }
-        Move(ptc.hb, 0.0, 0.0, dz);
+        move(ptc.hb, 0.0, 0.0, dz);
 
         ptc.xpos += dx;
         ptc.ypos += dy;

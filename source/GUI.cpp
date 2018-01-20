@@ -220,13 +220,12 @@ namespace GUI {
 
     //Get the Screen Physical Size and set stretch
     //NEVER CALL THIS FUNCTION BEFORE THE CONTEXT IS CREATED
-    void InitStretch() {
+    void initStretch() {
         ppistretch = true;
         glfwGetMonitorPhysicalSize(glfwGetPrimaryMonitor(), &nScreenWidth,
                                    &nScreenHeight);
-        int vmc;
-        const GLFWvidmode* mode = glfwGetVideoModes(glfwGetPrimaryMonitor(), &vmc);
-        double ppi = static_cast<double>(mode[vmc - 1].width) / (static_cast<double>(nScreenWidth) / 25.4f);
+        const auto mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        double ppi = static_cast<double>(mode->width) / (static_cast<double>(nScreenWidth) / 25.4f);
         stretch = ppi / stdppi;
         //Calaulate the scale and resize the window
         windowwidth = static_cast<int>(windowwidth * stretch);
@@ -235,7 +234,7 @@ namespace GUI {
         TextRenderer::resize();
     }
 
-    void EndStretch() {
+    void endStretch() {
         ppistretch = false;
         windowwidth = static_cast<int>(windowwidth / stretch);
         windowheight = static_cast<int>(windowheight / stretch);
@@ -244,25 +243,25 @@ namespace GUI {
         TextRenderer::resize();
     }
 
-    void controls::updatepos() {
-        xmin = static_cast<int>(windowwidth * _xmin_b / stretch) + _xmin_r;
-        ymin = static_cast<int>(windowheight * _ymin_b / stretch) + _ymin_r;
-        xmax = static_cast<int>(windowwidth * _xmax_b / stretch) + _xmax_r;
-        ymax = static_cast<int>(windowheight * _ymax_b / stretch) + _ymax_r;
+    void Controls::updatepos() {
+        xmin = static_cast<int>(windowwidth * _xmin_b / stretch) + mXminR;
+        ymin = static_cast<int>(windowheight * _ymin_b / stretch) + mYminR;
+        xmax = static_cast<int>(windowwidth * _xmax_b / stretch) + mXmaxR;
+        ymax = static_cast<int>(windowheight * _ymax_b / stretch) + mYmaxR;
     }
 
-    void controls::resize(int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b, double ya_b) {
-        _xmin_r = xi_r;
-        _xmax_r = xa_r;
-        _ymin_r = yi_r;
-        _ymax_r = ya_r;
+    void Controls::resize(int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b, double ya_b) {
+        mXminR = xi_r;
+        mXmaxR = xa_r;
+        mYminR = yi_r;
+        mYmaxR = ya_r;
         _xmin_b = xi_b;
         _xmax_b = xa_b;
         _ymin_b = yi_b;
         _ymax_b = ya_b;
     }
 
-    void label::update() {
+    void Label::update() {
         //更新标签状态
         if (parent->mx >= xmin && parent->mx <= xmax && parent->my >= ymin && parent->my <= ymax) //鼠标悬停
             mouseon = true;
@@ -273,13 +272,11 @@ namespace GUI {
         focused = parent->focusid == id; //焦点
     }
 
-    void label::render() {
-        //渲染标签
-        float fcR, fcG, fcB, fcA;
-        fcR = FgR;
-        fcG = FgG;
-        fcB = FgB;
-        fcA = FgA;
+    void Label::render() {
+        float fcR = FgR;
+        float fcG = FgG;
+        float fcB = FgB;
+        float fcA = FgA;
         if (mouseon) {
             fcR = FgR * 1.2f;
             fcG = FgG * 1.2f;
@@ -306,7 +303,7 @@ namespace GUI {
         TextRenderer::renderString((xmin + xmax - TextRenderer::getStrWidth(text)) / 2, (ymin + ymax - 20) / 2, text);
     }
 
-    void button::update() {
+    void Button::update() {
         if (!enabled) {
             mouseon = false, focused = false, pressed = false, clicked = false;
             return;
@@ -334,13 +331,11 @@ namespace GUI {
         if (clicked)AudioSystem::ClickEvent();
     }
 
-    void button::render() {
-        //渲染按钮
-        float fcR, fcG, fcB, fcA;
-        fcR = FgR;
-        fcG = FgG;
-        fcB = FgB;
-        fcA = FgA;
+    void Button::render() {
+        float fcR = FgR;
+        float fcG = FgG;
+        float fcB = FgB;
+        float fcA = FgA;
         if (mouseon) {
             fcR = FgR * 1.2f;
             fcG = FgG * 1.2f;
@@ -405,7 +400,7 @@ namespace GUI {
         TextRenderer::renderString((xmin + xmax - TextRenderer::getStrWidth(text)) / 2, (ymin + ymax - 20) / 2, text);
     }
 
-    void trackbar::update() {
+    void Trackbar::update() {
         if (!enabled) {
             mouseon = false, focused = false, pressed = false;
             return;
@@ -433,18 +428,15 @@ namespace GUI {
         if (barpos >= xmax - xmin - barwidth) barpos = xmax - xmin - barwidth - 1;
     }
 
-    void trackbar::render() {
-        //渲染TrackBar（How can I translate it?）
-        float fcR, fcG, fcB, fcA;
-        float bcR, bcG, bcB, bcA;
-        fcR = FgR;
-        fcG = FgG;
-        fcB = FgB;
-        fcA = FgA;
-        bcR = BgR;
-        bcG = BgG;
-        bcB = BgB;
-        bcA = BgA;
+    void Trackbar::render() {
+        float fcR = FgR;
+        float fcG = FgG;
+        float fcB = FgB;
+        float fcA = FgA;
+        float bcR = BgR;
+        float bcG = BgG;
+        float bcB = BgB;
+        float bcA = BgA;
         if (mouseon) {
             fcR = FgR * 1.2f;
             fcG = FgG * 1.2f;
@@ -525,7 +517,7 @@ namespace GUI {
         TextRenderer::renderString((xmin + xmax - TextRenderer::getStrWidth(text)) / 2, ymin, text);
     }
 
-    void textbox::update() {
+    void Textbox::update() {
         if (!enabled) {
             mouseon = false, focused = false, pressed = false;
             return;
@@ -557,13 +549,11 @@ namespace GUI {
         }
     }
 
-    void textbox::render() {
-        //渲染文本框
-        float bcR, bcG, bcB, bcA;
-        bcR = BgR;
-        bcG = BgG;
-        bcB = BgB;
-        bcA = BgA;
+    void Textbox::render() {
+        float bcR = BgR;
+        float bcG = BgG;
+        float bcB = BgB;
+        float bcA = BgA;
         if (!enabled) {
             bcR = BgR * 0.5f;
             bcG = BgG * 0.5f;
@@ -624,7 +614,7 @@ namespace GUI {
         TextRenderer::renderString(xmin, (ymin + ymax - 20) / 2, text);
     }
 
-    void vscroll::update() {
+    void Vscroll::update() {
         if (!enabled) {
             mouseon = false, focused = false, pressed = false;
             return;
@@ -679,18 +669,15 @@ namespace GUI {
             barpos = ymax - ymin - barheight - 40;
     }
 
-    void vscroll::render() {
-        //渲染滚动条
-        float fcR, fcG, fcB, fcA;
-        float bcR, bcG, bcB, bcA;
-        fcR = FgR;
-        fcG = FgG;
-        fcB = FgB;
-        fcA = FgA;
-        bcR = BgR;
-        bcG = BgG;
-        bcB = BgB;
-        bcA = BgA;
+    void Vscroll::render() {
+        float fcR = FgR;
+        float fcG = FgG;
+        float fcB = FgB;
+        float fcA = FgA;
+        float bcR = BgR;
+        float bcG = BgG;
+        float bcB = BgB;
+        float bcA = BgA;
         if (mouseon) {
             fcR = FgR * 1.2f;
             fcG = FgG * 1.2f;
@@ -802,9 +789,9 @@ namespace GUI {
         glEnd();
     }
 
-    void imagebox::update() { }
+    void Imagebox::update() { }
 
-    void imagebox::render() {
+    void Imagebox::render() {
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, imageid);
         glBegin(GL_QUADS);
@@ -830,7 +817,7 @@ namespace GUI {
         transitionTimer = timer();
     }
 
-    void Form::registerControl(controls* c) {
+    void Form::registerControl(Controls* c) {
         c->id = currentid;
         c->parent = this;
         children.push_back(c);
@@ -838,15 +825,9 @@ namespace GUI {
         maxid++;
     }
 
-    void Form::registerControls(int count, controls* c, ...) {
-        va_list arg_ptr;
-        controls* cur = c;
-        va_start(arg_ptr, c);
-        for (int i = 0; i < count; i++) {
-            registerControl(cur);
-            cur = va_arg(arg_ptr, controls*);
-        }
-        va_end(arg_ptr);
+    void Form::registerControls(std::initializer_list<Controls*> controls) {
+        for (auto x : controls)
+            registerControl(x);
     }
 
     void Form::update() {
@@ -963,24 +944,24 @@ namespace GUI {
         lastdisplaylist = displaylist;
     }
 
-    label::label(const std::string& t, int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b,
+    Label::Label(const std::string& t, int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b,
                  double ya_b)
-        : label() {
+        : Label() {
         text = t;
         resize(xi_r, xa_r, yi_r, ya_r, xi_b, xa_b, yi_b, ya_b);
     }
 
-    button::button(const std::string& t, int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b,
+    Button::Button(const std::string& t, int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b,
                    double ya_b)
-        : button() {
+        : Button() {
         text = t;
         enabled = true;
         resize(xi_r, xa_r, yi_r, ya_r, xi_b, xa_b, yi_b, ya_b);
     }
 
-    trackbar::trackbar(const std::string& t, int w, int s, int xi_r, int xa_r, int yi_r, int ya_r, double xi_b,
+    Trackbar::Trackbar(const std::string& t, int w, int s, int xi_r, int xa_r, int yi_r, int ya_r, double xi_b,
                        double xa_b, double yi_b, double ya_b)
-        : trackbar() {
+        : Trackbar() {
         text = t;
         enabled = true;
         barwidth = w;
@@ -988,26 +969,26 @@ namespace GUI {
         resize(xi_r, xa_r, yi_r, ya_r, xi_b, xa_b, yi_b, ya_b);
     }
 
-    textbox::textbox(const std::string& t, int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b,
+    Textbox::Textbox(const std::string& t, int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b,
                      double yi_b, double ya_b)
-        : textbox() {
+        : Textbox() {
         text = t;
         enabled = true;
         resize(xi_r, xa_r, yi_r, ya_r, xi_b, xa_b, yi_b, ya_b);
     }
 
-    vscroll::vscroll(int h, int s, int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b,
+    Vscroll::Vscroll(int h, int s, int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b,
                      double ya_b)
-        : vscroll() {
+        : Vscroll() {
         enabled = true;
         barheight = h;
         barpos = s;
         resize(xi_r, xa_r, yi_r, ya_r, xi_b, xa_b, yi_b, ya_b);
     }
 
-    imagebox::imagebox(float _txmin, float _txmax, float _tymin, float _tymax, TextureID iid, int xi_r, int xa_r,
+    Imagebox::Imagebox(float _txmin, float _txmax, float _tymin, float _tymax, TextureID iid, int xi_r, int xa_r,
                        int yi_r, int ya_r, double xi_b, double xa_b, double yi_b, double ya_b)
-        : imagebox() {
+        : Imagebox() {
         txmin = _txmin;
         txmax = _txmax;
         tymin = _tymin;
@@ -1025,7 +1006,7 @@ namespace GUI {
         for (size_t i = 0; i != children.size(); i++) { children[i]->destroy(); }
     }
 
-    controls* Form::getControlByID(int cid) {
+    Controls* Form::getControlByID(int cid) {
         for (size_t i = 0; i != children.size(); i++) { if (children[i]->id == cid) return children[i]; }
         return nullptr;
     }
@@ -1044,7 +1025,7 @@ namespace GUI {
         mb = getMouseButton();
         mw = getMouseScroll();
         glfwGetCursorPos(MainWindow, &dmx, &dmy);
-        mx = (int)(dmx / stretch), my = (int)(dmy / stretch);
+        mx = static_cast<int>(dmx / stretch), my = static_cast<int>(dmy / stretch);
         update();
         render();
         glFinish();
@@ -1059,60 +1040,57 @@ namespace GUI {
 
     std::deque<Form*> ViewStack;
     std::deque<PageOpRq> ViewOps = {};
-    bool HaveRequest = false;
 
-    void PushPage(Form* View) {
+    void pushPage(Form* View) {
         ViewOps.push_back({1, View});
-        HaveRequest = true;
     }
 
-    void PopPage() {
+    void popPage() {
         ViewOps.push_back({2, nullptr});
-        HaveRequest = true;
     }
 
     void BackToMain() {
         ViewOps.push_back({3, nullptr});
-        HaveRequest = true;
     }
 
     void PopView() {
-        (*ViewStack.begin())->onLeave();
+        ViewStack.front()->onLeave();
         delete ViewStack[0];
         ViewStack.pop_front();
     }
 
     void ClearStack() {
         ViewOps.push_back({4, nullptr});
-        HaveRequest = true;
     }
 
     void ProcessRequests() {
         //Process the op deque
-        for (std::deque<PageOpRq>::iterator i = ViewOps.begin(); i != ViewOps.end(); ++i) {
-            switch (i->Op) {
-            case 1:
-                ViewStack.push_front(i->Page);
-                (*ViewStack.begin())->onLoad();
-                break;
-            case 2:
-                PopView();
-                break;
-            case 3:
-                while (!ViewStack.empty()) PopView();
-                ViewStack.push_front(GetMain());
-                (*ViewStack.begin())->onLoad();
-                break;
-            case 4:
-                while (!ViewStack.empty()) PopView();
-                break;
+        if (!ViewOps.empty()) {
+            for (auto& i : ViewOps) {
+                switch (i.Op) {
+                case 1:
+                    ViewStack.push_front(i.Page);
+                    ViewStack.front()->onLoad();
+                    break;
+                case 2:
+                    PopView();
+                    break;
+                case 3:
+                    while (!ViewStack.empty()) PopView();
+                    ViewStack.push_front(GetMain());
+                    ViewStack.front()->onLoad();
+                    break;
+                case 4:
+                    while (!ViewStack.empty()) PopView();
+                    break;
+                default:;
+                }
             }
+            ViewOps.clear();
         }
-        ViewOps.clear();
-        HaveRequest = false;
     }
 
-    void AppStart() {
+    void appStart() {
         glfwSetInputMode(MainWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glDisable(GL_CULL_FACE);
@@ -1120,7 +1098,7 @@ namespace GUI {
         TextRenderer::setFontColor(1.0, 1.0, 1.0, 1.0);
         while (!ViewStack.empty()) {
             (*ViewStack.begin())->singleloop();
-            if (HaveRequest) ProcessRequests();
+            ProcessRequests();
             if (glfwWindowShouldClose(MainWindow)) { while (!ViewStack.empty()) PopView(); }
         }
         AppCleanUp();

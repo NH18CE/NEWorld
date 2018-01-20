@@ -25,16 +25,16 @@ namespace Menus {
     class CreateWorldMenu : public GUI::Form {
     private:
         bool worldnametbChanged;
-        GUI::label title;
-        GUI::textbox worldnametb;
-        GUI::button okbtn, backbtn;
+        GUI::Label title;
+        GUI::Textbox worldnametb;
+        GUI::Button okbtn, backbtn;
 
         void onLoad() override {
-            title = GUI::label(GetStrbyKey("NEWorld.create.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
-            worldnametb = GUI::textbox(GetStrbyKey("NEWorld.create.inputname"), -250, 250, 48, 72, 0.5, 0.5, 0.0, 0.0);
-            okbtn = GUI::button(GetStrbyKey("NEWorld.create.ok"), -250, 250, 84, 120, 0.5, 0.5, 0.0, 0.0);
-            backbtn = GUI::button(GetStrbyKey("NEWorld.create.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            registerControls(4, &title, &worldnametb, &okbtn, &backbtn);
+            title = GUI::Label(GetStrbyKey("NEWorld.create.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
+            worldnametb = GUI::Textbox(GetStrbyKey("NEWorld.create.inputname"), -250, 250, 48, 72, 0.5, 0.5, 0.0, 0.0);
+            okbtn = GUI::Button(GetStrbyKey("NEWorld.create.ok"), -250, 250, 84, 120, 0.5, 0.5, 0.0, 0.0);
+            backbtn = GUI::Button(GetStrbyKey("NEWorld.create.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
+            registerControls({ &title, &worldnametb, &okbtn, &backbtn });
             inputstr = "";
             okbtn.enabled = false;
             worldnametbChanged = false;
@@ -53,17 +53,17 @@ namespace Menus {
                     GUI::ClearStack();
                     GameView();
                 }
-                else { GUI::PopPage(); }
+                else { GUI::popPage(); }
             }
             AudioSystem::SpeedOfSound = AudioSystem::Air_SpeedOfSound;
             EFX::EAXprop = Generic;
             EFX::UpdateEAXprop();
             float Pos[] = {0.0f, 0.0f, 0.0f};
             AudioSystem::Update(Pos, false, false, Pos, false, false);
-            if (backbtn.clicked) GUI::PopPage();
+            if (backbtn.clicked) GUI::popPage();
             inputstr = "";
         }
     };
 
-    void createworldmenu() { PushPage(new CreateWorldMenu); }
+    void createworldmenu() { pushPage(new CreateWorldMenu); }
 }

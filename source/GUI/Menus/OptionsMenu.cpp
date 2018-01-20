@@ -24,24 +24,23 @@ void saveOptions();
 namespace Menus {
     class OptionsMenu : public GUI::Form {
     private:
-        GUI::label title;
-        GUI::trackbar FOVyBar, mmsBar, viewdistBar;
-        GUI::button rdstbtn, langbtn, gistbtn, backbtn, savebtn, sounbtn;
+        GUI::Label title;
+        GUI::Trackbar FOVyBar, mmsBar, viewdistBar;
+        GUI::Button rdstbtn, langbtn, gistbtn, backbtn, savebtn, sounbtn;
         //GUI::button rdstbtn, gistbtn, backbtn, savebtn;
         void onLoad() override {
-            title = GUI::label(GetStrbyKey("NEWorld.options.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
-            FOVyBar = GUI::trackbar("", 120, (int)(FOVyNormal - 1), -250, -10, 60, 84, 0.5, 0.5, 0.0, 0.0);
-            mmsBar = GUI::trackbar("", 120, (int)(mousemove * 40 * 2 - 1), 10, 250, 60, 84, 0.5, 0.5, 0.0, 0.0);
-            viewdistBar = GUI::trackbar("", 120, (viewdistance - 2) * 4 - 1, -250, -10, 96, 120, 0.5, 0.5, 0.0, 0.0);
-            rdstbtn = GUI::button(GetStrbyKey("NEWorld.options.rendermenu"), -250, -10, 204, 228, 0.5, 0.5, 0.0, 0.0);
-            gistbtn = GUI::button(GetStrbyKey("NEWorld.options.guimenu"), 10, 250, 204, 228, 0.5, 0.5, 0.0, 0.0);
-            langbtn = GUI::button(GetStrbyKey("NEWorld.options.languagemenu"), -250, -10, 240, 264, 0.5, 0.5, 0.0, 0.0);
-            sounbtn = GUI::button(GetStrbyKey("NEWorld.options.soundmenu"), 10, 250, 240, 264, 0.5, 0.5, 0.0, 0.0);
-            backbtn = GUI::button(GetStrbyKey("NEWorld.options.back"), -250, -10, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            savebtn = GUI::button(GetStrbyKey("NEWorld.options.save"), 10, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            registerControls(10, &title, &FOVyBar, &mmsBar, &viewdistBar, &rdstbtn, &gistbtn, &backbtn, &savebtn,
-                             &langbtn, &sounbtn);
-            //registerControls(8, &title, &FOVyBar, &mmsBar, &viewdistBar, &rdstbtn, &gistbtn, &backbtn, &savebtn);
+            title = GUI::Label(GetStrbyKey("NEWorld.options.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
+            FOVyBar = GUI::Trackbar("", 120, (int)(FOVyNormal - 1), -250, -10, 60, 84, 0.5, 0.5, 0.0, 0.0);
+            mmsBar = GUI::Trackbar("", 120, (int)(mousemove * 40 * 2 - 1), 10, 250, 60, 84, 0.5, 0.5, 0.0, 0.0);
+            viewdistBar = GUI::Trackbar("", 120, (viewdistance - 2) * 4 - 1, -250, -10, 96, 120, 0.5, 0.5, 0.0, 0.0);
+            rdstbtn = GUI::Button(GetStrbyKey("NEWorld.options.rendermenu"), -250, -10, 204, 228, 0.5, 0.5, 0.0, 0.0);
+            gistbtn = GUI::Button(GetStrbyKey("NEWorld.options.guimenu"), 10, 250, 204, 228, 0.5, 0.5, 0.0, 0.0);
+            langbtn = GUI::Button(GetStrbyKey("NEWorld.options.languagemenu"), -250, -10, 240, 264, 0.5, 0.5, 0.0, 0.0);
+            sounbtn = GUI::Button(GetStrbyKey("NEWorld.options.soundmenu"), 10, 250, 240, 264, 0.5, 0.5, 0.0, 0.0);
+            backbtn = GUI::Button(GetStrbyKey("NEWorld.options.back"), -250, -10, -44, -20, 0.5, 0.5, 1.0, 1.0);
+            savebtn = GUI::Button(GetStrbyKey("NEWorld.options.save"), 10, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
+            registerControls({ &title, &FOVyBar, &mmsBar, &viewdistBar, &rdstbtn, &gistbtn, &backbtn, &savebtn,
+                             &langbtn, &sounbtn });
         }
 
         void onUpdate() override {
@@ -50,7 +49,7 @@ namespace Menus {
             viewdistance = (viewdistBar.barpos + 1) / 4 + 2;
             if (rdstbtn.clicked) Renderoptions();
             if (gistbtn.clicked) GUIoptions();
-            if (backbtn.clicked) GUI::PopPage();
+            if (backbtn.clicked) GUI::popPage();
             if (savebtn.clicked) saveOptions();
             if (langbtn.clicked) {
                 languagemenu();
@@ -74,5 +73,5 @@ namespace Menus {
         }
     };
 
-    void options() { PushPage(new OptionsMenu); }
+    void options() { pushPage(new OptionsMenu); }
 }

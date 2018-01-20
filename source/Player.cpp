@@ -81,7 +81,7 @@ void InitPosition() {
     Player::cztl = Player::czt;
 }
 
-void MoveHitbox(double x, double y, double z) { MoveTo(Player::playerbox, x, y + 0.5, z); }
+void MoveHitbox(double x, double y, double z) { moveTo(Player::playerbox, x, y + 0.5, z); }
 
 void updateHitbox() { MoveHitbox(Player::xpos, Player::ypos, Player::zpos); }
 
@@ -140,15 +140,15 @@ void Player::updatePosition() {
 
     if (!CrossWall) {
         Hitboxes.clear();
-        Hitboxes = World::getHitboxes(Expand(playerbox, xa, ya, za));
+        Hitboxes = World::getHitboxes(expand(playerbox, xa, ya, za));
         int num = Hitboxes.size();
         if (num > 0) {
             for (int i = 0; i < num; i++) { ya = maxMoveOnYclip(playerbox, Hitboxes[i], ya); }
-            Move(playerbox, 0.0, ya, 0.0);
+            move(playerbox, 0.0, ya, 0.0);
             for (int i = 0; i < num; i++) { xa = maxMoveOnXclip(playerbox, Hitboxes[i], xa); }
-            Move(playerbox, xa, 0.0, 0.0);
+            move(playerbox, xa, 0.0, 0.0);
             for (int i = 0; i < num; i++) { za = maxMoveOnZclip(playerbox, Hitboxes[i], za); }
-            Move(playerbox, 0.0, 0.0, za);
+            move(playerbox, 0.0, 0.0, za);
         }
     }
     if (ya != yal && yal < 0.0) {
@@ -197,7 +197,7 @@ bool Player::putBlock(int x, int y, int z, Block blockname) {
     blockbox.xmax = x + 0.5;
     blockbox.ymax = y + 0.5;
     blockbox.zmax = z + 0.5;
-    if (((!Hit(playerbox, blockbox) || CrossWall || !getBlockInfo(blockname)
+    if (((!hit(playerbox, blockbox) || CrossWall || !getBlockInfo(blockname)
                 .
                 isSolid()
             )

@@ -70,7 +70,7 @@ int main() {
     GUI::clearTransition();
     //App Entrance
     GUI::BackToMain();
-    GUI::AppStart();
+    GUI::appStart();
     //结束程序，删了也没关系 ←_←（吐槽FB和glfw中）
     //不对啊这不是FB！！！这是正宗的C++！！！！！！
     //楼上的楼上在瞎说！！！别信他的！！！

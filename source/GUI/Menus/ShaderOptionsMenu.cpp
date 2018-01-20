@@ -23,19 +23,19 @@
 namespace Menus {
     class ShaderOptionsMenu : public GUI::Form {
     private:
-        GUI::label title;
-        GUI::button enablebtn, backbtn;
-        GUI::trackbar shadowresbar, shadowdistbar;
+        GUI::Label title;
+        GUI::Button enablebtn, backbtn;
+        GUI::Trackbar shadowresbar, shadowdistbar;
 
         void onLoad() override {
-            title = GUI::label(GetStrbyKey("NEWorld.shaders.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
-            enablebtn = GUI::button("", -250, -10, 60, 84, 0.5, 0.5, 0.0, 0.0);
-            shadowresbar = GUI::trackbar("", 120, (int)(log2(Renderer::ShadowRes) - 10) * 40 - 1, 10, 250, 60, 84, 0.5,
+            title = GUI::Label(GetStrbyKey("NEWorld.shaders.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
+            enablebtn = GUI::Button("", -250, -10, 60, 84, 0.5, 0.5, 0.0, 0.0);
+            shadowresbar = GUI::Trackbar("", 120, (int)(log2(Renderer::ShadowRes) - 10) * 40 - 1, 10, 250, 60, 84, 0.5,
                                          0.5, 0.0, 0.0);
-            shadowdistbar = GUI::trackbar("", 120, (Renderer::maxShadowDist - 2) * 4 - 1, -250, -10, 96, 120, 0.5, 0.5,
+            shadowdistbar = GUI::Trackbar("", 120, (Renderer::maxShadowDist - 2) * 4 - 1, -250, -10, 96, 120, 0.5, 0.5,
                                           0.0, 0.0);
-            backbtn = GUI::button(GetStrbyKey("NEWorld.render.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            registerControls(5, &title, &enablebtn, &shadowresbar, &shadowdistbar, &backbtn);
+            backbtn = GUI::Button(GetStrbyKey("NEWorld.render.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
+            registerControls({ &title, &enablebtn, &shadowresbar, &shadowdistbar, &backbtn });
             Renderer::destroyShaders();
             if (!Renderer::AdvancedRender) shadowresbar.enabled = shadowdistbar.enabled = false;
         }
@@ -49,7 +49,7 @@ namespace Menus {
             Renderer::ShadowRes = (int)pow(2, (shadowresbar.barpos + 1) / 40 + 10);
             Renderer::maxShadowDist = (shadowdistbar.barpos + 1) / 4 + 2;
             if (backbtn.clicked) {
-                GUI::PopPage();
+                GUI::popPage();
                 if (Renderer::AdvancedRender) Renderer::initShaders();
             }
             enablebtn.text = GetStrbyKey("NEWorld.shaders.enable") + BoolYesNo(Renderer::AdvancedRender);
@@ -68,5 +68,5 @@ namespace Menus {
         }
     };
 
-    void Shaderoptions() { PushPage(new ShaderOptionsMenu); }
+    void Shaderoptions() { pushPage(new ShaderOptionsMenu); }
 }

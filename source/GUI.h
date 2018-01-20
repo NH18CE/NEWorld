@@ -69,15 +69,15 @@ namespace GUI {
     void clearTransition();
     void screenBlur();
     void drawBackground();
-    void InitStretch();
-    void EndStretch();
+    void initStretch();
+    void endStretch();
 
     class Form;
 
-    class controls {
+    class Controls {
     public:
         //控件基类，只要是控件都得继承这个
-        virtual ~controls() { }
+        virtual ~Controls() { }
 
         int id, xmin, ymin, xmax, ymax;
         Form* parent;
@@ -85,41 +85,41 @@ namespace GUI {
         virtual void update() { } //莫非这个就是传说中的虚函数？
         virtual void render() { } //貌似是的！
         virtual void destroy() { }
-
+        
         void updatepos();
         void resize(int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b, double ya_b);
     private:
-        int _xmin_r, _ymin_r, _xmax_r, _ymax_r;
+        int mXminR, mYminR, mXmaxR, mYmaxR;
         double _xmin_b, _ymin_b, _xmax_b, _ymax_b;
     };
 
-    class label : public controls {
+    class Label : public Controls {
     public:
         //标签
         std::string text;
         bool mouseon, focused;
 
-        label() : mouseon(false), focused(false) { };
-        label(const std::string& t,
+        Label() : mouseon(false), focused(false) { };
+        Label(const std::string& t,
               int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b, double ya_b);
         void update() override;
         void render() override;
     };
 
-    class button : public controls {
+    class Button : public Controls {
     public:
         //按钮
         std::string text;
         bool mouseon, focused, pressed, clicked, enabled;
 
-        button() : mouseon(false), focused(false), pressed(false), clicked(false), enabled(false) { };
-        button(const std::string& t,
+        Button() : mouseon(false), focused(false), pressed(false), clicked(false), enabled(false) { };
+        Button(const std::string& t,
                int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b, double ya_b);
         void update() override;
         void render() override;
     };
 
-    class trackbar : public controls {
+    class Trackbar : public Controls {
     public:
         //该控件的中文名我不造
         std::string text;
@@ -127,48 +127,48 @@ namespace GUI {
         int barpos;
         bool mouseon, focused, pressed, enabled;
 
-        trackbar() : mouseon(false), focused(false), pressed(false), enabled(false) { };
-        trackbar(const std::string& t, int w, int s,
+        Trackbar() : mouseon(false), focused(false), pressed(false), enabled(false) { };
+        Trackbar(const std::string& t, int w, int s,
                  int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b, double ya_b);
         void update() override;
         void render() override;
     };
 
-    class textbox : public controls {
+    class Textbox : public Controls {
     public:
         //文本框
         std::string text;
         bool mouseon, focused, pressed, enabled;
 
-        textbox() : mouseon(false), focused(false), pressed(false), enabled(false) { };
-        textbox(const std::string& t,
+        Textbox() : mouseon(false), focused(false), pressed(false), enabled(false) { };
+        Textbox(const std::string& t,
                 int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b, double ya_b);
         void update() override;
         void render() override;
     };
 
-    class vscroll : public controls {
+    class Vscroll : public Controls {
     public:
         //垂直滚动条
         int barheight, barpos;
         bool mouseon, focused, pressed, enabled;
         bool defaultv, msup, msdown, psup, psdown;
 
-        vscroll() : mouseon(false), focused(false), pressed(false), enabled(false) { };
-        vscroll(int h, int s,
+        Vscroll() : mouseon(false), focused(false), pressed(false), enabled(false) { };
+        Vscroll(int h, int s,
                 int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b, double ya_b);
         void update() override;
         void render() override;
     };
 
-    class imagebox : public controls {
+    class Imagebox : public Controls {
     public:
         //图片框
         float txmin, txmax, tymin, tymax;
         TextureID imageid;
 
-        imagebox() : imageid(0) { };
-        imagebox(float _txmin, float _txmax, float _tymin, float _tymax, TextureID iid,
+        Imagebox() : imageid(0) { };
+        Imagebox(float _txmin, float _txmax, float _tymin, float _tymax, TextureID iid,
                  int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b, double ya_b);
         void update() override;
         void render() override;
@@ -179,18 +179,18 @@ namespace GUI {
     // 窗体 / 容器
     class Form {
     public:
-        std::vector<controls*> children;
-        bool tabp, shiftp, enterp, enterpl;
-        bool upkp, downkp, upkpl, downkpl, leftkp, rightkp, leftkpl, rightkpl, backspacep, backspacepl, updated;
-        int maxid, currentid, focusid, mx, my, mw, mb, mxl, myl, mwl, mbl;
-        unsigned int displaylist;
-        bool MouseOnTextbox;
+        std::vector<Controls*> children;
+        bool tabp{}, shiftp{}, enterp{}, enterpl{};
+        bool upkp{}, downkp{}, upkpl{}, downkpl{}, leftkp{}, rightkp{}, leftkpl{}, rightkpl{}, backspacep{}, backspacepl{}, updated{};
+        int maxid{}, currentid{}, focusid{}, mx{}, my{}, mw{}, mb{}, mxl{}, myl{}, mwl{}, mbl{};
+        unsigned int displaylist{};
+        bool MouseOnTextbox{};
         void Init();
-        void registerControl(controls* c);
-        void registerControls(int count, controls* c, ...);
+        void registerControl(Controls* c);
+        void registerControls(std::initializer_list<Controls*> controls);
         void update();
         void render();
-        controls* getControlByID(int cid);
+        Controls* getControlByID(int cid);
         void cleanup();
 
         virtual void onLoad() { }
@@ -205,12 +205,12 @@ namespace GUI {
 
         Form();
         void singleloop();
-        ~Form();
+        virtual ~Form();
     };
 
-    void AppStart();
-    void PushPage(Form* View);
-    void PopPage();
+    void appStart();
+    void pushPage(Form* View);
+    void popPage();
     void BackToMain();
     void ClearStack();
     Form* GetMain();

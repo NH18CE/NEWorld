@@ -38,17 +38,17 @@ namespace Menus {
         std::vector<std::string> worldnames;
         std::vector<TextureID> thumbnails, texSizeX, texSizeY;
         int trs = 0;
-        GUI::label title;
-        GUI::vscroll vscroll;
-        GUI::button enterbtn, deletebtn, backbtn;
+        GUI::Label title;
+        GUI::Vscroll vscroll;
+        GUI::Button enterbtn, deletebtn, backbtn;
 
         void onLoad() override {
-            title = GUI::label(GetStrbyKey("NEWorld.worlds.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
-            vscroll = GUI::vscroll(100, 0, 275, 295, 36, -20, 0.5, 0.5, 0.0, 1.0);
-            enterbtn = GUI::button(GetStrbyKey("NEWorld.worlds.enter"), -250, -10, -80, -56, 0.5, 0.5, 1.0, 1.0);
-            deletebtn = GUI::button(GetStrbyKey("NEWorld.worlds.delete"), 10, 250, -80, -56, 0.5, 0.5, 1.0, 1.0);
-            backbtn = GUI::button(GetStrbyKey("NEWorld.worlds.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            registerControls(5, &title, &vscroll, &enterbtn, &deletebtn, &backbtn);
+            title = GUI::Label(GetStrbyKey("NEWorld.worlds.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
+            vscroll = GUI::Vscroll(100, 0, 275, 295, 36, -20, 0.5, 0.5, 0.0, 1.0);
+            enterbtn = GUI::Button(GetStrbyKey("NEWorld.worlds.enter"), -250, -10, -80, -56, 0.5, 0.5, 1.0, 1.0);
+            deletebtn = GUI::Button(GetStrbyKey("NEWorld.worlds.delete"), 10, 250, -80, -56, 0.5, 0.5, 1.0, 1.0);
+            backbtn = GUI::Button(GetStrbyKey("NEWorld.worlds.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
+            registerControls({ &title, &vscroll, &enterbtn, &deletebtn, &backbtn });
             World::worldname = "";
             enterbtn.enabled = false;
             deletebtn.enabled = false;
@@ -141,7 +141,7 @@ namespace Menus {
             }
             enterbtn.enabled = !chosenWorldName.empty();
             deletebtn.enabled = !chosenWorldName.empty();
-            if (backbtn.clicked) GUI::PopPage();
+            if (backbtn.clicked) GUI::popPage();
         }
 
         void onRender() override {
@@ -238,5 +238,5 @@ namespace Menus {
         }
     };
 
-    void worldmenu() { PushPage(new WorldMenu); }
+    void worldmenu() { pushPage(new WorldMenu); }
 }

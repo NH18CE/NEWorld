@@ -23,15 +23,15 @@
 namespace Menus {
     class GameMenu : public GUI::Form {
     private:
-        GUI::label title;
-        GUI::button resumebtn, exitbtn;
+        GUI::Label title;
+        GUI::Button resumebtn, exitbtn;
 
         void onLoad() override {
             glfwSetInputMode(MainWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            title = GUI::label(GetStrbyKey("NEWorld.pause.caption"), -225, 225, 0, 16, 0.5, 0.5, 0.25, 0.25);
-            resumebtn = GUI::button(GetStrbyKey("NEWorld.pause.continue"), -200, 200, -35, -3, 0.5, 0.5, 0.5, 0.5);
-            exitbtn = GUI::button(GetStrbyKey("NEWorld.pause.back"), -200, 200, 3, 35, 0.5, 0.5, 0.5, 0.5);
-            registerControls(3, &title, &resumebtn, &exitbtn);
+            title = GUI::Label(GetStrbyKey("NEWorld.pause.caption"), -225, 225, 0, 16, 0.5, 0.5, 0.25, 0.25);
+            resumebtn = GUI::Button(GetStrbyKey("NEWorld.pause.continue"), -200, 200, -35, -3, 0.5, 0.5, 0.5, 0.5);
+            exitbtn = GUI::Button(GetStrbyKey("NEWorld.pause.back"), -200, 200, 3, 35, 0.5, 0.5, 0.5, 0.5);
+            registerControls({ &title, &resumebtn, &exitbtn });
         }
 
         void onUpdate() override {
@@ -39,7 +39,7 @@ namespace Menus {
             //Make update thread realize that it should pause
             MutexLock(Mutex);
             if (resumebtn.clicked) {
-                GUI::PopPage();
+                GUI::popPage();
                 glfwSetInputMode(MainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 glDepthFunc(GL_LEQUAL);
                 glEnable(GL_CULL_FACE);
@@ -61,5 +61,5 @@ namespace Menus {
         }
     };
 
-    void gamemenu() { PushPage(new GameMenu); }
+    void gamemenu() { pushPage(new GameMenu); }
 }

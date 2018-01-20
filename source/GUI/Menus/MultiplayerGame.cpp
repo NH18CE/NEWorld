@@ -29,19 +29,19 @@ namespace Menus {
 
     class MultiplayerMenu : public GUI::Form {
     private:
-        GUI::label title;
-        GUI::textbox serveriptb;
-        GUI::button runbtn, okbtn, backbtn;
+        GUI::Label title;
+        GUI::Textbox serveriptb;
+        GUI::Button runbtn, okbtn, backbtn;
 
         void onLoad() override {
-            title = GUI::label("==============<  多 人 游 戏  >==============", -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
-            serveriptb = GUI::textbox("输入服务器IP", -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
-            runbtn = GUI::button("运行服务器（开服）", -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
-            okbtn = GUI::button("确定", -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
-            backbtn = GUI::button("<< 返回", -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
+            title = GUI::Label("==============<  多 人 游 戏  >==============", -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
+            serveriptb = GUI::Textbox("输入服务器IP", -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
+            runbtn = GUI::Button("运行服务器（开服）", -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
+            okbtn = GUI::Button("确定", -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
+            backbtn = GUI::Button("<< 返回", -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
             inputstr = "";
             okbtn.enabled = false;
-            registerControls(4, &title, &serveriptb, &runbtn, &okbtn, &backbtn);
+            registerControls({ &title, &serveriptb, &runbtn, &okbtn, &backbtn });
         }
 
         void onUpdate() override {
@@ -60,7 +60,7 @@ namespace Menus {
             EFX::UpdateEAXprop();
             float Pos[] = {0.0f, 0.0f, 0.0f};
             AudioSystem::Update(Pos, false, false, Pos, false, false);
-            if (backbtn.clicked) GUI::PopPage();
+            if (backbtn.clicked) GUI::popPage();
             if (serveriptb.pressed && !serveripChanged) {
                 serveriptb.text = "";
                 serveripChanged = true;
@@ -71,5 +71,5 @@ namespace Menus {
         }
     };
 
-    void multiplayermenu() { PushPage(new MultiplayerMenu); }
+    void multiplayermenu() { pushPage(new MultiplayerMenu); }
 }
