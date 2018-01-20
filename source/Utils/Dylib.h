@@ -31,21 +31,25 @@ public:
 
     Library(Library&& library) noexcept;
 
-    Library&& operator=(Library&& library) noexcept;
+    Library& operator=(Library&& library) noexcept;
+
+    Library(const Library& library) = delete;
+
+    Library& operator=(const Library& library) = delete;
 
     ~Library();
 
     template<class T> 
-    auto get(const std::string& name) {
+    auto get(const std::string& name) const {
         return get<T>(name.c_str());
     }
 
     template<class T> 
-    auto get(const char* name) {
+    auto get(const char* name) const {
         return reinterpret_cast<std::decay_t<T>>(getFuncImpl(mDllHandle, name));
     }
 
-    operator bool() const noexcept { return isLoaded(); }
+    explicit operator bool() const noexcept { return isLoaded(); }
 
     bool isLoaded() const noexcept { return mLoaded; }
 
@@ -56,6 +60,6 @@ public:
 private:
     using FcnProcAddr = void(*)();
     static FcnProcAddr getFuncImpl(HandleType handle, const std::string& name);
-    HandleType mDllHandle;
+    HandleType mDllHandle = nullptr;
     bool mLoaded = false;
 };

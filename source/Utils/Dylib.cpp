@@ -20,13 +20,13 @@
 #include "Dylib.h"
 #include <cassert>
 
-#ifdef _WIN32
+#if defined (_WIN32) || defined (_WIN64) || defined (__WIN32__) || defined (__TOS_WIN__) || defined (__WINDOWS__) || defined (__CYGWIN__)
 
 #include <Windows.h>
 
 namespace {
     Library::HandleType loadLibrary(const std::string& filename, bool& success) {
-        auto handle = LoadLibraryA(filename.c_str());
+        const auto handle = LoadLibraryA(filename.c_str());
         success = handle != nullptr;
         /*if (!success)
             warningstream << "Failed to load " << filename << ". Error code:" << GetLastError();*/
@@ -49,7 +49,7 @@ Library::FcnProcAddr Library::getFuncImpl(HandleType handle, const std::string& 
 
 namespace {
     Library::HandleType loadLibrary(const std::string& filename, bool& success) {
-        auto handle = dlopen(filename.c_str(), RTLD_LAZY);
+        const auto handle = dlopen(filename.c_str(), RTLD_LAZY);
         /*if (handle == nullptr)
             fatalstream << dlerror();*/
         success = handle != nullptr;
@@ -78,10 +78,10 @@ Library::Library(Library&& library) noexcept : Library {} {
     std::swap(library.mLoaded, mLoaded);
 }
 
-Library&& Library::operator=(Library&& library) noexcept {
+Library& Library::operator=(Library&& library) noexcept {
     std::swap(library.mDllHandle, mDllHandle);
     std::swap(library.mLoaded, mLoaded);
-    return std::move(*this);
+    return *this;
 }
 
 Library::~Library() {
