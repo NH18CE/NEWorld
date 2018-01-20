@@ -47,8 +47,6 @@ void ApplicationBeforeLaunch() {
 void ApplicationAfterLaunch() {
     loadTextures();
     Module::ModLoader::loadMods();
-    //初始化音频系统
-    AudioSystem::Init();
 }
 
 int main() {
@@ -76,8 +74,6 @@ int main() {
     //楼上的楼上在瞎说！！！别信他的！！！
     //……所以你是不是应该说“吐槽C艹”中？——地鼠
     glfwTerminate();
-    //反初始化音频系统
-    AudioSystem::UnInit();
     return 0;
 }
 
@@ -120,8 +116,10 @@ void loadOptions() {
     loadoption(options, "GUIBackgroundBlur", GUIScreenBlur);
     loadoption(options, "ppistretch", ppistretch);
     loadoption(options, "ForceUnicodeFont", TextRenderer::useUnicodeAsciiFont);
-    loadoption(options, "GainOfBGM", AudioSystem::BGMGain);
-    loadoption(options, "GainOfSound", AudioSystem::SoundGain);
+    AudioSystemSettings settings;
+    loadoption(options, "GainOfBGM", settings.BGMGain);
+    loadoption(options, "GainOfSound", settings.effectGain);
+    getAudioSystem().setSettings(settings);
 }
 
 template <typename T>
@@ -149,7 +147,8 @@ void saveOptions() {
     saveoption(fileout, "GUIBackgroundBlur", GUIScreenBlur);
     saveoption(fileout, "ppistretch", ppistretch);
     saveoption(fileout, "ForceUnicodeFont", TextRenderer::useUnicodeAsciiFont);
-    saveoption(fileout, "GainOfBGM", AudioSystem::BGMGain);
-    saveoption(fileout, "GainOfSound", AudioSystem::SoundGain);
+    auto settings = getAudioSystem().getSettings();
+    saveoption(fileout, "GainOfBGM", settings.BGMGain);
+    saveoption(fileout, "GainOfSound", settings.effectGain);
     fileout.close();
 }

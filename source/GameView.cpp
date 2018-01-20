@@ -124,11 +124,11 @@ public:
     }
 
     //方块交互相关
-    std::pair<std::array<ALfloat, 3>, bool> blockInteraction() {
+    std::pair<std::array<float, 3>, bool> blockInteraction() {
         double lx = Player::xpos;
         double ly = Player::ypos + Player::height + Player::heightExt;
         double lz = Player::zpos;
-        std::array<ALfloat, 3> BlockPos;
+        std::array<float, 3> BlockPos;
         bool BlockClick;
         //从玩家位置发射一条线段
         for (int i = 0; i < selectPrecision * selectDistance; i++) {
@@ -511,15 +511,8 @@ public:
 
         sel = false;
         selx = sely = selz = selbx = selby = selbz = selcx = selcy = selcz = selb = selbr = 0;
-        //用于音效更新
-        bool BlockClick = false;
-        ALfloat BlockPos[3];
         if (!bagOpened) {
             auto blockInfo = blockInteraction();
-            BlockPos[0] = blockInfo.first[0];
-            BlockPos[1] = blockInfo.first[1];
-            BlockPos[2] = blockInfo.first[2];
-            BlockClick = blockInfo.second;
             if (selx != oldselx || sely != oldsely || selz != oldselz || mb == 0 && glfwGetKey(
                 MainWindow, GLFW_KEY_ENTER) != GLFW_PRESS)
                 seldes = 0.0;
@@ -594,26 +587,14 @@ public:
 
 
         //音效更新
-        int Run = 0;
-        if (WP)Run = Player::Running ? 2 : 1;
-        ALfloat PlayerPos[3];
-        PlayerPos[0] = Player::xpos;
-        PlayerPos[1] = Player::ypos;
-        PlayerPos[2] = Player::zpos;
-        bool Fall = Player::OnGround
-            && !Player::inWater
-            && Player::jump == 0;
-        //更新声速
-        AudioSystem::SpeedOfSound = Player::inWater ? AudioSystem::Water_SpeedOfSound : AudioSystem::Air_SpeedOfSound;
-        //更新环境
-        if (Player::inWater) { EFX::EAXprop = UnderWater; }
-        else {
-            if (Player::OnGround) { EFX::EAXprop = Plain; }
-            else { EFX::EAXprop = Generic; }
-        }
-        EFX::UpdateEAXprop();
-        AudioSystem::Update(PlayerPos, Fall, BlockClick, BlockPos, Run, Player::inWater);
-
+        Vec3f playerPos(Player::xpos,Player::ypos,Player::zpos);
+        Vec3f playerOld(Player::xposold, Player::yposold, Player::zposold);
+        //TODO:计算速度和朝向
+        //auto playerVelocity=(playerPos-playerOld)/delta;
+        Vec3f playerVelocity;
+        Vec3f playerLookAt;
+        Vec3f playerUp;
+        getAudioSystem().update(playerPos,playerVelocity,playerLookAt,playerUp);
 
         mbp = mb;
         FirstFrameThisUpdate = true;

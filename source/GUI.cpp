@@ -328,7 +328,8 @@ namespace GUI {
             focused;
         //clicked = lp&&!pressed
 
-        if (clicked)AudioSystem::ClickEvent();
+        //TODO:chick
+        //if (clicked)getAudioSystem().play();
     }
 
     void Button::render() {
@@ -905,6 +906,8 @@ namespace GUI {
             glfwSetCursor(MainWindow, MouseCursor);
         }
         onUpdate();
+
+        getAudioSystem().update();
     }
 
     void Form::render() {

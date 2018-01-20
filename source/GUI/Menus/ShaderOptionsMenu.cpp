@@ -60,11 +60,6 @@ namespace Menus {
             ss << Renderer::maxShadowDist;
             shadowdistbar.text = GetStrbyKey("NEWorld.shaders.distance") + ss.str();
 
-            AudioSystem::SpeedOfSound = AudioSystem::Air_SpeedOfSound;
-            EFX::EAXprop = Generic;
-            EFX::UpdateEAXprop();
-            float Pos[] = {0.0f, 0.0f, 0.0f};
-            AudioSystem::Update(Pos, false, false, Pos, false, false);
         }
     };
 

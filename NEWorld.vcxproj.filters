@@ -186,15 +186,6 @@
     <ClInclude Include="include\AL\alc.h">
       <Filter>Source\Common\OpenAL</Filter>
     </ClInclude>
-    <ClInclude Include="include\AL\ALDevice.h">
-      <Filter>Source\Common\OpenAL</Filter>
-    </ClInclude>
-    <ClInclude Include="include\AL\aldlist.h">
-      <Filter>Source\Common\OpenAL</Filter>
-    </ClInclude>
-    <ClInclude Include="include\AL\AL-EFX.h">
-      <Filter>Source\Common\OpenAL</Filter>
-    </ClInclude>
     <ClInclude Include="include\AL\CWaves.h">
       <Filter>Source\Common\OpenAL</Filter>
     </ClInclude>
@@ -205,12 +196,6 @@
       <Filter>Source\Common\OpenAL</Filter>
     </ClInclude>
     <ClInclude Include="include\AL\EFX-Util.h">
-      <Filter>Source\Common\OpenAL</Filter>
-    </ClInclude>
-    <ClInclude Include="include\AL\Framework.h">
-      <Filter>Source\Common\OpenAL</Filter>
-    </ClInclude>
-    <ClInclude Include="include\AL\LoadOAL.h">
       <Filter>Source\Common\OpenAL</Filter>
     </ClInclude>
     <ClInclude Include="include\AL\xram.h">
@@ -236,6 +221,9 @@
       <Filter>Source\Module</Filter>
     </ClInclude>
     <ClInclude Include="source\Utils\Dylib.h">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Utils\Concept.h">
       <Filter>Source\Utils</Filter>
     </ClInclude>
   </ItemGroup>
@@ -318,22 +306,7 @@
     <ClCompile Include="source\GameView.cpp">
       <Filter>Source\Game</Filter>
     </ClCompile>
-    <ClCompile Include="include\AL\ALDevice.cpp">
-      <Filter>Source\Common\OpenAL</Filter>
-    </ClCompile>
-    <ClCompile Include="include\AL\aldlist.cpp">
-      <Filter>Source\Common\OpenAL</Filter>
-    </ClCompile>
-    <ClCompile Include="include\AL\AL-EFX.cpp">
-      <Filter>Source\Common\OpenAL</Filter>
-    </ClCompile>
     <ClCompile Include="include\AL\CWaves.cpp">
-      <Filter>Source\Common\OpenAL</Filter>
-    </ClCompile>
-    <ClCompile Include="include\AL\Framework.cpp">
-      <Filter>Source\Common\OpenAL</Filter>
-    </ClCompile>
-    <ClCompile Include="include\AL\LoadOAL.cpp">
       <Filter>Source\Common\OpenAL</Filter>
     </ClCompile>
     <ClCompile Include="source\AudioSystem.cpp">

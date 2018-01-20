@@ -18,175 +18,231 @@
 // 
 
 #include "AudioSystem.h"
-#include <thread>
+#include<AL/al.h>
+#include<AL/alc.h>
+#include<AL/CWaves.h>
+#include <unordered_map>
 
-namespace AudioSystem {
-    ALDevice Device;
-    //Gain
-    ALfloat BGMGain = 0.1f; //背景音乐
-    ALfloat SoundGain = 0.17f; //音效
-    //Set
-    ALenum DopplerModel = AL_INVERSE_DISTANCE_CLAMPED; //设置OpenAL的距离模型
-    ALfloat DopplerFactor = 1.0f; //多普勒因子
-    ALfloat SpeedOfSound = Air_SpeedOfSound; //声速
-    //Update
-    bool FallBefore = false; //OnGround
-    bool DownWaterBefore = false; //InWater
-    int BGMNum = 0;
-    //Buffer
-    ALuint BGM[10];
-    ALuint Run = -1;
-    ALuint Click = -1;
-    ALuint Fall = -1;
-    ALuint BlockClick = -1;
-    ALuint DownWater = -1;
-    //Source
-    ALuint SBGM = -1;
-    ALuint SRun = -1;
-    ALuint SClick = -1;
-    ALuint SFall = -1;
-    ALuint SBlockClick = -1;
-    ALuint SDownWater = -1;
+constexpr auto defaultFactor = 0.0f, defaultDistance=100.0f;
 
-    void Init() {
-        //初始化设备
-        ALDeviceList* DL = Device.GetALDeviceList();
-        Device.InitAL(DL->GetDeviceName(DL->GetDefaultDevice()));
-        delete DL;
-        //开启所有功能
-        alEnable(AL_DOPPLER_FACTOR);
-        alEnable(AL_DISTANCE_MODEL);
-        alEnable(AL_SPEED_OF_SOUND);
-        //背景音乐
-        char BGMName[256];
-        for (unsigned int& i : BGM) { i = -1; }
-        for (size_t i = 0; i < 10; i++) {
-            sprintf_s(BGMName, "Audio\\BGM%d.wav", i);
-            if (Device.load(BGMName, &BGM[BGMNum])) { BGMNum++; }
-        }
-        //行走and跑步声音
-        if (!Device.load("Audio\\Run.wav", &Run))Run = -1;
-        //鼠标单击
-        if (!Device.load("Audio\\Click.wav", &Click))Click = -1;
-        //掉落
-        if (!Device.load("Audio\\Fall.wav", &Fall))Fall = -1;
-        //击打方块
-        if (!Device.load("Audio\\BlockClick.wav", &BlockClick))BlockClick = -1;
-        //下水
-        if (!Device.load("Audio\\DownWater.wav", &DownWater))DownWater = -1;
-        //播放BGM
-        if (BGMNum) {
-            int size = GetTickCount64() % BGMNum;
-            ALfloat Pos[] = {0.0, 0.0, 0.0};
-            ALfloat Vel[] = {0.0, 0.0, 0.0};
-            SBGM = Device.Play(BGM[size], false, BGMGain, Pos, Vel);
+AudioSystem & getAudioSystem() {
+    static AudioSystem system;
+    return system;
+}
+
+class Buffer final :Uncopyable {
+private:
+    ALuint mBuffer;
+public:
+    Buffer(const filesystem::path& path);
+    ALuint get() const;
+    ~Buffer();
+};
+
+class Source final :Uncopyable {
+private:
+    ALuint mSource;
+public:
+    Source();
+    void play(const Buffer& buffer);
+    void setGain(float gain);
+    void setFactor(float rolloffFactor,float maxDistance);
+    void set3D(Vec3f pos, Vec3f velocity);
+    bool isPlaying() const;
+    ~Source();
+};
+
+class AudioSystemImpl final:Singletion {
+private:
+    AudioSystemSettings mSettings;
+    std::unordered_map<std::wstring, Buffer> mBufferCache;
+    std::vector<Source> mSources;
+    Source mBGM;
+    std::vector<Buffer> mBGMBuffers;
+    ALCdevice* mDevice;
+    ALCcontext* mContext;
+    Buffer& getBuffer(const filesystem::path& path);
+    Source& getSource();
+public:
+    AudioSystemImpl();
+    ~AudioSystemImpl();
+    void update();
+    void play(const filesystem::path & path, Vec3f pos, Vec3f velocity);
+    void play(const filesystem::path & path);
+    void setSettings(AudioSystemSettings settings);
+    AudioSystemSettings getSettings() const;
+};
+
+AudioSystem::AudioSystem():mPimpl(std::make_unique<AudioSystemImpl>()){}
+
+void AudioSystem::play(const filesystem::path & path, Vec3f pos, Vec3f velocity) {
+    mPimpl->play(path, pos, velocity);
+}
+
+void AudioSystem::play(const filesystem::path & path) {
+    mPimpl->play(path);
+}
+
+void AudioSystem::update(Vec3f pos, Vec3f velocity,Vec3f lookAt,Vec3f up) {
+    alListenerfv(AL_POSITION,pos.data);
+    alListenerfv(AL_VELOCITY, velocity.data);
+    Vec3f ori[2] = { lookAt,up };
+    alListenerfv(AL_ORIENTATION, ori->data);
+    mPimpl->update();
+}
+
+void AudioSystem::setSettings(AudioSystemSettings settings) {
+    mPimpl->setSettings(settings);
+}
+
+AudioSystemSettings AudioSystem::getSettings() const {
+    return mPimpl->getSettings();
+}
+
+void AudioSystem::setSpeedOfSound(float speed) {
+    alSpeedOfSound(speed);
+}
+
+AudioSystemSettings::AudioSystemSettings()
+    :BGMGain(1.0f),effectGain(1.0f),GUIGain(1.0f),
+    rolloffFactor(defaultFactor),maxDistance(defaultDistance) {}
+
+Buffer & AudioSystemImpl::getBuffer(const filesystem::path & path) {
+    auto key = path.wstring();
+    auto it = mBufferCache.find(key);
+    if (it == mBufferCache.cend())
+        it = mBufferCache.emplace(key, Buffer(path)).first;
+    return it->second;
+}
+
+Source & AudioSystemImpl::getSource() {
+    for (auto&& src : mSources)
+        if (!src.isPlaying())
+            return src;
+    return mSources.emplace_back();
+}
+
+AudioSystemImpl::AudioSystemImpl() {
+    mDevice=alcOpenDevice(nullptr);
+    if (!mDevice)
+        throw std::exception("Failed to open default device.");
+    mContext = alcCreateContext(mDevice,nullptr);
+    if (!mContext) {
+        alcCloseDevice(mDevice);
+        throw std::exception("Failed to create a context.");
+    }
+    alcMakeContextCurrent(mContext);
+    alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
+    alDopplerFactor(1.0f);
+    alSpeedOfSound(SOSAir);
+    filesystem::path BGMDir("/Audio/BGM");
+    for (auto&& it : filesystem::directory_iterator(BGMDir)) {
+        auto path = it.path();
+        if (filesystem::is_regular_file(path))
+            mBGMBuffers.emplace_back(path);
+    }
+    update();
+}
+
+AudioSystemImpl::~AudioSystemImpl() {
+    alcMakeContextCurrent(nullptr);
+    alcDestroyContext(mContext);
+    alcCloseDevice(mDevice);
+}
+
+void AudioSystemImpl::update() {
+    if (!mBGM.isPlaying() && !mBGMBuffers.empty()) {
+        auto id = rand() % mBGMBuffers.size();
+        mBGM.play(mBGMBuffers[id]);
+    }
+}
+
+void AudioSystemImpl::play(const filesystem::path & path, Vec3f pos, Vec3f velocity) {
+    auto& src = getSource();
+    src.play(getBuffer(path));
+    src.setFactor(mSettings.rolloffFactor,mSettings.maxDistance);
+    src.setGain(mSettings.effectGain);
+    src.set3D(pos,velocity);
+}
+
+void AudioSystemImpl::play(const filesystem::path & path) {
+    auto& src = getSource();
+    src.play(getBuffer(path));
+    src.setFactor(defaultFactor,defaultDistance);
+    src.setGain(mSettings.GUIGain);
+    src.set3D({}, {});
+}
+
+void AudioSystemImpl::setSettings(AudioSystemSettings settings) {
+    mSettings = settings;
+    mBGM.setGain(mSettings.BGMGain);
+    mBGM.setFactor(defaultFactor, defaultDistance);
+    alDopplerFactor(mSettings.dopplerFactor);
+}
+
+AudioSystemSettings AudioSystemImpl::getSettings() const {
+    return mSettings;
+}
+
+Buffer::Buffer(const filesystem::path & path) {
+    alGenBuffers(1,&mBuffer);
+    CWaves loader;
+    WAVEID waveID;
+    unsigned long dataSize, frequency;
+    unsigned long bufferFormat;
+    void* ptr;
+    if (SUCCEEDED(loader.LoadWaveFile(path.string().c_str(), &waveID))) {
+        if ((SUCCEEDED(loader.GetWaveSize(waveID, &dataSize))) &&
+            (SUCCEEDED(loader.GetWaveData(waveID, &ptr))) &&
+            (SUCCEEDED(loader.GetWaveFrequency(waveID, &frequency))) &&
+            (SUCCEEDED(loader.GetWaveALBufferFormat(waveID, &alGetEnumValue, &bufferFormat)))) {
+            alBufferData(mBuffer, bufferFormat, ptr, dataSize, frequency);
+            loader.DeleteWaveFile(waveID);
         }
     }
+    throw std::exception("Failed to load this file.");
+}
 
-    void Update(ALfloat PlayerPos[3], bool BFall, bool BBlockClick, ALfloat BlockPos[3], int BRun, bool BDownWater) {
-        //设置全局常量
-        alDopplerFactor(DopplerFactor);
-        alDistanceModel(DopplerModel);
-        alSpeedOfSound(SpeedOfSound);
-        //更新音量
-        if (SBGM != -1)alSourcef(SBGM,AL_GAIN, BGMGain);
-        if (SRun != -1)alSourcef(SRun, AL_GAIN, SoundGain);
-        if (SClick != -1)alSourcef(SClick, AL_GAIN, SoundGain);
-        if (SFall != -1)alSourcef(SFall, AL_GAIN, SoundGain);
-        if (SBlockClick != -1)alSourcef(SBlockClick, AL_GAIN, SoundGain);
-        if (SDownWater != -1)alSourcef(SDownWater, AL_GAIN, SoundGain);
-        //更新环境
-        if (SBGM != -1)EFX::set(SBGM);
-        if (SRun != -1)EFX::set(SRun);
-        if (SClick != -1)EFX::set(SClick);
-        if (SFall != -1)EFX::set(SFall);
-        if (SBlockClick != -1)EFX::set(SBlockClick);
-        if (SDownWater != -1)EFX::set(SDownWater);
-        //更新玩家位置
-        PlayerPos[1] += 0.74;
-        ALfloat Vel[] = {0.0, 0.0, 0.0};
-        ALfloat Ori[] = {0.0, 0.0, -1.0, 0.0, 1.0, 0.0};
-        Device.Updatelistener(PlayerPos, Vel, Ori);
-        //更新BGM位置
-        ALint state;
-        alGetSourcei(SBGM, AL_SOURCE_STATE, &state);
-        if (state == AL_STOPPED) {
-            Device.Stop(SBGM);
-            int size = GetTickCount64() % BGMNum;
-            ALfloat Pos[] = {0.0, 0.0, 0.0};
-            ALfloat Vel[] = {0.0, 0.0, 0.0};
-            SBGM = Device.Play(BGM[size], false, BGMGain, Pos, Vel);
-        }
-        Device.Updatesource(SBGM, PlayerPos, Vel);
-        //下落
-        PlayerPos[1] -= 1.54;
-        if (BFall != FallBefore) {
-            if (BFall) { SFall = Device.Play(Fall, false, SoundGain, PlayerPos, Vel); }
-            FallBefore = BFall;
-        }
-        else {
-            if (SFall != -1)Device.Stop(SFall);
-            SFall = -1;
-        }
-        //击打方块
-        if (BBlockClick) {
-            if (SBlockClick == -1) { SBlockClick = Device.Play(BlockClick, true, SoundGain, BlockPos, Vel); }
-        }
-        else {
-            if (SBlockClick != -1)Device.Stop(SBlockClick);
-            SBlockClick = -1;
-        }
-        //奔跑
-        if ((BRun != 0) && BFall) {
-            if (SRun == -1) { SRun = Device.Play(Run, true, SoundGain, PlayerPos, Vel); }
-            Device.Updatesource(SRun, PlayerPos, Vel);
-            alSourcef(SRun, AL_PITCH, BRun * 0.5f);
-        }
-        else {
-            if (SRun != -1)Device.Stop(SRun);
-            SRun = -1;
-        }
-        //下水
-        if (BDownWater != DownWaterBefore) {
-            if (SDownWater == -1)SDownWater = Device.Play(DownWater, false, SoundGain, PlayerPos, Vel);
-            DownWaterBefore = BDownWater;
-        }
-        else {
-            if (SDownWater != -1) {
-                ALint state;
-                alGetSourcei(SDownWater, AL_SOURCE_STATE, &state);
-                if (state == AL_STOPPED) {
-                    Device.Stop(SDownWater);
-                    SDownWater = -1;
-                }
-            }
-        }
-    }
+ALuint Buffer::get() const {
+    return mBuffer;
+}
 
-    void ClickEvent() {
-        ALfloat Pos[] = {0.0, 0.0, 0.0};
-        ALfloat Vel[] = {0.0, 0.0, 0.0};
-        SClick = Device.Play(Click, false, SoundGain, Pos, Vel);
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        Device.Stop(SClick);
-        SClick = -1;
-    }
+Buffer::~Buffer() {
+    alDeleteBuffers(1, &mBuffer);
+}
 
-    void UnInit() {
-        if (SBGM != -1)Device.Stop(SBGM);
-        if (SRun != -1)Device.Stop(SRun);
-        if (SClick != -1)Device.Stop(SClick);
-        if (SFall != -1)Device.Stop(SFall);
-        if (SBlockClick != -1)Device.Stop(SBlockClick);
-        if (SDownWater != -1)Device.Stop(SDownWater);
+Source::Source() {
+    alGenSources(1,&mSource);
+}
 
-        for (unsigned int i : BGM) { if (i != -1)Device.unload(i); }
-        if (Run != -1)Device.unload(Run);
-        if (Click != -1)Device.unload(Click);
-        if (Fall != -1)Device.unload(Fall);
-        if (BlockClick != -1)Device.unload(BlockClick);
-        if (DownWater != -1)Device.unload(DownWater);
+void Source::play(const Buffer & buffer) {
+    alSourceStop(mSource);
+    alSourcei(mSource,AL_BUFFER,buffer.get());
+    alSourcei(mSource, AL_LOOPING, false);
+    alSourcePlay(mSource);
+}
 
-        Device.ShutdownAL();
-    }
+void Source::setGain(float gain) {
+    alSourcef(mSource, AL_GAIN, gain);
+}
+
+void Source::setFactor(float rolloffFactor,float maxDistance) {
+    alSourcef(mSource,AL_MAX_DISTANCE,maxDistance);
+    alSourcef(mSource, AL_REFERENCE_DISTANCE, 1.0f);
+    alSourcef(mSource, AL_ROLLOFF_FACTOR, rolloffFactor);
+}
+
+void Source::set3D(Vec3f pos, Vec3f velocity) {
+    alSourcefv(mSource, AL_POSITION, pos.data);
+    alSourcefv(mSource, AL_VELOCITY, velocity.data);
+}
+
+bool Source::isPlaying() const {
+    ALint state;
+    alGetSourcei(mSource,AL_SOURCE_STATE,&state);
+    return state == AL_PLAYING;
+}
+
+Source::~Source() {
+    alDeleteSources(1,&mSource);
 }
