@@ -328,8 +328,7 @@ namespace GUI {
             focused;
         //clicked = lp&&!pressed
 
-        //TODO:chick
-        //if (clicked)getAudioSystem().play();
+        if (clicked)getAudioSystem().play("Audio/click.ogg");
     }
 
     void Button::render() {

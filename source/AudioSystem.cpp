@@ -20,7 +20,9 @@
 #include "AudioSystem.h"
 #include <AL/al.h>
 #include <AL/alc.h>
+#pragma warning(push,0)
 #include "stb_vorbis.c"
+#pragma warning(pop)
 #include <unordered_map>
 
 constexpr auto defaultFactor = 0.0f, defaultDistance=100.0f;
@@ -192,25 +194,6 @@ Buffer::Buffer(const filesystem::path & path) {
     alGenBuffers(1,&mBuffer);
     if (alGetError() != AL_NO_ERROR)
         throw std::exception("Failed to create a buffer.");
-    /*
-    CWaves loader;
-    WAVEID waveID;
-    unsigned long dataSize, frequency;
-    unsigned long bufferFormat;
-    void* ptr;
-    if (SUCCEEDED(loader.LoadWaveFile(path.string().c_str(), &waveID))) {
-        if ((SUCCEEDED(loader.GetWaveSize(waveID, &dataSize))) &&
-            (SUCCEEDED(loader.GetWaveData(waveID, &ptr))) &&
-            (SUCCEEDED(loader.GetWaveFrequency(waveID, &frequency))) &&
-            (SUCCEEDED(loader.GetWaveALBufferFormat(waveID, &alGetEnumValue, &bufferFormat)))) {
-            alBufferData(mBuffer, bufferFormat, ptr, dataSize, frequency);
-            if (alGetError() != AL_NO_ERROR)
-                throw std::exception("Failed to set PCM data.");
-            loader.DeleteWaveFile(waveID);
-            return;
-        }
-    }
-    */
     int channels, sampleRate;
     short* output = nullptr;
     auto res=stb_vorbis_decode_filename(path.string().c_str(),&channels,&sampleRate,&output);

@@ -336,9 +336,6 @@
     <ClCompile Include="source\GUI\Menus\ShaderOptionsMenu.cpp">
       <Filter>Source\GUI\Menus</Filter>
     </ClCompile>
-    <ClCompile Include="source\GUI\Menus\SoundMenu.cpp">
-      <Filter>Source\GUI\Menus</Filter>
-    </ClCompile>
     <ClCompile Include="source\GUI\Menus\WorldMenu.cpp">
       <Filter>Source\GUI\Menus</Filter>
     </ClCompile>
@@ -356,6 +353,9 @@
     </ClCompile>
     <ClCompile Include="source\Utils\Dylib.cpp">
       <Filter>Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GUI\Menus\AudioOptionsMenu.cpp">
+      <Filter>Source\GUI\Menus</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

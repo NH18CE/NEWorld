@@ -34,5 +34,5 @@ namespace Menus {
     void multiplayermenu();
     void languagemenu();
     void Information();
-    void Soundmenu();
+    void audioOptionsMenu();
 }

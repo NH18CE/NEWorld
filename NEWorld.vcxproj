@@ -279,7 +279,7 @@
     <ClCompile Include="source\GUI\Menus\OptionsMenu.cpp" />
     <ClCompile Include="source\GUI\Menus\RenderOptionsMenu.cpp" />
     <ClCompile Include="source\GUI\Menus\ShaderOptionsMenu.cpp" />
-    <ClCompile Include="source\GUI\Menus\SoundMenu.cpp" />
+    <ClCompile Include="source\GUI\Menus\AudioOptionsMenu.cpp" />
     <ClCompile Include="source\GUI\Menus\WorldMenu.cpp" />
     <ClCompile Include="source\HeightMap.cpp" />
     <ClCompile Include="source\Frustum.cpp" />

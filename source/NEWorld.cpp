@@ -118,7 +118,8 @@ void loadOptions() {
     loadoption(options, "ForceUnicodeFont", TextRenderer::useUnicodeAsciiFont);
     AudioSystemSettings settings;
     loadoption(options, "GainOfBGM", settings.BGMGain);
-    loadoption(options, "GainOfSound", settings.effectGain);
+    loadoption(options, "GainOfEffect", settings.effectGain);
+    loadoption(options, "GainOfGUI", settings.GUIGain);
     getAudioSystem().setSettings(settings);
 }
 
@@ -149,6 +150,7 @@ void saveOptions() {
     saveoption(fileout, "ForceUnicodeFont", TextRenderer::useUnicodeAsciiFont);
     auto settings = getAudioSystem().getSettings();
     saveoption(fileout, "GainOfBGM", settings.BGMGain);
-    saveoption(fileout, "GainOfSound", settings.effectGain);
+    saveoption(fileout, "GainOfEffect", settings.effectGain);
+    saveoption(fileout, "GainOGUI", settings.GUIGain);
     fileout.close();
 }

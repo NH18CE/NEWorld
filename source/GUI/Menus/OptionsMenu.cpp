@@ -60,7 +60,7 @@ namespace Menus {
                 backbtn.text = GetStrbyKey("NEWorld.options.back");
                 savebtn.text = GetStrbyKey("NEWorld.options.save");
             }
-            if (sounbtn.clicked)Soundmenu();
+            if (sounbtn.clicked)audioOptionsMenu();
 
             FOVyBar.text = strWithVar(GetStrbyKey("NEWorld.options.fov"), FOVyNormal);
             mmsBar.text = strWithVar(GetStrbyKey("NEWorld.options.sensitivity"), mousemove);
