@@ -50,6 +50,10 @@ namespace Menus {
                 updateThreadPaused = false;
             }
 
+            if (exitbtn.clicked) {
+                GUI::BackToMain();
+                updateThreadPaused = false;
+            }
         }
     };
 
