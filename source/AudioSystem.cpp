@@ -24,6 +24,7 @@
 #include <unordered_map>
 
 constexpr auto defaultFactor = 0.0f, defaultDistance=100.0f;
+constexpr auto moved = 0xffffffff;
 
 AudioSystem & getAudioSystem() {
     static AudioSystem system;
@@ -35,6 +36,7 @@ private:
     ALuint mBuffer;
 public:
     Buffer(const filesystem::path& path);
+    Buffer(Buffer&& rhs);
     ALuint get() const;
     ~Buffer();
 };
@@ -44,6 +46,7 @@ private:
     ALuint mSource;
 public:
     Source();
+    Source(Source&& rhs);
     void play(const Buffer& buffer);
     void setGain(float gain);
     void setFactor(float rolloffFactor,float maxDistance);
@@ -203,16 +206,24 @@ Buffer::Buffer(const filesystem::path & path) {
     throw std::exception("Failed to load this file.");
 }
 
+Buffer::Buffer(Buffer && rhs):mBuffer(rhs.mBuffer) {
+    rhs.mBuffer = moved;
+}
+
 ALuint Buffer::get() const {
     return mBuffer;
 }
 
 Buffer::~Buffer() {
-    alDeleteBuffers(1, &mBuffer);
+    if(mBuffer!=moved)alDeleteBuffers(1, &mBuffer);
 }
 
 Source::Source() {
     alGenSources(1,&mSource);
+}
+
+Source::Source(Source && rhs):mSource(rhs.mSource) {
+    rhs.mSource = moved;
 }
 
 void Source::play(const Buffer & buffer) {
@@ -244,5 +255,5 @@ bool Source::isPlaying() const {
 }
 
 Source::~Source() {
-    alDeleteSources(1,&mSource);
+    if(mSource!=moved)alDeleteSources(1,&mSource);
 }
