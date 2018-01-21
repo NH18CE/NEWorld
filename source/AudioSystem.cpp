@@ -18,9 +18,9 @@
 // 
 
 #include "AudioSystem.h"
-#include<AL/al.h>
-#include<AL/alc.h>
-#include<AL/CWaves.h>
+#include <AL/al.h>
+#include <AL/alc.h>
+#include "stb_vorbis.c"
 #include <unordered_map>
 
 constexpr auto defaultFactor = 0.0f, defaultDistance=100.0f;
@@ -141,7 +141,7 @@ AudioSystemImpl::AudioSystemImpl() {
     filesystem::path BGMDir("Audio/BGM");
     for (auto&& it : filesystem::directory_iterator(BGMDir)) {
         auto path = it.path();
-        if (filesystem::is_regular_file(path))
+        if (it.status().type()==filesystem::file_type::regular && path.extension()==".ogg")
             mBGMBuffers.emplace_back(path);
     }
     mBGM = std::make_unique<Source>();
@@ -192,6 +192,7 @@ Buffer::Buffer(const filesystem::path & path) {
     alGenBuffers(1,&mBuffer);
     if (alGetError() != AL_NO_ERROR)
         throw std::exception("Failed to create a buffer.");
+    /*
     CWaves loader;
     WAVEID waveID;
     unsigned long dataSize, frequency;
@@ -209,7 +210,22 @@ Buffer::Buffer(const filesystem::path & path) {
             return;
         }
     }
-    throw std::exception("Failed to load this file.");
+    */
+    int channels, sampleRate;
+    short* output = nullptr;
+    auto res=stb_vorbis_decode_filename(path.string().c_str(),&channels,&sampleRate,&output);
+    if(res==-1)throw std::exception("Failed to load this file.");
+    ALenum format = 0;
+    if (channels == 1)format = AL_FORMAT_MONO16;
+    else if (channels == 2)format = AL_FORMAT_STEREO16;
+    if (format)alBufferData(mBuffer, format, output, res*channels * sizeof(short), sampleRate);
+    else {
+        free(output);
+        throw std::exception("Unknown format.");
+    }
+    free(output);
+    if(alGetError()!=AL_NO_ERROR)
+        throw std::exception("Failed to set PCM data.");
 }
 
 Buffer::Buffer(Buffer && rhs):mBuffer(rhs.mBuffer) {

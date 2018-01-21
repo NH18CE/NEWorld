@@ -186,9 +186,6 @@
     <ClInclude Include="include\AL\alc.h">
       <Filter>Source\Common\OpenAL</Filter>
     </ClInclude>
-    <ClInclude Include="include\AL\CWaves.h">
-      <Filter>Source\Common\OpenAL</Filter>
-    </ClInclude>
     <ClInclude Include="include\AL\efx.h">
       <Filter>Source\Common\OpenAL</Filter>
     </ClInclude>
@@ -305,9 +302,6 @@
     </ClCompile>
     <ClCompile Include="source\GameView.cpp">
       <Filter>Source\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="include\AL\CWaves.cpp">
-      <Filter>Source\Common\OpenAL</Filter>
     </ClCompile>
     <ClCompile Include="source\AudioSystem.cpp">
       <Filter>Source\Game</Filter>

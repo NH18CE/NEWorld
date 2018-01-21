@@ -213,7 +213,6 @@
   <ItemGroup>
     <ClInclude Include="include\AL\al.h" />
     <ClInclude Include="include\AL\alc.h" />
-    <ClInclude Include="include\AL\CWaves.h" />
     <ClInclude Include="include\AL\efx-creative.h" />
     <ClInclude Include="include\AL\EFX-Util.h" />
     <ClInclude Include="include\AL\efx.h" />
@@ -262,7 +261,6 @@
     <ClInclude Include="source\WorldRenderer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="include\AL\CWaves.cpp" />
     <ClCompile Include="source\API.cpp" />
     <ClCompile Include="source\AudioSystem.cpp" />
     <ClCompile Include="source\Chunk.cpp" />
