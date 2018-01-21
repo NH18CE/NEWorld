@@ -592,8 +592,8 @@ public:
         //TODO:计算速度和朝向
         //auto playerVelocity=(playerPos-playerOld)/delta;
         Vec3f playerVelocity = {};
-        Vec3f playerLookAt = {};
-        Vec3f playerUp = {};
+        Vec3f playerLookAt = {0.0f,0.0f,-1.0f};
+        Vec3f playerUp = {0.0f,1.0f,0.0f};
         getAudioSystem().update(playerPos,playerVelocity,playerLookAt,playerUp);
 
         mbp = mb;

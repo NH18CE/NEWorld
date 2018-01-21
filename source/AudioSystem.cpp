@@ -60,7 +60,7 @@ private:
     AudioSystemSettings mSettings;
     std::unordered_map<std::wstring, Buffer> mBufferCache;
     std::vector<Source> mSources;
-    Source mBGM;
+    std::unique_ptr<Source> mBGM;
     std::vector<Buffer> mBGMBuffers;
     ALCdevice* mDevice;
     ALCcontext* mContext;
@@ -138,12 +138,13 @@ AudioSystemImpl::AudioSystemImpl() {
     alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
     alDopplerFactor(1.0f);
     alSpeedOfSound(SOSAir);
-    filesystem::path BGMDir("/Audio/BGM");
+    filesystem::path BGMDir("Audio/BGM");
     for (auto&& it : filesystem::directory_iterator(BGMDir)) {
         auto path = it.path();
         if (filesystem::is_regular_file(path))
             mBGMBuffers.emplace_back(path);
     }
+    mBGM = std::make_unique<Source>();
     update();
 }
 
@@ -154,9 +155,9 @@ AudioSystemImpl::~AudioSystemImpl() {
 }
 
 void AudioSystemImpl::update() {
-    if (!mBGM.isPlaying() && !mBGMBuffers.empty()) {
+    if (!mBGM->isPlaying() && !mBGMBuffers.empty()) {
         auto id = rand() % mBGMBuffers.size();
-        mBGM.play(mBGMBuffers[id]);
+        mBGM->play(mBGMBuffers[id]);
     }
 }
 
@@ -178,8 +179,8 @@ void AudioSystemImpl::play(const filesystem::path & path) {
 
 void AudioSystemImpl::setSettings(AudioSystemSettings settings) {
     mSettings = settings;
-    mBGM.setGain(mSettings.BGMGain);
-    mBGM.setFactor(defaultFactor, defaultDistance);
+    mBGM->setGain(mSettings.BGMGain);
+    mBGM->setFactor(defaultFactor, defaultDistance);
     alDopplerFactor(mSettings.dopplerFactor);
 }
 
@@ -189,6 +190,8 @@ AudioSystemSettings AudioSystemImpl::getSettings() const {
 
 Buffer::Buffer(const filesystem::path & path) {
     alGenBuffers(1,&mBuffer);
+    if (alGetError() != AL_NO_ERROR)
+        throw std::exception("Failed to create a buffer.");
     CWaves loader;
     WAVEID waveID;
     unsigned long dataSize, frequency;
@@ -200,7 +203,10 @@ Buffer::Buffer(const filesystem::path & path) {
             (SUCCEEDED(loader.GetWaveFrequency(waveID, &frequency))) &&
             (SUCCEEDED(loader.GetWaveALBufferFormat(waveID, &alGetEnumValue, &bufferFormat)))) {
             alBufferData(mBuffer, bufferFormat, ptr, dataSize, frequency);
+            if (alGetError() != AL_NO_ERROR)
+                throw std::exception("Failed to set PCM data.");
             loader.DeleteWaveFile(waveID);
+            return;
         }
     }
     throw std::exception("Failed to load this file.");
@@ -220,6 +226,8 @@ Buffer::~Buffer() {
 
 Source::Source() {
     alGenSources(1,&mSource);
+    if (alGetError() != AL_NO_ERROR)
+        throw std::exception("Failed to create a source.");
 }
 
 Source::Source(Source && rhs):mSource(rhs.mSource) {
