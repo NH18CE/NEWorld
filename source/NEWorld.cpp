@@ -25,6 +25,7 @@
 #include "Setup.h"
 #include <iostream>
 #include <fstream>
+#include <ini.hpp>
 
 void loadOptions();
 void saveOptions();
@@ -79,74 +80,80 @@ void AppCleanUp() {
 }
 
 template <typename T>
-void loadoption(std::map<std::string, std::string>& m, const char* name, T& value) {
-    if (m.find(name) == m.end()) return;
+void loadoption(INI::Parser& options,const char* section,
+    const char* name, T& value) {
     std::stringstream ss;
-    ss << m[name];
+    ss << options.top()(section)[name];
     ss >> value;
 }
 
 void loadOptions() {
-    std::map<std::string, std::string> options;
-    std::ifstream filein("Configs/options.ini", std::ios::in);
-    if (!filein.is_open()) return;
-    std::string name, value;
-    while (!filein.eof()) {
-        filein >> name >> value;
-        options[name] = value;
-    }
-    filein.close();
-    loadoption(options, "Language", Globalization::Cur_Lang);
-    loadoption(options, "FOV", FOVyNormal);
-    loadoption(options, "RenderDistance", viewdistance);
-    loadoption(options, "Sensitivity", mousemove);
-    loadoption(options, "CloudWidth", cloudwidth);
-    loadoption(options, "SmoothLighting", SmoothLighting);
-    loadoption(options, "FancyGrass", NiceGrass);
-    loadoption(options, "MergeFaceRendering", MergeFace);
-    loadoption(options, "MultiSample", Multisample);
-    loadoption(options, "AdvancedRender", Renderer::AdvancedRender);
-    loadoption(options, "ShadowMapRes", Renderer::ShadowRes);
-    loadoption(options, "ShadowDistance", Renderer::maxShadowDist);
-    loadoption(options, "VerticalSync", vsync);
-    loadoption(options, "GUIBackgroundBlur", GUIScreenBlur);
-    loadoption(options, "ppistretch", ppistretch);
-    loadoption(options, "ForceUnicodeFont", TextRenderer::useUnicodeAsciiFont);
+    INI::Parser options("Configs/options.ini");
+    loadoption(options,"Localization", "Language", Globalization::Cur_Lang);
+    loadoption(options,"Rendering" ,"FOV", FOVyNormal);
+    loadoption(options, "Rendering", "RenderDistance", viewdistance);
+    loadoption(options, "Rendering", "Sensitivity", mousemove);
+    loadoption(options, "Rendering", "CloudWidth", cloudwidth);
+    loadoption(options, "Rendering", "SmoothLighting", SmoothLighting);
+    loadoption(options, "Rendering", "FancyGrass", NiceGrass);
+    loadoption(options, "Rendering", "MergeFaceRendering", MergeFace);
+    loadoption(options, "Rendering", "MultiSample", Multisample);
+    loadoption(options, "Rendering", "AdvancedRender", Renderer::AdvancedRender);
+    loadoption(options, "Shading", "ShadowMapRes", Renderer::ShadowRes);
+    loadoption(options, "Shading", "ShadowDistance", Renderer::maxShadowDist);
+    loadoption(options, "Rendering", "VerticalSync", vsync);
+    loadoption(options, "GUI","GUIBackgroundBlur", GUIScreenBlur);
+    loadoption(options, "GUI", "ppistretch", ppistretch);
+    loadoption(options, "GUI", "ForceUnicodeFont", TextRenderer::useUnicodeAsciiFont);
     AudioSystemSettings settings;
-    loadoption(options, "GainOfBGM", settings.BGMGain);
-    loadoption(options, "GainOfEffect", settings.effectGain);
-    loadoption(options, "GainOfGUI", settings.GUIGain);
+    loadoption(options, "Audio", "GainOfBGM", settings.BGMGain);
+    loadoption(options, "Audio", "GainOfEffect", settings.effectGain);
+    loadoption(options, "Audio", "GainOfGUI", settings.GUIGain);
     getAudioSystem().setSettings(settings);
 }
 
 template <typename T>
-void saveoption(std::ofstream& out, const char* name, T& value) {
-    out << std::string(name) << " " << value << std::endl;
+void saveoption(INI::Parser& parser,const char* section, const char* name,const T& value) {
+    std::stringstream ss;
+    ss << value;
+    parser.top()(section).values[name] = ss.str();
 }
 
 void saveOptions() {
-    std::map<std::string, std::string> options;
+    INI::Parser options("Configs/options.ini");
+    options.top() = {};
+    saveoption(options, "Localization", "Language", Globalization::Cur_Lang);
+    saveoption(options, "Rendering", "FOV", FOVyNormal);
+    saveoption(options, "Rendering", "RenderDistance", viewdistance);
+    saveoption(options, "Rendering", "Sensitivity", mousemove);
+    saveoption(options, "Rendering", "CloudWidth", cloudwidth);
+    saveoption(options, "Rendering", "SmoothLighting", SmoothLighting);
+    saveoption(options, "Rendering", "FancyGrass", NiceGrass);
+    saveoption(options, "Rendering", "MergeFaceRendering", MergeFace);
+    saveoption(options, "Rendering", "MultiSample", Multisample);
+    saveoption(options, "Rendering", "AdvancedRender", Renderer::AdvancedRender);
+    saveoption(options, "Shading", "ShadowMapRes", Renderer::ShadowRes);
+    saveoption(options, "Shading", "ShadowDistance", Renderer::maxShadowDist);
+    saveoption(options, "Rendering", "VerticalSync", vsync);
+    saveoption(options, "GUI", "GUIBackgroundBlur", GUIScreenBlur);
+    saveoption(options, "GUI", "ppistretch", ppistretch);
+    saveoption(options, "GUI", "ForceUnicodeFont", TextRenderer::useUnicodeAsciiFont);
+    auto settings = getAudioSystem().getSettings();
+    saveoption(options, "Audio", "GainOfBGM", settings.BGMGain);
+    saveoption(options, "Audio", "GainOfEffect", settings.effectGain);
+    saveoption(options, "Audio", "GainOfGUI", settings.GUIGain);
     std::ofstream fileout("Configs/options.ini", std::ios::out);
     if (!fileout.is_open()) return;
-    saveoption(fileout, "Language", Globalization::Cur_Lang);
-    saveoption(fileout, "FOV", FOVyNormal);
-    saveoption(fileout, "RenderDistance", viewdistance);
-    saveoption(fileout, "Sensitivity", mousemove);
-    saveoption(fileout, "CloudWidth", cloudwidth);
-    saveoption(fileout, "SmoothLighting", SmoothLighting);
-    saveoption(fileout, "FancyGrass", NiceGrass);
-    saveoption(fileout, "MergeFaceRendering", MergeFace);
-    saveoption(fileout, "MultiSample", Multisample);
-    saveoption(fileout, "AdvancedRender", Renderer::AdvancedRender);
-    saveoption(fileout, "ShadowMapRes", Renderer::ShadowRes);
-    saveoption(fileout, "ShadowDistance", Renderer::maxShadowDist);
-    saveoption(fileout, "VerticalSync", vsync);
-    saveoption(fileout, "GUIBackgroundBlur", GUIScreenBlur);
-    saveoption(fileout, "ppistretch", ppistretch);
-    saveoption(fileout, "ForceUnicodeFont", TextRenderer::useUnicodeAsciiFont);
-    auto settings = getAudioSystem().getSettings();
-    saveoption(fileout, "GainOfBGM", settings.BGMGain);
-    saveoption(fileout, "GainOfEffect", settings.effectGain);
-    saveoption(fileout, "GainOGUI", settings.GUIGain);
+    auto&& top = options.top();
+    top.depth = 0;
+    for (auto it = top.sections.cbegin(); it != top.sections.cend(); ++it)
+        top.ordered_sections.push_back(it);
+    for (auto&& sections : top.sections) {
+        sections.second.depth = 1;
+        auto&& values = sections.second.values;
+        for (auto it = values.cbegin(); it != values.cend(); ++it)
+            sections.second.ordered_values.push_back(it);
+    }
+    options.dump(fileout);
     fileout.close();
 }
