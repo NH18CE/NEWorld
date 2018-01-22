@@ -118,12 +118,10 @@ namespace Textures {
         bitmap.sizeX = bih.biWidth;
         bitmap.sizeY = bih.biHeight;
         bitmap.buffer = std::unique_ptr<uint8_t[]>(new unsigned char[bitmap.sizeX * bitmap.sizeY * 3]);
-        //¶ÁÈ¡Êý¾Ý
         bmpfile.read(reinterpret_cast<char*>(bitmap.buffer.get()), bitmap.sizeX * bitmap.sizeY * 3);
         bmpfile.close();
-        //ºÏ²¢Óë×ª»»
         for (unsigned int i = 0; i < bitmap.sizeX * bitmap.sizeY; i++) {
-            //°ÑBGR¸ñÊ½×ª»»ÎªRGB¸ñÊ½
+            //BGR to RGB
             unsigned char t = bitmap.buffer[ind];
             bitmap.buffer[ind] = bitmap.buffer[ind + 2];
             bitmap.buffer[ind + 2] = t;
@@ -132,9 +130,9 @@ namespace Textures {
     }
 
     void LoadRGBAImage(TEXTURE_RGBA& tex, const std::string& Filename, const std::string& MkFilename) {
-        unsigned char *rgb = nullptr, *a = nullptr;
+        std::unique_ptr<unsigned char[]>rgb{ nullptr }, a{ nullptr };
         unsigned int ind = 0;
-        bool noMaskFile = (MkFilename.empty());
+        const bool noMaskFile = MkFilename.empty();
         TEXTURE_RGBA& bitmap = tex; //·µ»ØÎ»Í¼
         bitmap.buffer = nullptr;
         bitmap.sizeX = bitmap.sizeY = 0;
@@ -157,21 +155,21 @@ namespace Textures {
         BITMAPINFOHEADER bih; //¸÷ÖÖ¹ØÓÚÎ»Í¼µÄ²ÎÊý
         //¿ªÊ¼¶ÁÈ¡
         if (!noMaskFile) {
-            maskfile.read((char*)&bfh, sizeof(BITMAPFILEHEADER)); //ÕâÁ½¸öÊÇÕ¼Î»maskÎÄ¼þµÄ
-            maskfile.read((char*)&bih, sizeof(BITMAPINFOHEADER)); //µ½ÁËºóÃæmask¿ÉÒÔÖ±½Ó´ÓÑÕÉ«²¿·Ö¿ªÊ¼¶ÁÈ¡
+            maskfile.read(reinterpret_cast<char*>(&bfh), sizeof(BITMAPFILEHEADER)); //ÕâÁ½¸öÊÇÕ¼Î»maskÎÄ¼þµÄ
+            maskfile.read(reinterpret_cast<char*>(&bih), sizeof(BITMAPINFOHEADER)); //µ½ÁËºóÃæmask¿ÉÒÔÖ±½Ó´ÓÑÕÉ«²¿·Ö¿ªÊ¼¶ÁÈ¡
         }
-        bmpfile.read((char*)&bfh, sizeof(BITMAPFILEHEADER)); //ÕæÕýµÄinfoÒÔÕâ¸öbmpÎÄ¼þÎª×¼
-        bmpfile.read((char*)&bih, sizeof(BITMAPINFOHEADER)); //Ëü½«¸²¸ÇÖ®Ç°´ÓmaskÎÄ¼þ¶Á³öÀ´µÄinfoÊý¾Ý
+        bmpfile.read(reinterpret_cast<char*>(&bfh), sizeof(BITMAPFILEHEADER)); //ÕæÕýµÄinfoÒÔÕâ¸öbmpÎÄ¼þÎª×¼
+        bmpfile.read(reinterpret_cast<char*>(&bih), sizeof(BITMAPINFOHEADER)); //Ëü½«¸²¸ÇÖ®Ç°´ÓmaskÎÄ¼þ¶Á³öÀ´µÄinfoÊý¾Ý
         bitmap.sizeX = bih.biWidth;
         bitmap.sizeY = bih.biHeight;
         bitmap.buffer = std::unique_ptr<uint8_t[]>(new unsigned char[bitmap.sizeX * bitmap.sizeY * 4]);
         //¶ÁÈ¡Êý¾Ý
-        rgb = new unsigned char[bitmap.sizeX * bitmap.sizeY * 3];
-        bmpfile.read((char*)rgb, bitmap.sizeX * bitmap.sizeY * 3);
+        rgb.reset(new unsigned char[bitmap.sizeX * bitmap.sizeY * 3]);
+        bmpfile.read(reinterpret_cast<char*>(rgb.get()), bitmap.sizeX * bitmap.sizeY * 3);
         bmpfile.close();
         if (!noMaskFile) {
-            a = new unsigned char[bitmap.sizeX * bitmap.sizeY * 3];
-            maskfile.read((char*)a, bitmap.sizeX * bitmap.sizeY * 3);
+            a.reset(new unsigned char[bitmap.sizeX * bitmap.sizeY * 3]);
+            maskfile.read(reinterpret_cast<char*>(a.get()), bitmap.sizeX * bitmap.sizeY * 3);
             maskfile.close();
         }
         //ºÏ²¢Óë×ª»»
@@ -195,14 +193,13 @@ namespace Textures {
         glBindTexture(GL_TEXTURE_2D, ret);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-        Build2DMipmaps(GL_RGB, image.sizeX, image.sizeY, (int)log2(image.sizeX), image.buffer.get());
+        Build2DMipmaps(GL_RGB, image.sizeX, image.sizeY, static_cast<int>(log2(image.sizeX)), image.buffer.get());
         return ret;
     }
 
     TextureID LoadFontTexture(const std::string& Filename) {
         TEXTURE_RGBA Texture;
         TEXTURE_RGB image;
-        uint8_t *ip, *tp;
         TextureID ret;
         LoadRGBImage(image, Filename);
         Texture.sizeX = image.sizeX;
@@ -212,8 +209,8 @@ namespace Textures {
             printf("[console][Warning] Cannot alloc memory when loading %s\n", Filename.c_str());
             return 0;
         }
-        ip = image.buffer.get();
-        tp = Texture.buffer.get();
+        uint8_t *ip = image.buffer.get();
+        uint8_t *tp = Texture.buffer.get();
         for (unsigned int i = 0; i != image.sizeX * image.sizeY; i++) {
             *tp = 255;
             tp++;
@@ -247,14 +244,12 @@ namespace Textures {
     }
 
     TextureID LoadBlock3DTexture(const std::string& Filename, const std::string& MkFilename) {
-        int sz = BLOCKTEXTURE_UNITSIZE, cnt = BLOCKTEXTURE_UNITS * BLOCKTEXTURE_UNITS;
-        uint8_t *src, *cur;
+        int sz = BLOCKTEXTURE_UNITSIZE, cnt = BLOCKTEXTURE_UNITS * BLOCKTEXTURE_UNITS;\
         glDisable(GL_TEXTURE_2D);
         glEnable(GL_TEXTURE_3D);
         TextureID ret;
         TEXTURE_RGBA image;
         LoadRGBAImage(image, Filename, MkFilename);
-        src = image.buffer.get();
         glGenTextures(1, &ret);
         glBindTexture(GL_TEXTURE_3D, ret);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -280,9 +275,9 @@ namespace Textures {
             image.buffer.get()[i + 2] = t;
         }
         std::ofstream ofs(filename, std::ios::out | std::ios::binary);
-        ofs.write((char*)&bitmapfileheader, sizeof(bitmapfileheader));
-        ofs.write((char*)&bitmapinfoheader, sizeof(bitmapinfoheader));
-        ofs.write((char*)image.buffer.get(), sizeof(uint8_t) * image.sizeX * image.sizeY * 3);
+        ofs.write(reinterpret_cast<char*>(&bitmapfileheader), sizeof(bitmapfileheader));
+        ofs.write(reinterpret_cast<char*>(&bitmapinfoheader), sizeof(bitmapinfoheader));
+        ofs.write(reinterpret_cast<char*>(image.buffer.get()), sizeof(uint8_t) * image.sizeX * image.sizeY * 3);
         ofs.close();
     }
 
@@ -310,7 +305,7 @@ namespace Textures {
                             for (int xx = 0; xx < scale; xx++) {
                                 sum += src[((y * scale + yy) * w + x * scale + xx) * cc + col];
                             }
-                        cur[(y * cur_w + x) * cc + col] = (uint8_t)(sum / (scale * scale));
+                        cur[(y * cur_w + x) * cc + col] = static_cast<uint8_t>(sum / (scale * scale));
                     }
                 }
             glTexImage2D(GL_TEXTURE_2D, i, format, cur_w, cur_h, 0, format, GL_UNSIGNED_BYTE, cur);

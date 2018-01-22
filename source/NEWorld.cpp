@@ -22,9 +22,7 @@
 #include "TextRenderer.h"
 #include "World.h"
 #include "Menus.h"
-#include "ModLoader.h"
 #include "Setup.h"
-#include <direct.h>
 #include <iostream>
 #include <fstream>
 
@@ -38,15 +36,14 @@ void ApplicationBeforeLaunch() {
     loadOptions();
     Globalization::Load();
 
-    _mkdir("Configs");
-    _mkdir("Worlds");
-    _mkdir("Screenshots");
-    _mkdir("Mods");
+    filesystem::create_directory("Configs");
+    filesystem::create_directory("Worlds");
+    filesystem::create_directory("Screenshots");
+    filesystem::create_directory("Mods");
 }
 
 void ApplicationAfterLaunch() {
     loadTextures();
-    Module::ModLoader::loadMods();
 }
 
 int main() {
@@ -79,7 +76,6 @@ int main() {
 
 void AppCleanUp() {
     World::destroyAllChunks();
-    Module::ModLoader::unloadMods();
 }
 
 template <typename T>

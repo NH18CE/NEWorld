@@ -80,7 +80,7 @@ extern "C" {
     /* Enumerant values begin at column 50. No tabs. */
 
     /* bad value */
-#define AL_INVALID                                -1
+#define AL_INVALID                                (-1)
 
 #define AL_NONE                                   0
 

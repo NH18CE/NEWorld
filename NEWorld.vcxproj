@@ -217,7 +217,7 @@
     <ClInclude Include="include\AL\EFX-Util.h" />
     <ClInclude Include="include\AL\efx.h" />
     <ClInclude Include="include\AL\xram.h" />
-    <ClInclude Include="source\API.h" />
+    <ClInclude Include="include\stb_vorbis.h" />
     <ClInclude Include="source\AudioSystem.h" />
     <ClInclude Include="source\Blocks.h" />
     <ClInclude Include="source\Chunk.h" />
@@ -238,8 +238,6 @@
     <ClInclude Include="source\Math\Vector.h" />
     <ClInclude Include="source\Menus.h" />
     <ClInclude Include="source\Mob.h" />
-    <ClInclude Include="source\ModSupport.h" />
-    <ClInclude Include="source\ModLoader.h" />
     <ClInclude Include="source\Module\ModuleLoader.h" />
     <ClInclude Include="source\Module\ModuleWalker.h" />
     <ClInclude Include="source\Object.h" />
@@ -261,7 +259,7 @@
     <ClInclude Include="source\WorldRenderer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\API.cpp" />
+    <ClCompile Include="include\stb_vorbis.cpp" />
     <ClCompile Include="source\AudioSystem.cpp" />
     <ClCompile Include="source\Chunk.cpp" />
     <ClCompile Include="source\ChunkPtrArray.cpp" />
@@ -287,7 +285,6 @@
     <ClCompile Include="source\Globalization.cpp" />
     <ClCompile Include="source\Hitbox.cpp" />
     <ClCompile Include="source\Items.cpp" />
-    <ClCompile Include="source\ModLoader.cpp" />
     <ClCompile Include="source\Module\ModuleLoader.cpp" />
     <ClCompile Include="source\Module\ModuleWalker.cpp" />
     <ClCompile Include="source\NEWorld.cpp" />

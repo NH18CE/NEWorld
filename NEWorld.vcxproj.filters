@@ -41,15 +41,9 @@
     <Filter Include="Source\Game\Textures">
       <UniqueIdentifier>{1302ac14-18ec-431c-a891-8bbfe96b9099}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Mod">
-      <UniqueIdentifier>{f2eb1263-1080-487c-afb0-6d937680ea10}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Source\Common\OpenAL">
-      <UniqueIdentifier>{756831cf-7167-4c1f-9d20-e33d38861d08}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Renderer\Shader">
       <UniqueIdentifier>{033d1b67-aa91-4782-ac09-87d8bffaafd4}</UniqueIdentifier>
@@ -68,6 +62,15 @@
     </Filter>
     <Filter Include="Source\Utils">
       <UniqueIdentifier>{0d8ef6ac-fa75-444b-ab06-eed8137737ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Audio">
+      <UniqueIdentifier>{d5dbdc93-8c47-40a7-9431-ad1fe4c589b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Audio\OpenAL">
+      <UniqueIdentifier>{756831cf-7167-4c1f-9d20-e33d38861d08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Audio\Decoder">
+      <UniqueIdentifier>{f65190e0-66ca-432d-b7d4-55f5e8e4d90b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -155,15 +158,6 @@
     <ClInclude Include="source\Blocks.h">
       <Filter>源代码\Game</Filter>
     </ClInclude>
-    <ClInclude Include="source\ModLoader.h">
-      <Filter>Source\Mod</Filter>
-    </ClInclude>
-    <ClInclude Include="source\API.h">
-      <Filter>Source\Mod</Filter>
-    </ClInclude>
-    <ClInclude Include="source\ModSupport.h">
-      <Filter>Source\Mod</Filter>
-    </ClInclude>
     <ClInclude Include="source\Setup.h">
       <Filter>Source\Common</Filter>
     </ClInclude>
@@ -181,25 +175,22 @@
     </ClInclude>
     <ClInclude Include="source\resource.h" />
     <ClInclude Include="include\AL\al.h">
-      <Filter>Source\Common\OpenAL</Filter>
+      <Filter>Source\Audio\OpenAL</Filter>
     </ClInclude>
     <ClInclude Include="include\AL\alc.h">
-      <Filter>Source\Common\OpenAL</Filter>
+      <Filter>Source\Audio\OpenAL</Filter>
     </ClInclude>
     <ClInclude Include="include\AL\efx.h">
-      <Filter>Source\Common\OpenAL</Filter>
+      <Filter>Source\Audio\OpenAL</Filter>
     </ClInclude>
     <ClInclude Include="include\AL\efx-creative.h">
-      <Filter>Source\Common\OpenAL</Filter>
+      <Filter>Source\Audio\OpenAL</Filter>
     </ClInclude>
     <ClInclude Include="include\AL\EFX-Util.h">
-      <Filter>Source\Common\OpenAL</Filter>
+      <Filter>Source\Audio\OpenAL</Filter>
     </ClInclude>
     <ClInclude Include="include\AL\xram.h">
-      <Filter>Source\Common\OpenAL</Filter>
-    </ClInclude>
-    <ClInclude Include="source\AudioSystem.h">
-      <Filter>Source\Game</Filter>
+      <Filter>Source\Audio\OpenAL</Filter>
     </ClInclude>
     <ClInclude Include="source\Math\Vector.h">
       <Filter>Source\Common\Math</Filter>
@@ -222,6 +213,12 @@
     </ClInclude>
     <ClInclude Include="source\Utils\Concept.h">
       <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stb_vorbis.h">
+      <Filter>Source\Audio\Decoder</Filter>
+    </ClInclude>
+    <ClInclude Include="source\AudioSystem.h">
+      <Filter>Source\Audio</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -285,12 +282,6 @@
     <ClCompile Include="source\WorldRenderer.cpp">
       <Filter>Source\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="source\ModLoader.cpp">
-      <Filter>Source\Mod</Filter>
-    </ClCompile>
-    <ClCompile Include="source\API.cpp">
-      <Filter>Source\Mod</Filter>
-    </ClCompile>
     <ClCompile Include="source\Setup.cpp">
       <Filter>Source\Common</Filter>
     </ClCompile>
@@ -301,9 +292,6 @@
       <Filter>Source\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="source\GameView.cpp">
-      <Filter>Source\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="source\AudioSystem.cpp">
       <Filter>Source\Game</Filter>
     </ClCompile>
     <ClCompile Include="source\Hitbox.cpp">
@@ -356,6 +344,12 @@
     </ClCompile>
     <ClCompile Include="source\GUI\Menus\AudioOptionsMenu.cpp">
       <Filter>Source\GUI\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="include\stb_vorbis.cpp">
+      <Filter>Source\Audio\Decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="source\AudioSystem.cpp">
+      <Filter>Source\Audio</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
