@@ -35,7 +35,7 @@ void saveOptions();
 
 void ApplicationBeforeLaunch() {
     loadOptions();
-    Globalization::load();
+    I18N::load();
 
     filesystem::create_directory("Configs");
     filesystem::create_directory("Worlds");
@@ -89,7 +89,7 @@ void loadoption(INI::Parser& options,const char* section,
 
 void loadOptions() {
     INI::Parser options("Configs/options.ini");
-    loadoption(options,"Localization", "Language", Globalization::Cur_Lang);
+    loadoption(options,"Localization", "Language", I18N::curLang);
     loadoption(options,"Rendering" ,"FOV", FOVyNormal);
     loadoption(options, "Rendering", "RenderDistance", viewdistance);
     loadoption(options, "Rendering", "Sensitivity", mousemove);
@@ -122,7 +122,7 @@ void saveoption(INI::Parser& parser,const char* section, const char* name,const 
 void saveOptions() {
     INI::Parser options("Configs/options.ini");
     options.top() = {};
-    saveoption(options, "Localization", "Language", Globalization::Cur_Lang);
+    saveoption(options, "Localization", "Language", I18N::curLang);
     saveoption(options, "Rendering", "FOV", FOVyNormal);
     saveoption(options, "Rendering", "RenderDistance", viewdistance);
     saveoption(options, "Rendering", "Sensitivity", mousemove);

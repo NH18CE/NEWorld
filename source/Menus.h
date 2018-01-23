@@ -19,9 +19,8 @@
 
 #pragma once
 #include "GUI.h"
-#include "Globalization.h"
+#include "I18N.h"
 #include "AudioSystem.h"
-using Globalization::GetStrbyKey;
 
 namespace Menus {
     void options();

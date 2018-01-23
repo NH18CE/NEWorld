@@ -20,10 +20,12 @@
 #include "Menus.h"
 #include <deque>
 #include <fstream>
+#include <utility>
 
 struct Langinfo {
-    std::string Symbol, EngSymbol, Name;
-    GUI::Button* Button;
+    Langinfo(std::string  str, GUI::Button* const btn) : symbol(std::move(str)), button(btn) {}
+    std::string symbol;
+    GUI::Button* button;
 };
 
 namespace Menus {
@@ -35,34 +37,26 @@ namespace Menus {
 
         void onLoad() override {
             Langs.clear();
-            title = GUI::Label(GetStrbyKey("NEWorld.language.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
-            backbtn = GUI::Button(GetStrbyKey("NEWorld.language.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
+            title = GUI::Label(I18N::get("NEWorld.language.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
+            backbtn = GUI::Button(I18N::get("NEWorld.language.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
             registerControls({ &title, &backbtn });
-            std::ifstream index("Lang/Langs.txt");
-            int count;
-            index >> count;
-            Langinfo Info;
-            for (int i = 0; i < count; i++) {
-                index >> Info.Symbol;
-                std::ifstream LF("Lang/" + Info.Symbol + ".lang");
-                std::getline(LF, Info.EngSymbol);
-                std::getline(LF, Info.Name);
-                LF.close();
-                Info.Button = new GUI::Button(Info.EngSymbol + "--" + Info.Name, -200, 200, i * 36 + 42, i * 36 + 72,
+            int count = 0;
+            I18N::iterate([&count, this](const I18N::LangInfo& inf) {
+                auto btn = new GUI::Button(inf.engId + "--" + inf.prettyName, -200, 200, count * 36 + 42, count * 36 + 72,
                                               0.5, 0.5, 0.0, 0.0);
-                registerControls({ Info.Button });
-                Langs.push_back(Info);
-            }
-            index.close();
+                registerControl(btn);
+                Langs.emplace_back(inf.id, btn);
+                ++count;
+            });
         }
 
         void onUpdate() override {
             if (backbtn.clicked) GUI::popPage();
-            for (auto& Lang : Langs) {
-                if (Lang.Button->clicked) {
+            for (auto& lang : Langs) {
+                if (lang.button->clicked) {
                     GUI::popPage();
-                    if (Globalization::Cur_Lang != Lang.Symbol) {
-                        Globalization::loadLang(Lang.Symbol);
+                    if (I18N::curLang != lang.symbol) {
+                        I18N::loadLang(lang.symbol);
                         GUI::BackToMain();
                     }
                     break;
@@ -71,13 +65,13 @@ namespace Menus {
         }
 
         void onLeave() override {
-            for (auto& Lang : Langs) {
-                for (std::vector<GUI::Controls*>::iterator iter = children.begin(); iter != children.end();) {
-                    if ((*iter)->id == Lang.Button->id) iter = children.erase(iter);
+            for (auto& lang : Langs) {
+                for (auto iter = children.begin(); iter != children.end();) {
+                    if ((*iter)->id == lang.button->id) iter = children.erase(iter);
                     else ++iter;
                 }
-                Lang.Button->destroy();
-                delete Lang.Button;
+                lang.button->destroy();
+                delete lang.button;
             }
         }
     };

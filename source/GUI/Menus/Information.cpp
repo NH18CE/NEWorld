@@ -43,7 +43,7 @@ namespace Menus {
         GUI::Button backbtn;
 
         void onLoad() override {
-            backbtn = GUI::Button(GetStrbyKey("NEWorld.language.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
+            backbtn = GUI::Button(I18N::get("NEWorld.language.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
             registerControls({ &backbtn });
         }
 

@@ -21,7 +21,7 @@
 #include <utility>
 #include "StdInclude.h"
 #include "Definitions.h"
-#include "Globalization.h"
+#include "I18N.h"
 
 namespace Blocks {
     enum BlockID {
@@ -57,7 +57,7 @@ namespace Blocks {
             mIsDark(false), mCanExplode(canExplode) { };
 
         //获得方块名称
-        std::string getBlockName() const { return Globalization::GetStrbyKey(mUri); }
+        std::string getBlockName() const { return I18N::get(mUri); }
         //是否是固体
         bool isSolid() const { return mSolid; }
         //是否不透明

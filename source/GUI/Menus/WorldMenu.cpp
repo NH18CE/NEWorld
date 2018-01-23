@@ -43,11 +43,11 @@ namespace Menus {
         GUI::Button enterbtn, deletebtn, backbtn;
 
         void onLoad() override {
-            title = GUI::Label(GetStrbyKey("NEWorld.worlds.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
+            title = GUI::Label(I18N::get("NEWorld.worlds.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
             vscroll = GUI::Vscroll(100, 0, 275, 295, 36, -20, 0.5, 0.5, 0.0, 1.0);
-            enterbtn = GUI::Button(GetStrbyKey("NEWorld.worlds.enter"), -250, -10, -80, -56, 0.5, 0.5, 1.0, 1.0);
-            deletebtn = GUI::Button(GetStrbyKey("NEWorld.worlds.delete"), 10, 250, -80, -56, 0.5, 0.5, 1.0, 1.0);
-            backbtn = GUI::Button(GetStrbyKey("NEWorld.worlds.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
+            enterbtn = GUI::Button(I18N::get("NEWorld.worlds.enter"), -250, -10, -80, -56, 0.5, 0.5, 1.0, 1.0);
+            deletebtn = GUI::Button(I18N::get("NEWorld.worlds.delete"), 10, 250, -80, -56, 0.5, 0.5, 1.0, 1.0);
+            backbtn = GUI::Button(I18N::get("NEWorld.worlds.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
             registerControls({ &title, &vscroll, &enterbtn, &deletebtn, &backbtn });
             World::worldname = "";
             enterbtn.enabled = false;
@@ -225,9 +225,9 @@ namespace Menus {
             UIVertex(midp - 250, 48 + i * 64 + 60);
             glEnd();
             TextRenderer::renderString(
-                static_cast<int>(windowwidth / stretch - TextRenderer::getStrWidth(GetStrbyKey("NEWorld.worlds.new"))) /
+                static_cast<int>(windowwidth / stretch - TextRenderer::getStrWidth(I18N::get("NEWorld.worlds.new"))) /
                 2,
-                (140 + i * 128) / 2, GetStrbyKey("NEWorld.worlds.new"));
+                (140 + i * 128) / 2, I18N::get("NEWorld.worlds.new"));
             glDisable(GL_SCISSOR_TEST);
         }
     };

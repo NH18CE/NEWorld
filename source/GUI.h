@@ -19,17 +19,17 @@
 
 #pragma once
 #include "Definitions.h"
-#include "Globalization.h"
+#include "I18N.h"
 
 extern int getMouseButton();
 extern int getMouseScroll();
 
 inline std::string BoolYesNo(bool b) {
-    return b ? Globalization::GetStrbyKey("NEWorld.yes") : Globalization::GetStrbyKey("NEWorld.no");
+    return b ? I18N::get("NEWorld.yes") : I18N::get("NEWorld.no");
 }
 
 inline std::string BoolEnabled(bool b) {
-    return b ? Globalization::GetStrbyKey("NEWorld.enabled") : Globalization::GetStrbyKey("NEWorld.disabled");
+    return b ? I18N::get("NEWorld.enabled") : I18N::get("NEWorld.disabled");
 }
 
 template <typename T>

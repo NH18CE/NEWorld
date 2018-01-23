@@ -232,7 +232,7 @@
     <ClInclude Include="source\Definitions.h" />
     <ClInclude Include="source\Frustum.h" />
     <ClInclude Include="source\GUI.h" />
-    <ClInclude Include="source\Globalization.h" />
+    <ClInclude Include="source\I18N.h" />
     <ClInclude Include="source\Hitbox.h" />
     <ClInclude Include="source\Items.h" />
     <ClInclude Include="source\Math\Matrix.h" />
@@ -283,7 +283,7 @@
     <ClCompile Include="source\HeightMap.cpp" />
     <ClCompile Include="source\Frustum.cpp" />
     <ClCompile Include="source\GUI.cpp" />
-    <ClCompile Include="source\Globalization.cpp" />
+    <ClCompile Include="source\I18N.cpp" />
     <ClCompile Include="source\Hitbox.cpp" />
     <ClCompile Include="source\Items.cpp" />
     <ClCompile Include="source\Module\ModuleLoader.cpp" />

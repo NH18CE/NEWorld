@@ -28,13 +28,13 @@ namespace Menus {
         GUI::Trackbar shadowresbar, shadowdistbar;
 
         void onLoad() override {
-            title = GUI::Label(GetStrbyKey("NEWorld.shaders.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
+            title = GUI::Label(I18N::get("NEWorld.shaders.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
             enablebtn = GUI::Button("", -250, -10, 60, 84, 0.5, 0.5, 0.0, 0.0);
             shadowresbar = GUI::Trackbar("", 120, (int)(log2(Renderer::ShadowRes) - 10) * 40 - 1, 10, 250, 60, 84, 0.5,
                                          0.5, 0.0, 0.0);
             shadowdistbar = GUI::Trackbar("", 120, (Renderer::maxShadowDist - 2) * 4 - 1, -250, -10, 96, 120, 0.5, 0.5,
                                           0.0, 0.0);
-            backbtn = GUI::Button(GetStrbyKey("NEWorld.render.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
+            backbtn = GUI::Button(I18N::get("NEWorld.render.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
             registerControls({ &title, &enablebtn, &shadowresbar, &shadowdistbar, &backbtn });
             Renderer::destroyShaders();
             if (!Renderer::AdvancedRender) shadowresbar.enabled = shadowdistbar.enabled = false;
@@ -52,13 +52,13 @@ namespace Menus {
                 GUI::popPage();
                 if (Renderer::AdvancedRender) Renderer::initShaders();
             }
-            enablebtn.text = GetStrbyKey("NEWorld.shaders.enable") + BoolYesNo(Renderer::AdvancedRender);
+            enablebtn.text = I18N::get("NEWorld.shaders.enable") + BoolYesNo(Renderer::AdvancedRender);
             std::stringstream ss;
             ss << Renderer::ShadowRes;
-            shadowresbar.text = GetStrbyKey("NEWorld.shaders.shadowres") + ss.str() + "x";
+            shadowresbar.text = I18N::get("NEWorld.shaders.shadowres") + ss.str() + "x";
             ss.str("");
             ss << Renderer::maxShadowDist;
-            shadowdistbar.text = GetStrbyKey("NEWorld.shaders.distance") + ss.str();
+            shadowdistbar.text = I18N::get("NEWorld.shaders.distance") + ss.str();
 
         }
     };

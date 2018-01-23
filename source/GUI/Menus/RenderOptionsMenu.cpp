@@ -27,15 +27,15 @@ namespace Menus {
         GUI::Trackbar msaabar;
 
         void onLoad() override {
-            title = GUI::Label(GetStrbyKey("NEWorld.render.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
+            title = GUI::Label(I18N::get("NEWorld.render.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
             smoothlightingbtn = GUI::Button("", -250, -10, 60, 84, 0.5, 0.5, 0.0, 0.0);
             fancygrassbtn = GUI::Button("", 10, 250, 60, 84, 0.5, 0.5, 0.0, 0.0);
             mergefacebtn = GUI::Button("", -250, -10, 96, 120, 0.5, 0.5, 0.0, 0.0);
             msaabar = GUI::Trackbar("", 120, Multisample == 0 ? 0 : (int)(log2(Multisample) - 1) * 30 - 1, 10, 250, 96,
                                     120, 0.5, 0.5, 0.0, 0.0);
-            shaderbtn = GUI::Button(GetStrbyKey("NEWorld.render.shaders"), -250, -10, 132, 156, 0.5, 0.5, 0.0, 0.0);
+            shaderbtn = GUI::Button(I18N::get("NEWorld.render.shaders"), -250, -10, 132, 156, 0.5, 0.5, 0.0, 0.0);
             vsyncbtn = GUI::Button("", 10, 250, 132, 156, 0.5, 0.5, 0.0, 0.0);
-            backbtn = GUI::Button(GetStrbyKey("NEWorld.render.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
+            backbtn = GUI::Button(I18N::get("NEWorld.render.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
             registerControls({ &title, &smoothlightingbtn, &fancygrassbtn, &mergefacebtn, &msaabar, &shaderbtn,
                              &vsyncbtn, &backbtn });
         }
@@ -57,13 +57,13 @@ namespace Menus {
             if (backbtn.clicked) GUI::popPage();
             std::stringstream ss;
             ss << Multisample;
-            smoothlightingbtn.text = GetStrbyKey("NEWorld.render.smooth") + BoolEnabled(SmoothLighting);
-            fancygrassbtn.text = GetStrbyKey("NEWorld.render.grasstex") + BoolYesNo(NiceGrass);
-            mergefacebtn.text = GetStrbyKey("NEWorld.render.merge") + BoolEnabled(MergeFace);
-            msaabar.text = GetStrbyKey("NEWorld.render.multisample") + (Multisample != 0
+            smoothlightingbtn.text = I18N::get("NEWorld.render.smooth") + BoolEnabled(SmoothLighting);
+            fancygrassbtn.text = I18N::get("NEWorld.render.grasstex") + BoolYesNo(NiceGrass);
+            mergefacebtn.text = I18N::get("NEWorld.render.merge") + BoolEnabled(MergeFace);
+            msaabar.text = I18N::get("NEWorld.render.multisample") + (Multisample != 0
                                                                             ? ss.str() + "x"
                                                                             : BoolEnabled(false));
-            vsyncbtn.text = GetStrbyKey("NEWorld.render.vsync") + BoolEnabled(vsync);
+            vsyncbtn.text = I18N::get("NEWorld.render.vsync") + BoolEnabled(vsync);
 
         }
     };
