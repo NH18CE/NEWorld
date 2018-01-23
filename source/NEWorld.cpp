@@ -35,7 +35,7 @@ void saveOptions();
 
 void ApplicationBeforeLaunch() {
     loadOptions();
-    Globalization::Load();
+    Globalization::load();
 
     filesystem::create_directory("Configs");
     filesystem::create_directory("Worlds");

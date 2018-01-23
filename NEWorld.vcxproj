@@ -217,6 +217,7 @@
     <ClInclude Include="include\AL\EFX-Util.h" />
     <ClInclude Include="include\AL\efx.h" />
     <ClInclude Include="include\AL\xram.h" />
+    <ClInclude Include="include\ini.hpp" />
     <ClInclude Include="include\stb_vorbis.h" />
     <ClInclude Include="source\AudioSystem.h" />
     <ClInclude Include="source\Blocks.h" />

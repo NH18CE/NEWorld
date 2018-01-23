@@ -220,6 +220,9 @@
     <ClInclude Include="source\AudioSystem.h">
       <Filter>Source\Audio</Filter>
     </ClInclude>
+    <ClInclude Include="include\ini.hpp">
+      <Filter>Source\Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\NEWorld.cpp">

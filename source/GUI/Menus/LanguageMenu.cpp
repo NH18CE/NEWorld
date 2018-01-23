@@ -62,7 +62,7 @@ namespace Menus {
                 if (Lang.Button->clicked) {
                     GUI::popPage();
                     if (Globalization::Cur_Lang != Lang.Symbol) {
-                        Globalization::LoadLang(Lang.Symbol);
+                        Globalization::loadLang(Lang.Symbol);
                         GUI::BackToMain();
                     }
                     break;

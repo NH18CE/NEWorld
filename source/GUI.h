@@ -74,6 +74,10 @@ namespace GUI {
 
     class Form;
 
+    struct Margin {
+        
+    };
+
     class Controls {
     public:
         //控件基类，只要是控件都得继承这个
