@@ -1,5 +1,5 @@
 // 
-// NEWorld: SoundMenu.cpp
+// NEWorld: AudioOptionsMenu.cpp
 // NEWorld: A Free Game with Similar Rules to Minecraft.
 // Copyright (C) 2015-2018 NEWorld Team
 // 
@@ -20,23 +20,26 @@
 #include "Menus.h"
 
 namespace Menus {
-    class AudioOptionsMenu final: public GUI::Form {
+    class AudioOptionsMenu final : public GUI::Form {
     private:
         GUI::Label mTitle;
         GUI::Button mBackBtn;
-        GUI::Trackbar mBGMGain, mEffectGain,mGUIGain;
+        GUI::Trackbar mBGMGain, mEffectGain, mGUIGain;
 
         void onLoad() override {
             mTitle = GUI::Label(I18N::get("NEWorld.sound.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
             auto settings = getAudioSystem().getSettings();
-            mBGMGain = GUI::Trackbar(I18N::get("NEWorld.sound.BGMGain"), 100, 
-                static_cast<int>(settings.BGMGain * 300.0f), -200, 201,60, 84, 0.5, 0.5, 0.0, 0.0);
-            mEffectGain = GUI::Trackbar(I18N::get("NEWorld.sound.effectGain"), 100, 
-                static_cast<int>(settings.effectGain * 300.0f), -200,201, 90, 114, 0.5, 0.5, 0.0, 0.0);
+            mBGMGain = GUI::Trackbar(I18N::get("NEWorld.sound.BGMGain"), 100,
+                                     static_cast<int>(settings.BGMGain * 300.0f), -200, 201, 60, 84, 0.5, 0.5, 0.0,
+                                     0.0);
+            mEffectGain = GUI::Trackbar(I18N::get("NEWorld.sound.effectGain"), 100,
+                                        static_cast<int>(settings.effectGain * 300.0f), -200, 201, 90, 114, 0.5, 0.5,
+                                        0.0, 0.0);
             mGUIGain = GUI::Trackbar(I18N::get("NEWorld.sound.GUIGain"), 100,
-                static_cast<int>(settings.GUIGain * 300.0f), -200,201, 120, 144, 0.5, 0.5, 0.0, 0.0);
+                                     static_cast<int>(settings.GUIGain * 300.0f), -200, 201, 120, 144, 0.5, 0.5, 0.0,
+                                     0.0);
             mBackBtn = GUI::Button(I18N::get("NEWorld.sound.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            registerControls({ &mTitle, &mBGMGain, &mEffectGain, &mGUIGain,&mBackBtn });
+            registerControls({&mTitle, &mBGMGain, &mEffectGain, &mGUIGain, &mBackBtn});
         }
 
         void onUpdate() override {
@@ -45,9 +48,10 @@ namespace Menus {
             settings.effectGain = mEffectGain.barpos / 300.0f;
             settings.GUIGain = mGUIGain.barpos / 300.0f;
             getAudioSystem().setSettings(settings);
-            mBGMGain.text = I18N::get("NEWorld.sound.BGMGain") +":"+std::to_string(mBGMGain.barpos/3)+"%";
-            mEffectGain.text = I18N::get("NEWorld.sound.effectGain") +":"+ std::to_string(mEffectGain.barpos / 3) + "%";
-            mGUIGain.text = I18N::get("NEWorld.sound.GUIGain") +":"+ std::to_string(mGUIGain.barpos / 3) + "%";
+            mBGMGain.text = I18N::get("NEWorld.sound.BGMGain") + ":" + std::to_string(mBGMGain.barpos / 3) + "%";
+            mEffectGain.text = I18N::get("NEWorld.sound.effectGain") + ":" + std::to_string(mEffectGain.barpos / 3) +
+                "%";
+            mGUIGain.text = I18N::get("NEWorld.sound.GUIGain") + ":" + std::to_string(mGUIGain.barpos / 3) + "%";
             if (mBackBtn.clicked) GUI::popPage();
         }
     };

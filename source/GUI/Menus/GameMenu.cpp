@@ -31,7 +31,7 @@ namespace Menus {
             title = GUI::Label(I18N::get("NEWorld.pause.caption"), -225, 225, 0, 16, 0.5, 0.5, 0.25, 0.25);
             resumebtn = GUI::Button(I18N::get("NEWorld.pause.continue"), -200, 200, -35, -3, 0.5, 0.5, 0.5, 0.5);
             exitbtn = GUI::Button(I18N::get("NEWorld.pause.back"), -200, 200, 3, 35, 0.5, 0.5, 0.5, 0.5);
-            registerControls({ &title, &resumebtn, &exitbtn });
+            registerControls({&title, &resumebtn, &exitbtn});
         }
 
         void onUpdate() override {

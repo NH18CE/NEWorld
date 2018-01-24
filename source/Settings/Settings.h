@@ -1,5 +1,5 @@
-// 
-// NEWorld: I18N.h
+﻿// 
+// NEWorld: Settings.h
 // NEWorld: A Free Game with Similar Rules to Minecraft.
 // Copyright (C) 2015-2018 NEWorld Team
 // 
@@ -18,18 +18,6 @@
 // 
 
 #pragma once
-
 #include <string>
-#include <functional>
 
-namespace I18N {
-    struct LangInfo {
-        std::string id, engId, prettyName;
-    };
-
-    extern std::string curLang;
-    bool load();
-    bool loadLang(const std::string& lang);
-    std::string get(const std::string& key);
-    void iterate(std::function<void(const LangInfo&)> fcn);
-};
+namespace Settings {}

@@ -24,13 +24,9 @@
 extern int getMouseButton();
 extern int getMouseScroll();
 
-inline std::string BoolYesNo(bool b) {
-    return b ? I18N::get("NEWorld.yes") : I18N::get("NEWorld.no");
-}
+inline std::string BoolYesNo(bool b) { return b ? I18N::get("NEWorld.yes") : I18N::get("NEWorld.no"); }
 
-inline std::string BoolEnabled(bool b) {
-    return b ? I18N::get("NEWorld.enabled") : I18N::get("NEWorld.disabled");
-}
+inline std::string BoolEnabled(bool b) { return b ? I18N::get("NEWorld.enabled") : I18N::get("NEWorld.disabled"); }
 
 template <typename T>
 std::string strWithVar(const std::string& str, T var) {
@@ -74,9 +70,7 @@ namespace GUI {
 
     class Form;
 
-    struct Margin {
-        
-    };
+    struct Margin { };
 
     class Controls {
     public:
@@ -89,7 +83,7 @@ namespace GUI {
         virtual void update() { } //莫非这个就是传说中的虚函数？
         virtual void render() { } //貌似是的！
         virtual void destroy() { }
-        
+
         void updatepos();
         void resize(int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b, double ya_b);
     private:
@@ -185,7 +179,8 @@ namespace GUI {
     public:
         std::vector<Controls*> children;
         bool tabp{}, shiftp{}, enterp{}, enterpl{};
-        bool upkp{}, downkp{}, upkpl{}, downkpl{}, leftkp{}, rightkp{}, leftkpl{}, rightkpl{}, backspacep{}, backspacepl{}, updated{};
+        bool upkp{}, downkp{}, upkpl{}, downkpl{}, leftkp{}, rightkp{}, leftkpl{}, rightkpl{}, backspacep{}, backspacepl
+                {}, updated{};
         int maxid{}, currentid{}, focusid{}, mx{}, my{}, mw{}, mb{}, mxl{}, myl{}, mwl{}, mbl{};
         unsigned int displaylist{};
         bool MouseOnTextbox{};

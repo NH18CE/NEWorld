@@ -1043,17 +1043,11 @@ namespace GUI {
     std::deque<Form*> ViewStack;
     std::deque<PageOpRq> ViewOps = {};
 
-    void pushPage(Form* View) {
-        ViewOps.push_back({1, View});
-    }
+    void pushPage(Form* View) { ViewOps.push_back({1, View}); }
 
-    void popPage() {
-        ViewOps.push_back({2, nullptr});
-    }
+    void popPage() { ViewOps.push_back({2, nullptr}); }
 
-    void BackToMain() {
-        ViewOps.push_back({3, nullptr});
-    }
+    void BackToMain() { ViewOps.push_back({3, nullptr}); }
 
     void PopView() {
         ViewStack.front()->onLeave();
@@ -1061,9 +1055,7 @@ namespace GUI {
         ViewStack.pop_front();
     }
 
-    void ClearStack() {
-        ViewOps.push_back({4, nullptr});
-    }
+    void ClearStack() { ViewOps.push_back({4, nullptr}); }
 
     void ProcessRequests() {
         //Process the op deque
@@ -1085,7 +1077,7 @@ namespace GUI {
                 case 4:
                     while (!ViewStack.empty()) PopView();
                     break;
-                default:;
+                default: ;
                 }
             }
             ViewOps.clear();

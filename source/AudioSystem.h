@@ -22,7 +22,7 @@
 #include "Math/Vector.h"
 #include "Utils/Concept.h"
 
-struct AudioSystemSettings final{
+struct AudioSystemSettings final {
     float BGMGain;
     float effectGain;
     float GUIGain;
@@ -36,15 +36,15 @@ class AudioSystemImpl;
 
 constexpr auto SOSAir = 343.3f, SOSWater = 1473.0f;
 
-class AudioSystem final:Singletion {
+class AudioSystem final : Singletion {
 private:
     std::unique_ptr<AudioSystemImpl> mPimpl;
     AudioSystem();
     friend AudioSystem& getAudioSystem();
 public:
-    void play(const filesystem::path& path,Vec3f pos,Vec3f velocity);
+    void play(const filesystem::path& path, Vec3f pos, Vec3f velocity);
     void play(const filesystem::path& path);
-    void update(Vec3f pos = {}, Vec3f velocity = {}, Vec3f lookAt = {0.0f,0.0f,-1.0f}, Vec3f up = {0.0f,1.0f,0.0f});
+    void update(Vec3f pos = {}, Vec3f velocity = {}, Vec3f lookAt = {0.0f, 0.0f, -1.0f}, Vec3f up = {0.0f, 1.0f, 0.0f});
     void setSettings(AudioSystemSettings settings);
     AudioSystemSettings getSettings() const;
     void setSpeedOfSound(float speed);

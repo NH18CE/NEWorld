@@ -44,16 +44,14 @@ namespace Menus {
 
         void onLoad() override {
             backbtn = GUI::Button(I18N::get("NEWorld.language.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            registerControls({ &backbtn });
+            registerControls({&backbtn});
         }
 
         void onRender() override {
             for (int i = 0; i != 13; ++i) { TextRenderer::renderString(10, 10 + 20 * i, Str[i]); }
         }
 
-        void onUpdate() override {
-            if (backbtn.clicked) GUI::popPage();
-        }
+        void onUpdate() override { if (backbtn.clicked) GUI::popPage(); }
     };
 
     void Information() { pushPage(new Info); }

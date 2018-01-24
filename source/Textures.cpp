@@ -130,7 +130,7 @@ namespace Textures {
     }
 
     void LoadRGBAImage(TEXTURE_RGBA& tex, const std::string& Filename, const std::string& MkFilename) {
-        std::unique_ptr<unsigned char[]>rgb{ nullptr }, a{ nullptr };
+        std::unique_ptr<unsigned char[]> rgb{nullptr}, a{nullptr};
         unsigned int ind = 0;
         const bool noMaskFile = MkFilename.empty();
         TEXTURE_RGBA& bitmap = tex; //·µ»ØÎ»Í¼
@@ -156,7 +156,8 @@ namespace Textures {
         //¿ªÊ¼¶ÁÈ¡
         if (!noMaskFile) {
             maskfile.read(reinterpret_cast<char*>(&bfh), sizeof(BITMAPFILEHEADER)); //ÕâÁ½¸öÊÇÕ¼Î»maskÎÄ¼þµÄ
-            maskfile.read(reinterpret_cast<char*>(&bih), sizeof(BITMAPINFOHEADER)); //µ½ÁËºóÃæmask¿ÉÒÔÖ±½Ó´ÓÑÕÉ«²¿·Ö¿ªÊ¼¶ÁÈ¡
+            maskfile.read(reinterpret_cast<char*>(&bih), sizeof(BITMAPINFOHEADER));
+            //µ½ÁËºóÃæmask¿ÉÒÔÖ±½Ó´ÓÑÕÉ«²¿·Ö¿ªÊ¼¶ÁÈ¡
         }
         bmpfile.read(reinterpret_cast<char*>(&bfh), sizeof(BITMAPFILEHEADER)); //ÕæÕýµÄinfoÒÔÕâ¸öbmpÎÄ¼þÎª×¼
         bmpfile.read(reinterpret_cast<char*>(&bih), sizeof(BITMAPINFOHEADER)); //Ëü½«¸²¸ÇÖ®Ç°´ÓmaskÎÄ¼þ¶Á³öÀ´µÄinfoÊý¾Ý
@@ -209,8 +210,8 @@ namespace Textures {
             printf("[console][Warning] Cannot alloc memory when loading %s\n", Filename.c_str());
             return 0;
         }
-        uint8_t *ip = image.buffer.get();
-        uint8_t *tp = Texture.buffer.get();
+        uint8_t* ip = image.buffer.get();
+        uint8_t* tp = Texture.buffer.get();
         for (unsigned int i = 0; i != image.sizeX * image.sizeY; i++) {
             *tp = 255;
             tp++;
@@ -244,7 +245,7 @@ namespace Textures {
     }
 
     TextureID LoadBlock3DTexture(const std::string& Filename, const std::string& MkFilename) {
-        int sz = BLOCKTEXTURE_UNITSIZE, cnt = BLOCKTEXTURE_UNITS * BLOCKTEXTURE_UNITS;\
+        int sz = BLOCKTEXTURE_UNITSIZE, cnt = BLOCKTEXTURE_UNITS * BLOCKTEXTURE_UNITS;
         glDisable(GL_TEXTURE_2D);
         glEnable(GL_TEXTURE_3D);
         TextureID ret;

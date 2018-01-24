@@ -587,14 +587,14 @@ public:
 
 
         //音效更新
-        Vec3f playerPos(Player::xpos,Player::ypos,Player::zpos);
+        Vec3f playerPos(Player::xpos, Player::ypos, Player::zpos);
         Vec3f playerOld(Player::xposold, Player::yposold, Player::zposold);
         //TODO:计算速度和朝向
         //auto playerVelocity=(playerPos-playerOld)/delta;
         Vec3f playerVelocity = {};
-        Vec3f playerLookAt = {0.0f,0.0f,-1.0f};
-        Vec3f playerUp = {0.0f,1.0f,0.0f};
-        getAudioSystem().update(playerPos,playerVelocity,playerLookAt,playerUp);
+        Vec3f playerLookAt = {0.0f, 0.0f, -1.0f};
+        Vec3f playerUp = {0.0f, 1.0f, 0.0f};
+        getAudioSystem().update(playerPos, playerVelocity, playerLookAt, playerUp);
 
         mbp = mb;
         FirstFrameThisUpdate = true;

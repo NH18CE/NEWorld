@@ -39,8 +39,10 @@ namespace Menus {
             sounbtn = GUI::Button(I18N::get("NEWorld.options.soundmenu"), 10, 250, 240, 264, 0.5, 0.5, 0.0, 0.0);
             backbtn = GUI::Button(I18N::get("NEWorld.options.back"), -250, -10, -44, -20, 0.5, 0.5, 1.0, 1.0);
             savebtn = GUI::Button(I18N::get("NEWorld.options.save"), 10, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            registerControls({ &title, &FOVyBar, &mmsBar, &viewdistBar, &rdstbtn, &gistbtn, &backbtn, &savebtn,
-                             &langbtn, &sounbtn });
+            registerControls({
+                &title, &FOVyBar, &mmsBar, &viewdistBar, &rdstbtn, &gistbtn, &backbtn, &savebtn,
+                &langbtn, &sounbtn
+            });
         }
 
         void onUpdate() override {

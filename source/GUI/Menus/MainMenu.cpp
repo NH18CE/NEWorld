@@ -31,7 +31,7 @@ namespace Menus {
             optionsbtn = GUI::Button(I18N::get("NEWorld.main.options"), -200, -3, 318, 352, 0.5, 0.5, 0.0, 0.0);
             quitbtn = GUI::Button(I18N::get("NEWorld.main.exit"), 3, 200, 318, 352, 0.5, 0.5, 0.0, 0.0);
             info = GUI::Button("i", 210, 250, 318, 352, 0.5, 0.5, 0.0, 0.0);
-            registerControls({ &title, &startbtn, &optionsbtn, &info, &quitbtn });
+            registerControls({&title, &startbtn, &optionsbtn, &info, &quitbtn});
         }
 
         void onUpdate() override {

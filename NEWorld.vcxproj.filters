@@ -11,9 +11,6 @@
     <Filter Include="Source\GUI\Menus">
       <UniqueIdentifier>{a3b20020-88a5-471c-8536-f09a7af5af56}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\GUI\Globalization">
-      <UniqueIdentifier>{a9cb3744-03b3-4b6d-af7a-a84d6f4b36d4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Renderer">
       <UniqueIdentifier>{a448efda-cf30-4017-8d62-e5feed0408dd}</UniqueIdentifier>
     </Filter>
@@ -71,6 +68,12 @@
     </Filter>
     <Filter Include="Source\Audio\Decoder">
       <UniqueIdentifier>{f65190e0-66ca-432d-b7d4-55f5e8e4d90b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Globalization">
+      <UniqueIdentifier>{a9cb3744-03b3-4b6d-af7a-a84d6f4b36d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Settings">
+      <UniqueIdentifier>{2677d105-1822-4f9f-8b2d-4b024eb9df14}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -221,7 +224,10 @@
       <Filter>Source\Common</Filter>
     </ClInclude>
     <ClInclude Include="source\I18N.h">
-      <Filter>Source\GUI\Globalization</Filter>
+      <Filter>Source\Globalization</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Settings\Settings.h">
+      <Filter>Source\Settings</Filter>
     </ClInclude>
     <ClInclude Include="source\WorldSave.h">
       <Filter>Source\Game\World</Filter>
@@ -355,7 +361,10 @@
       <Filter>Source\Audio</Filter>
     </ClCompile>
     <ClCompile Include="source\I18N.cpp">
-      <Filter>Source\GUI\Globalization</Filter>
+      <Filter>Source\Globalization</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Settings\Settings.cpp">
+      <Filter>Source\Settings</Filter>
     </ClCompile>
     <ClCompile Include="source\WorldSave.cpp">
       <Filter>Source\Game\World</Filter>

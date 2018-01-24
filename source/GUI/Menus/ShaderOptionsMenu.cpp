@@ -35,7 +35,7 @@ namespace Menus {
             shadowdistbar = GUI::Trackbar("", 120, (Renderer::maxShadowDist - 2) * 4 - 1, -250, -10, 96, 120, 0.5, 0.5,
                                           0.0, 0.0);
             backbtn = GUI::Button(I18N::get("NEWorld.render.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            registerControls({ &title, &enablebtn, &shadowresbar, &shadowdistbar, &backbtn });
+            registerControls({&title, &enablebtn, &shadowresbar, &shadowdistbar, &backbtn});
             Renderer::destroyShaders();
             if (!Renderer::AdvancedRender) shadowresbar.enabled = shadowdistbar.enabled = false;
         }

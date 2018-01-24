@@ -41,7 +41,7 @@ namespace Menus {
             backbtn = GUI::Button("<< 返回", -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
             inputstr = "";
             okbtn.enabled = false;
-            registerControls({ &title, &serveriptb, &runbtn, &okbtn, &backbtn });
+            registerControls({&title, &serveriptb, &runbtn, &okbtn, &backbtn});
         }
 
         void onUpdate() override {

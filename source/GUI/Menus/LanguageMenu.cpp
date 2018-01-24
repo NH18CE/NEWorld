@@ -23,7 +23,7 @@
 #include <utility>
 
 struct Langinfo {
-    Langinfo(std::string  str, GUI::Button* const btn) : symbol(std::move(str)), button(btn) {}
+    Langinfo(std::string str, GUI::Button* const btn) : symbol(std::move(str)), button(btn) {}
     std::string symbol;
     GUI::Button* button;
 };
@@ -39,11 +39,12 @@ namespace Menus {
             Langs.clear();
             title = GUI::Label(I18N::get("NEWorld.language.caption"), -225, 225, 20, 36, 0.5, 0.5, 0.0, 0.0);
             backbtn = GUI::Button(I18N::get("NEWorld.language.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            registerControls({ &title, &backbtn });
+            registerControls({&title, &backbtn});
             int count = 0;
             I18N::iterate([&count, this](const I18N::LangInfo& inf) {
-                auto btn = new GUI::Button(inf.engId + "--" + inf.prettyName, -200, 200, count * 36 + 42, count * 36 + 72,
-                                              0.5, 0.5, 0.0, 0.0);
+                auto btn = new GUI::Button(inf.engId + "--" + inf.prettyName, -200, 200, count * 36 + 42,
+                                           count * 36 + 72,
+                                           0.5, 0.5, 0.0, 0.0);
                 registerControl(btn);
                 Langs.emplace_back(inf.id, btn);
                 ++count;

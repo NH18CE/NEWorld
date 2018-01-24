@@ -36,8 +36,10 @@ namespace Menus {
             shaderbtn = GUI::Button(I18N::get("NEWorld.render.shaders"), -250, -10, 132, 156, 0.5, 0.5, 0.0, 0.0);
             vsyncbtn = GUI::Button("", 10, 250, 132, 156, 0.5, 0.5, 0.0, 0.0);
             backbtn = GUI::Button(I18N::get("NEWorld.render.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            registerControls({ &title, &smoothlightingbtn, &fancygrassbtn, &mergefacebtn, &msaabar, &shaderbtn,
-                             &vsyncbtn, &backbtn });
+            registerControls({
+                &title, &smoothlightingbtn, &fancygrassbtn, &mergefacebtn, &msaabar, &shaderbtn,
+                &vsyncbtn, &backbtn
+            });
         }
 
         void onUpdate() override {
@@ -61,8 +63,8 @@ namespace Menus {
             fancygrassbtn.text = I18N::get("NEWorld.render.grasstex") + BoolYesNo(NiceGrass);
             mergefacebtn.text = I18N::get("NEWorld.render.merge") + BoolEnabled(MergeFace);
             msaabar.text = I18N::get("NEWorld.render.multisample") + (Multisample != 0
-                                                                            ? ss.str() + "x"
-                                                                            : BoolEnabled(false));
+                                                                          ? ss.str() + "x"
+                                                                          : BoolEnabled(false));
             vsyncbtn.text = I18N::get("NEWorld.render.vsync") + BoolEnabled(vsync);
 
         }

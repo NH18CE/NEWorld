@@ -246,6 +246,7 @@
     <ClInclude Include="source\Player.h" />
     <ClInclude Include="source\Renderer.h" />
     <ClInclude Include="source\resource.h" />
+    <ClInclude Include="source\Settings\Settings.h" />
     <ClInclude Include="source\Setup.h" />
     <ClInclude Include="source\Shader.h" />
     <ClInclude Include="source\ShadowMaps.h" />
@@ -293,6 +294,7 @@
     <ClCompile Include="source\Particles.cpp" />
     <ClCompile Include="source\Player.cpp" />
     <ClCompile Include="source\Renderer.cpp" />
+    <ClCompile Include="source\Settings\Settings.cpp" />
     <ClCompile Include="source\Setup.cpp" />
     <ClCompile Include="source\Shader.cpp" />
     <ClCompile Include="source\ShadowMaps.cpp" />

@@ -48,7 +48,7 @@ namespace Menus {
             enterbtn = GUI::Button(I18N::get("NEWorld.worlds.enter"), -250, -10, -80, -56, 0.5, 0.5, 1.0, 1.0);
             deletebtn = GUI::Button(I18N::get("NEWorld.worlds.delete"), 10, 250, -80, -56, 0.5, 0.5, 1.0, 1.0);
             backbtn = GUI::Button(I18N::get("NEWorld.worlds.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            registerControls({ &title, &vscroll, &enterbtn, &deletebtn, &backbtn });
+            registerControls({&title, &vscroll, &enterbtn, &deletebtn, &backbtn});
             World::worldname = "";
             enterbtn.enabled = false;
             deletebtn.enabled = false;

@@ -196,16 +196,16 @@ namespace World {
     }
 
     bool Chunk::LoadFromFile() {
-        return worldSave->load({ cx,cy,cz }, [this](std::fstream& stream) {
-            read(mBlocks,stream, 4096 * sizeof(Block));
-            read(mBrightness,stream, 4096 * sizeof(Brightness));
-            read(&mIsDetailGenerated,stream, sizeof(bool));
+        return worldSave->load({cx, cy, cz}, [this](std::fstream& stream) {
+            read(mBlocks, stream, 4096 * sizeof(Block));
+            read(mBrightness, stream, 4096 * sizeof(Brightness));
+            read(&mIsDetailGenerated, stream, sizeof(bool));
         });
     }
 
     void Chunk::SaveToFile() {
         if (mIsModified) {
-            worldSave->save({ cx,cy,cz }, [this](std::fstream& stream) {
+            worldSave->save({cx, cy, cz}, [this](std::fstream& stream) {
                 write(mBlocks, stream, 4096 * sizeof(Block));
                 write(mBrightness, stream, 4096 * sizeof(Brightness));
                 write(&mIsDetailGenerated, stream, sizeof(bool));

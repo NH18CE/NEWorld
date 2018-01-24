@@ -43,9 +43,7 @@ void ApplicationBeforeLaunch() {
     filesystem::create_directory("Mods");
 }
 
-void ApplicationAfterLaunch() {
-    loadTextures();
-}
+void ApplicationAfterLaunch() { loadTextures(); }
 
 int main() {
     ApplicationBeforeLaunch();
@@ -75,13 +73,11 @@ int main() {
     return 0;
 }
 
-void AppCleanUp() {
-    World::destroyAllChunks();
-}
+void AppCleanUp() { World::destroyAllChunks(); }
 
 template <typename T>
-void loadoption(INI::Parser& options,const char* section,
-    const char* name, T& value) {
+void loadoption(INI::Parser& options, const char* section,
+                const char* name, T& value) {
     std::stringstream ss;
     ss << options.top()(section)[name];
     ss >> value;
@@ -89,8 +85,8 @@ void loadoption(INI::Parser& options,const char* section,
 
 void loadOptions() {
     INI::Parser options("Configs/options.ini");
-    loadoption(options,"Localization", "Language", I18N::curLang);
-    loadoption(options,"Rendering" ,"FOV", FOVyNormal);
+    loadoption(options, "Localization", "Language", I18N::curLang);
+    loadoption(options, "Rendering", "FOV", FOVyNormal);
     loadoption(options, "Rendering", "RenderDistance", viewdistance);
     loadoption(options, "Rendering", "Sensitivity", mousemove);
     loadoption(options, "Rendering", "CloudWidth", cloudwidth);
@@ -102,7 +98,7 @@ void loadOptions() {
     loadoption(options, "Shading", "ShadowMapRes", Renderer::ShadowRes);
     loadoption(options, "Shading", "ShadowDistance", Renderer::maxShadowDist);
     loadoption(options, "Rendering", "VerticalSync", vsync);
-    loadoption(options, "GUI","GUIBackgroundBlur", GUIScreenBlur);
+    loadoption(options, "GUI", "GUIBackgroundBlur", GUIScreenBlur);
     loadoption(options, "GUI", "ppistretch", ppistretch);
     loadoption(options, "GUI", "ForceUnicodeFont", TextRenderer::useUnicodeAsciiFont);
     AudioSystemSettings settings;
@@ -113,7 +109,7 @@ void loadOptions() {
 }
 
 template <typename T>
-void saveoption(INI::Parser& parser,const char* section, const char* name,const T& value) {
+void saveoption(INI::Parser& parser, const char* section, const char* name, const T& value) {
     std::stringstream ss;
     ss << value;
     parser.top()(section).values[name] = ss.str();

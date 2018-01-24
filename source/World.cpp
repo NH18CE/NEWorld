@@ -59,7 +59,7 @@ namespace World {
         cpArray.create((viewdistance + 2) * 2);
         hMap.setSize((viewdistance + 2) * 2 * 16);
         hMap.create();
-        worldSave = std::make_unique<WorldSave>("Worlds/"+worldname);
+        worldSave = std::make_unique<WorldSave>("Worlds/" + worldname);
     }
 
     inline std::pair<int, int> binarySearchChunks(const int len, const ChunkID cid) {

@@ -34,7 +34,7 @@ namespace Menus {
             worldnametb = GUI::Textbox(I18N::get("NEWorld.create.inputname"), -250, 250, 48, 72, 0.5, 0.5, 0.0, 0.0);
             okbtn = GUI::Button(I18N::get("NEWorld.create.ok"), -250, 250, 84, 120, 0.5, 0.5, 0.0, 0.0);
             backbtn = GUI::Button(I18N::get("NEWorld.create.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            registerControls({ &title, &worldnametb, &okbtn, &backbtn });
+            registerControls({&title, &worldnametb, &okbtn, &backbtn});
             inputstr = "";
             okbtn.enabled = false;
             worldnametbChanged = false;

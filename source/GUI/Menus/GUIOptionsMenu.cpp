@@ -32,7 +32,7 @@ namespace Menus {
             ppistretchbtn = GUI::Button(I18N::get("NEWorld.gui.stretch"), -250, -10, 96, 120, 0.5, 0.5, 0.0, 0.0);
             ppistat = GUI::Label("", -250, 250, 120, 144, 0.5, 0.5, 0.0, 0.0);
             backbtn = GUI::Button(I18N::get("NEWorld.gui.back"), -250, 250, -44, -20, 0.5, 0.5, 1.0, 1.0);
-            registerControls({ &title, &fontbtn, &blurbtn, &ppistretchbtn, &ppistat, &backbtn });
+            registerControls({&title, &fontbtn, &blurbtn, &ppistretchbtn, &ppistat, &backbtn});
             fontbtn.enabled = false;
         }
 

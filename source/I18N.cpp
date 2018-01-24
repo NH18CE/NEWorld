@@ -63,7 +63,7 @@ void I18N::iterate(std::function<void(const LangInfo&)> fcn) {
     for (auto& x : filesystem::directory_iterator("Lang"))
         if (x.path().extension().compare("ini")) {
             std::string name = x.path().filename().string();
-            const auto info = loadInfo(name.substr(0, name.length() -  4));
+            const auto info = loadInfo(name.substr(0, name.length() - 4));
             fcn(info);
         }
 }
