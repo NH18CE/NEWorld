@@ -26,6 +26,7 @@
 
 namespace World {
     std::string worldname;
+    std::unique_ptr<WorldSave> worldSave;
 
     Chunk** chunks;
     int loadedChunks, chunkArraySize;
@@ -54,11 +55,11 @@ namespace World {
 
     void init() {
         filesystem::create_directory("Worlds/" + worldname);
-        filesystem::create_directory("Worlds/" + worldname + "/chunks");
         WorldGen::perlinNoiseInit(3404);
         cpArray.create((viewdistance + 2) * 2);
         hMap.setSize((viewdistance + 2) * 2 * 16);
         hMap.create();
+        worldSave = std::make_unique<WorldSave>("Worlds/"+worldname);
     }
 
     inline std::pair<int, int> binarySearchChunks(const int len, const ChunkID cid) {
@@ -442,6 +443,7 @@ namespace World {
         loadedChunks = 0;
         chunkArraySize = 0;
         hMap.destroy();
+        worldSave.reset();
 
         rebuiltChunks = 0;
         rebuiltChunksCount = 0;

@@ -23,12 +23,14 @@
 #include "Blocks.h"
 #include "Frustum.h"
 #include "Renderer.h"
+#include "WorldSave.h"
 
 class Object;
 
 namespace World {
     extern std::string worldname;
     extern Brightness skylight;
+    extern std::unique_ptr<WorldSave> worldSave;
 
     class Chunk;
 
@@ -94,7 +96,5 @@ namespace World {
         void buildTerrain(bool initIfEmpty = true);
         void buildDetail();
         void build(bool initIfEmpty = true);
-
-        std::string getChunkPath() const;
     };
 }

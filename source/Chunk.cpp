@@ -165,6 +165,7 @@ namespace World {
     }
 
     void Chunk::buildDetail() {
+        /*
         int index = 0;
         for (int x = 0; x < 16; x++) {
             for (int y = 0; y < 16; y++) {
@@ -177,6 +178,7 @@ namespace World {
                 }
             }
         }
+        */
     }
 
     void Chunk::build(bool initIfEmpty) {
@@ -184,26 +186,6 @@ namespace World {
         if (!mIsEmpty)
             buildDetail();
         mIsModified = false;
-    }
-
-    inline void hexString32(int32_t in, char* dst) noexcept {
-        constexpr const char chars[] = "0123456789abcdef";
-        dst[0] = chars[(in & 0xF0000000) >> 28];
-        dst[1] = chars[(in & 0xF000000) >> 24];
-        dst[2] = chars[(in & 0xF00000) >> 20];
-        dst[3] = chars[(in & 0xF0000) >> 16];
-        dst[4] = chars[(in & 0xF000) >> 12];
-        dst[5] = chars[(in & 0xF00) >> 8];
-        dst[6] = chars[(in & 0xF0) >> 4];
-        dst[7] = chars[(in & 0xF)];
-    }
-
-    std::string Chunk::getChunkPath() const {
-        char name[25] = {0};
-        hexString32(cx, name);
-        hexString32(cy, name + 8);
-        hexString32(cz, name + 16);
-        return "Worlds/" + worldname + "/chunks/" + name;
     }
 
     void Chunk::load(bool initIfEmpty) {
@@ -214,24 +196,20 @@ namespace World {
     }
 
     bool Chunk::LoadFromFile() {
-        std::ifstream file(getChunkPath(), std::ios::binary);
-        const bool openChunkFile = file.is_open();
-        if (openChunkFile) {
-            file.read(reinterpret_cast<char*>(mBlocks), 4096 * sizeof(Block));
-            file.read(reinterpret_cast<char*>(mBrightness), 4096 * sizeof(Brightness));
-            file.read(reinterpret_cast<char*>(&mIsDetailGenerated), sizeof(bool));
-            file.close();
-        }
-        return openChunkFile;
+        return worldSave->load({ cx,cy,cz }, [this](std::fstream& stream) {
+            read(mBlocks,stream, 4096 * sizeof(Block));
+            read(mBrightness,stream, 4096 * sizeof(Brightness));
+            read(&mIsDetailGenerated,stream, sizeof(bool));
+        });
     }
 
     void Chunk::SaveToFile() {
         if (mIsModified) {
-            std::ofstream file(getChunkPath(), std::ios::out | std::ios::binary);
-            file.write(reinterpret_cast<char*>(mBlocks), 4096 * sizeof(Block));
-            file.write(reinterpret_cast<char*>(mBrightness), 4096 * sizeof(Brightness));
-            file.write(reinterpret_cast<char*>(&mIsDetailGenerated), sizeof(bool));
-            file.close();
+            worldSave->save({ cx,cy,cz }, [this](std::fstream& stream) {
+                write(mBlocks, stream, 4096 * sizeof(Block));
+                write(mBrightness, stream, 4096 * sizeof(Brightness));
+                write(&mIsDetailGenerated, stream, sizeof(bool));
+            });
         }
     }
 

@@ -125,7 +125,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4819;4201</DisableSpecificWarnings>
-      <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;_MBCS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -190,7 +190,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;NEWORLD_GAME;NEWORLD_X64;NEWORLD_RTRTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;NEWORLD_GAME;NEWORLD_X64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <FloatingPointExceptions>true</FloatingPointExceptions>
       <OpenMPSupport>false</OpenMPSupport>
@@ -258,6 +258,7 @@
     <ClInclude Include="source\World.h" />
     <ClInclude Include="source\WorldGen.h" />
     <ClInclude Include="source\WorldRenderer.h" />
+    <ClInclude Include="source\WorldSave.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="include\stb_vorbis.cpp" />
@@ -301,6 +302,7 @@
     <ClCompile Include="source\World.cpp" />
     <ClCompile Include="source\WorldGen.cpp" />
     <ClCompile Include="source\WorldRenderer.cpp" />
+    <ClCompile Include="source\WorldSave.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="source\resource.rc" />

@@ -223,6 +223,9 @@
     <ClInclude Include="source\I18N.h">
       <Filter>Source\GUI\Globalization</Filter>
     </ClInclude>
+    <ClInclude Include="source\WorldSave.h">
+      <Filter>Source\Game\World</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\NEWorld.cpp">
@@ -353,6 +356,9 @@
     </ClCompile>
     <ClCompile Include="source\I18N.cpp">
       <Filter>Source\GUI\Globalization</Filter>
+    </ClCompile>
+    <ClCompile Include="source\WorldSave.cpp">
+      <Filter>Source\Game\World</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
