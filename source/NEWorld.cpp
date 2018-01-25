@@ -85,7 +85,11 @@ void loadoption(INI::Parser& options, const char* section,
 
 void loadOptions() {
     INI::Parser options("Configs/options.ini");
-    loadoption(options, "Localization", "Language", I18N::curLang);
+    {
+        std::string curLang;
+        loadoption(options, "Localization", "Language", curLang);
+        I18N::setCurLang(std::move(curLang));
+    }
     loadoption(options, "Rendering", "FOV", FOVyNormal);
     loadoption(options, "Rendering", "RenderDistance", viewdistance);
     loadoption(options, "Rendering", "Sensitivity", mousemove);
@@ -118,7 +122,7 @@ void saveoption(INI::Parser& parser, const char* section, const char* name, cons
 void saveOptions() {
     INI::Parser options("Configs/options.ini");
     options.top() = {};
-    saveoption(options, "Localization", "Language", I18N::curLang);
+    saveoption(options, "Localization", "Language", I18N::getCurLang);
     saveoption(options, "Rendering", "FOV", FOVyNormal);
     saveoption(options, "Rendering", "RenderDistance", viewdistance);
     saveoption(options, "Rendering", "Sensitivity", mousemove);

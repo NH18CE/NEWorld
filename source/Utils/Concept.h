@@ -1,5 +1,5 @@
 // 
-// NEWorld: Concept.h
+// NWShared: Concept.h
 // NEWorld: A Free Game with Similar Rules to Minecraft.
 // Copyright (C) 2015-2018 NEWorld Team
 // 

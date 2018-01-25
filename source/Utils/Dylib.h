@@ -1,5 +1,5 @@
 // 
-// NEWorld: Dylib.h
+// NWShared: Dylib.h
 // NEWorld: A Free Game with Similar Rules to Minecraft.
 // Copyright (C) 2015-2018 NEWorld Team
 // 
@@ -19,15 +19,16 @@
 
 #pragma once
 
+#include "Config/Config.hpp"
 #include <string>
 
-class Library {
+class NW_API Library {
 public:
     using HandleType = void*;
 
     Library() = default;
 
-    Library(const std::string& filename);
+    explicit Library(const std::string& filename);
 
     Library(Library&& library) noexcept;
 

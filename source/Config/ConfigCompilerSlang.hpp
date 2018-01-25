@@ -1,5 +1,5 @@
 // 
-// NWShared: I18N.h
+// NWShared: ConfigCompilerSlang.hpp
 // NEWorld: A Free Game with Similar Rules to Minecraft.
 // Copyright (C) 2015-2018 NEWorld Team
 // 
@@ -18,20 +18,26 @@
 // 
 
 #pragma once
+#if defined(_WIN32) || defined(__CYGWIN__)
+#    ifdef __GNUC__
+#        define EXPORT __attribute__ ((dllexport))
+#        define IMPORT __attribute__ ((dllimport))
+#    else
+#        define EXPORT __declspec(dllexport)
+#        define IMPORT __declspec(dllimport)
+#    endif
+#else
+#    define EXPORT __attribute__ ((visibility ("default")))
+#    define IMPORT
+#endif
 
-#include "Config/Config.hpp"
-#include <string>
-#include <functional>
+#if defined(_MSC_VER)
+#pragma warning(disable: 4251)
+#define _ENABLE_ATOMIC_ALIGNMENT_FIX
+#endif
 
-namespace I18N {
-    struct LangInfo {
-        std::string id, engId, prettyName;
-    };
-
-    NW_API bool load();
-    NW_API bool loadLang(const std::string& lang);
-    NW_API void setCurLang(std::string nv);
-    NW_API const std::string& getCurLang() noexcept;
-    NW_API std::string get(const std::string& key);
-    NW_API void iterate(std::function<void(const LangInfo&)> fcn);
-};
+#ifdef NW_EXPORTS
+#define NW_API EXPORT
+#else
+#define NW_API IMPORT
+#endif

@@ -1,5 +1,5 @@
 // 
-// NEWorld: AudioSystem.cpp
+// NWShared: AudioSystem.cpp
 // NEWorld: A Free Game with Similar Rules to Minecraft.
 // Copyright (C) 2015-2018 NEWorld Team
 // 
@@ -28,8 +28,7 @@ constexpr auto defaultFactor = 0.0f, defaultDistance = 100.0f;
 constexpr auto moved = 0xffffffff;
 
 AudioSystem& getAudioSystem() {
-    static AudioSystem system;
-    return system;
+    return AudioSystem::getInstance();
 }
 
 class Buffer final : Uncopyable {
@@ -97,6 +96,11 @@ AudioSystemSettings AudioSystem::getSettings() const { return mPimpl->getSetting
 
 void AudioSystem::setSpeedOfSound(float speed) { alSpeedOfSound(speed); }
 
+AudioSystem & AudioSystem::getInstance() noexcept {
+    static AudioSystem system;
+    return system;
+}
+
 AudioSystemSettings::AudioSystemSettings()
     : BGMGain(1.0f), effectGain(1.0f), GUIGain(1.0f),
       rolloffFactor(defaultFactor), maxDistance(defaultDistance), dopplerFactor(0) {}
@@ -113,7 +117,8 @@ Source& AudioSystemImpl::getSource() {
     for (auto&& src : mSources)
         if (!src.isPlaying())
             return src;
-    return mSources.emplace_back();
+    mSources.emplace_back();
+    return mSources.back();
 }
 
 AudioSystemImpl::AudioSystemImpl() {

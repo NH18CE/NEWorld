@@ -56,7 +56,7 @@ namespace Menus {
             for (auto& lang : Langs) {
                 if (lang.button->clicked) {
                     GUI::popPage();
-                    if (I18N::curLang != lang.symbol) {
+                    if (I18N::getCurLang() != lang.symbol) {
                         I18N::loadLang(lang.symbol);
                         GUI::BackToMain();
                     }

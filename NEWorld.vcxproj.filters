@@ -48,29 +48,11 @@
     <Filter Include="Source\Game\VoxCore">
       <UniqueIdentifier>{e4c311b1-d209-4daa-91e9-700d793179f4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Common\Math">
-      <UniqueIdentifier>{3f038ac5-1de4-4658-97f1-47ae925b0dda}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Game\VoxCore\HitBox">
       <UniqueIdentifier>{06238c00-6028-4e11-8493-38396bf91c4c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Module">
       <UniqueIdentifier>{99e0ca6b-3b04-4f93-bb57-eef3473424c8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Utils">
-      <UniqueIdentifier>{0d8ef6ac-fa75-444b-ab06-eed8137737ab}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Audio">
-      <UniqueIdentifier>{d5dbdc93-8c47-40a7-9431-ad1fe4c589b2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Audio\OpenAL">
-      <UniqueIdentifier>{756831cf-7167-4c1f-9d20-e33d38861d08}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Audio\Decoder">
-      <UniqueIdentifier>{f65190e0-66ca-432d-b7d4-55f5e8e4d90b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Globalization">
-      <UniqueIdentifier>{a9cb3744-03b3-4b6d-af7a-a84d6f4b36d4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Settings">
       <UniqueIdentifier>{2677d105-1822-4f9f-8b2d-4b024eb9df14}</UniqueIdentifier>
@@ -174,30 +156,6 @@
       <Filter>Source\Game</Filter>
     </ClInclude>
     <ClInclude Include="source\resource.h" />
-    <ClInclude Include="include\AL\al.h">
-      <Filter>Source\Audio\OpenAL</Filter>
-    </ClInclude>
-    <ClInclude Include="include\AL\alc.h">
-      <Filter>Source\Audio\OpenAL</Filter>
-    </ClInclude>
-    <ClInclude Include="include\AL\efx.h">
-      <Filter>Source\Audio\OpenAL</Filter>
-    </ClInclude>
-    <ClInclude Include="include\AL\efx-creative.h">
-      <Filter>Source\Audio\OpenAL</Filter>
-    </ClInclude>
-    <ClInclude Include="include\AL\EFX-Util.h">
-      <Filter>Source\Audio\OpenAL</Filter>
-    </ClInclude>
-    <ClInclude Include="include\AL\xram.h">
-      <Filter>Source\Audio\OpenAL</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Math\Vector.h">
-      <Filter>Source\Common\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Math\Matrix.h">
-      <Filter>Source\Common\Math</Filter>
-    </ClInclude>
     <ClInclude Include="source\Hitbox.h">
       <Filter>Source\Game\VoxCore\HitBox</Filter>
     </ClInclude>
@@ -207,24 +165,6 @@
     </ClInclude>
     <ClInclude Include="source\Module\ModuleWalker.h">
       <Filter>Source\Module</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Utils\Dylib.h">
-      <Filter>Source\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Utils\Concept.h">
-      <Filter>Source\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stb_vorbis.h">
-      <Filter>Source\Audio\Decoder</Filter>
-    </ClInclude>
-    <ClInclude Include="source\AudioSystem.h">
-      <Filter>Source\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ini.hpp">
-      <Filter>Source\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="source\I18N.h">
-      <Filter>Source\Globalization</Filter>
     </ClInclude>
     <ClInclude Include="source\Settings\Settings.h">
       <Filter>Source\Settings</Filter>
@@ -348,20 +288,8 @@
     <ClCompile Include="source\Module\ModuleWalker.cpp">
       <Filter>Source\Module</Filter>
     </ClCompile>
-    <ClCompile Include="source\Utils\Dylib.cpp">
-      <Filter>Source\Utils</Filter>
-    </ClCompile>
     <ClCompile Include="source\GUI\Menus\AudioOptionsMenu.cpp">
       <Filter>Source\GUI\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="include\stb_vorbis.cpp">
-      <Filter>Source\Audio\Decoder</Filter>
-    </ClCompile>
-    <ClCompile Include="source\AudioSystem.cpp">
-      <Filter>Source\Audio</Filter>
-    </ClCompile>
-    <ClCompile Include="source\I18N.cpp">
-      <Filter>Source\Globalization</Filter>
     </ClCompile>
     <ClCompile Include="source\Settings\Settings.cpp">
       <Filter>Source\Settings</Filter>

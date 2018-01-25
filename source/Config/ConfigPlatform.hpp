@@ -1,5 +1,5 @@
 // 
-// NWShared: I18N.h
+// NWShared: ConfigPlatform.hpp
 // NEWorld: A Free Game with Similar Rules to Minecraft.
 // Copyright (C) 2015-2018 NEWorld Team
 // 
@@ -18,20 +18,17 @@
 // 
 
 #pragma once
-
-#include "Config/Config.hpp"
-#include <string>
-#include <functional>
-
-namespace I18N {
-    struct LangInfo {
-        std::string id, engId, prettyName;
-    };
-
-    NW_API bool load();
-    NW_API bool loadLang(const std::string& lang);
-    NW_API void setCurLang(std::string nv);
-    NW_API const std::string& getCurLang() noexcept;
-    NW_API std::string get(const std::string& key);
-    NW_API void iterate(std::function<void(const LangInfo&)> fcn);
-};
+#if defined (__linux__) || defined (linux) || defined (__linux)
+#   define NW_TARGET_POSIX
+#   define NW_TARGET_LINUX
+#elif defined (__APPLE__)
+#   define NW_TARGET_POSIX
+#   define NW_TARGET_APPLE
+#   if defined(__MACH__)
+#       define NW_TARGET_MACOSX
+#   else
+#       define NW_TARGET_IOS
+#   endif
+#elif defined (_WIN32) || defined (_WIN64) || defined (__WIN32__) || defined (__TOS_WIN__) || defined (__WINDOWS__) || defined (__CYGWIN__)
+#   define NW_TARGET_WINDOWS
+#endif

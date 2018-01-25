@@ -1,5 +1,5 @@
 // 
-// NEWorld: Dylib.cpp
+// NWShared: Dylib.cpp
 // NEWorld: A Free Game with Similar Rules to Minecraft.
 // Copyright (C) 2015-2018 NEWorld Team
 // 
@@ -20,8 +20,12 @@
 #include "Dylib.h"
 #include <cassert>
 
-#if defined (_WIN32) || defined (_WIN64) || defined (__WIN32__) || defined (__TOS_WIN__) || defined (__WINDOWS__) || defined (__CYGWIN__)
+#ifdef NW_TARGET_WINDOWS
 
+#define NOSERVICE
+#define NOMCX
+#define NOIME
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
 namespace {

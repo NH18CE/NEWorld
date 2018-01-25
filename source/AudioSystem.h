@@ -1,5 +1,5 @@
 // 
-// NEWorld: AudioSystem.h
+// NWShared: AudioSystem.h
 // NEWorld: A Free Game with Similar Rules to Minecraft.
 // Copyright (C) 2015-2018 NEWorld Team
 // 
@@ -21,8 +21,9 @@
 #include "StdInclude.h"
 #include "Math/Vector.h"
 #include "Utils/Concept.h"
+#include "Config/Config.hpp"
 
-struct AudioSystemSettings final {
+struct NW_API AudioSystemSettings final {
     float BGMGain;
     float effectGain;
     float GUIGain;
@@ -36,11 +37,7 @@ class AudioSystemImpl;
 
 constexpr auto SOSAir = 343.3f, SOSWater = 1473.0f;
 
-class AudioSystem final : Singletion {
-private:
-    std::unique_ptr<AudioSystemImpl> mPimpl;
-    AudioSystem();
-    friend AudioSystem& getAudioSystem();
+class NW_API AudioSystem final : Singletion {
 public:
     void play(const filesystem::path& path, Vec3f pos, Vec3f velocity);
     void play(const filesystem::path& path);
@@ -48,6 +45,10 @@ public:
     void setSettings(AudioSystemSettings settings);
     AudioSystemSettings getSettings() const;
     void setSpeedOfSound(float speed);
+    static AudioSystem& getInstance() noexcept;
+private:
+    std::unique_ptr<AudioSystemImpl> mPimpl;
+    AudioSystem();
 };
 
-AudioSystem& getAudioSystem();
+NW_API AudioSystem& getAudioSystem();

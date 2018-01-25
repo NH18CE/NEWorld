@@ -1,5 +1,5 @@
 // 
-// NEWorld: I18N.cpp
+// NWShared: I18N.cpp
 // NEWorld: A Free Game with Similar Rules to Minecraft.
 // Copyright (C) 2015-2018 NEWorld Team
 // 
@@ -24,6 +24,7 @@
 
 namespace {
     std::map<std::string, std::string> kvs;
+    std::string curLang = "zh_CN";
 
     I18N::LangInfo loadInfo(const std::string& kv) {
         I18N::LangInfo ret;
@@ -38,8 +39,6 @@ namespace {
     }
 }
 
-std::string I18N::curLang = "zh_CN";
-
 bool I18N::loadLang(const std::string& lang) {
     std::ifstream file("Lang/" + lang + ".ini");
     if (file.good()) {
@@ -49,6 +48,10 @@ bool I18N::loadLang(const std::string& lang) {
     }
     return false;
 }
+
+const std::string& I18N::getCurLang() noexcept { return curLang; }
+
+void I18N::setCurLang(std::string nv) { curLang = std::move(nv); }
 
 bool I18N::load() { return loadLang(curLang); }
 
