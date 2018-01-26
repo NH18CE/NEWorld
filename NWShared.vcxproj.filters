@@ -26,6 +26,9 @@
     <Filter Include="源文件\Audio\Decoder">
       <UniqueIdentifier>{3dab55b6-3f08-4b2f-9917-d1c1a3d520b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\Module">
+      <UniqueIdentifier>{815fb45b-ac98-4054-928c-fc3c96cf7f4a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Config\Config.hpp">
@@ -79,6 +82,9 @@
     <ClInclude Include="include\stb_vorbis.h">
       <Filter>源文件\Audio\Decoder</Filter>
     </ClInclude>
+    <ClInclude Include="source\Module\Module.h">
+      <Filter>源文件\Module</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Utils\Dylib.cpp">
@@ -92,6 +98,9 @@
     </ClCompile>
     <ClCompile Include="include\stb_vorbis.cpp">
       <Filter>源文件\Audio\Decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Module\Module.cpp">
+      <Filter>源文件\Module</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -227,8 +227,6 @@
     <ClInclude Include="source\Items.h" />
     <ClInclude Include="source\Menus.h" />
     <ClInclude Include="source\Mob.h" />
-    <ClInclude Include="source\Module\ModuleLoader.h" />
-    <ClInclude Include="source\Module\ModuleWalker.h" />
     <ClInclude Include="source\Object.h" />
     <ClInclude Include="source\Particles.h" />
     <ClInclude Include="source\Player.h" />
@@ -271,8 +269,6 @@
     <ClCompile Include="source\GUI.cpp" />
     <ClCompile Include="source\Hitbox.cpp" />
     <ClCompile Include="source\Items.cpp" />
-    <ClCompile Include="source\Module\ModuleLoader.cpp" />
-    <ClCompile Include="source\Module\ModuleWalker.cpp" />
     <ClCompile Include="source\NEWorld.cpp" />
     <ClCompile Include="source\Particles.cpp" />
     <ClCompile Include="source\Player.cpp" />

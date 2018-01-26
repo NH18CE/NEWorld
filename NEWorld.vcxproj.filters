@@ -51,9 +51,6 @@
     <Filter Include="Source\Game\VoxCore\HitBox">
       <UniqueIdentifier>{06238c00-6028-4e11-8493-38396bf91c4c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Module">
-      <UniqueIdentifier>{99e0ca6b-3b04-4f93-bb57-eef3473424c8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Settings">
       <UniqueIdentifier>{2677d105-1822-4f9f-8b2d-4b024eb9df14}</UniqueIdentifier>
     </Filter>
@@ -160,12 +157,6 @@
       <Filter>Source\Game\VoxCore\HitBox</Filter>
     </ClInclude>
     <ClInclude Include="source\Hitbox.h" />
-    <ClInclude Include="source\Module\ModuleLoader.h">
-      <Filter>Source\Module</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Module\ModuleWalker.h">
-      <Filter>Source\Module</Filter>
-    </ClInclude>
     <ClInclude Include="source\Settings\Settings.h">
       <Filter>Source\Settings</Filter>
     </ClInclude>
@@ -281,12 +272,6 @@
     </ClCompile>
     <ClCompile Include="source\GUI\Menus\MultiplayerGame.cpp">
       <Filter>Source\GUI\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Module\ModuleLoader.cpp">
-      <Filter>Source\Module</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Module\ModuleWalker.cpp">
-      <Filter>Source\Module</Filter>
     </ClCompile>
     <ClCompile Include="source\GUI\Menus\AudioOptionsMenu.cpp">
       <Filter>Source\GUI\Menus</Filter>
