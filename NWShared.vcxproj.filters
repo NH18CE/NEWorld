@@ -20,14 +20,17 @@
     <Filter Include="源文件\Audio">
       <UniqueIdentifier>{fe96b9b0-2168-488b-8cf1-39434f44fbca}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\Audio\OpenAL">
-      <UniqueIdentifier>{11ab6f74-daad-4e81-aa69-fe92b7f1a262}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="源文件\Audio\Decoder">
-      <UniqueIdentifier>{3dab55b6-3f08-4b2f-9917-d1c1a3d520b7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="源文件\Module">
       <UniqueIdentifier>{815fb45b-ac98-4054-928c-fc3c96cf7f4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty">
+      <UniqueIdentifier>{eb6a6d68-48ae-422e-9de8-757c940c4df5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\OpenAL">
+      <UniqueIdentifier>{11ab6f74-daad-4e81-aa69-fe92b7f1a262}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\Decoder">
+      <UniqueIdentifier>{3dab55b6-3f08-4b2f-9917-d1c1a3d520b7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -62,25 +65,25 @@
       <Filter>源文件\Audio</Filter>
     </ClInclude>
     <ClInclude Include="include\AL\al.h">
-      <Filter>源文件\Audio\OpenAL</Filter>
+      <Filter>ThirdParty\OpenAL</Filter>
     </ClInclude>
     <ClInclude Include="include\AL\alc.h">
-      <Filter>源文件\Audio\OpenAL</Filter>
+      <Filter>ThirdParty\OpenAL</Filter>
     </ClInclude>
     <ClInclude Include="include\AL\efx-creative.h">
-      <Filter>源文件\Audio\OpenAL</Filter>
+      <Filter>ThirdParty\OpenAL</Filter>
     </ClInclude>
     <ClInclude Include="include\AL\EFX-Util.h">
-      <Filter>源文件\Audio\OpenAL</Filter>
+      <Filter>ThirdParty\OpenAL</Filter>
     </ClInclude>
     <ClInclude Include="include\AL\efx.h">
-      <Filter>源文件\Audio\OpenAL</Filter>
+      <Filter>ThirdParty\OpenAL</Filter>
     </ClInclude>
     <ClInclude Include="include\AL\xram.h">
-      <Filter>源文件\Audio\OpenAL</Filter>
+      <Filter>ThirdParty\OpenAL</Filter>
     </ClInclude>
     <ClInclude Include="include\stb_vorbis.h">
-      <Filter>源文件\Audio\Decoder</Filter>
+      <Filter>ThirdParty\Decoder</Filter>
     </ClInclude>
     <ClInclude Include="source\Module\Module.h">
       <Filter>源文件\Module</Filter>
@@ -97,7 +100,7 @@
       <Filter>源文件\Audio</Filter>
     </ClCompile>
     <ClCompile Include="include\stb_vorbis.cpp">
-      <Filter>源文件\Audio\Decoder</Filter>
+      <Filter>ThirdParty\Decoder</Filter>
     </ClCompile>
     <ClCompile Include="source\Module\Module.cpp">
       <Filter>源文件\Module</Filter>

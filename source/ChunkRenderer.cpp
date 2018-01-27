@@ -476,87 +476,87 @@ void ChunkRenderer::renderDepthModel(Chunk* c) {
 
 constexpr auto right = 0.5f, left = -0.5f, top = 0.5f, bottom = -0.5f, front = 0.5f, back = -0.5f;
 
-constexpr float cubeVert[8][3]={
-{right,top,front},//0
-{right,top,back},//1
-{right,bottom,front},//2
-{right,bottom,back},//3
-{ left,top,front },//4
-{ left,top,back },//5
-{ left,bottom,front },//6
-{ left,bottom,back }//7
+constexpr float cubeVert[8][3] = {
+    {right, top, front}, //0
+    {right, top, back}, //1
+    {right, bottom, front}, //2
+    {right, bottom, back}, //3
+    {left, top, front}, //4
+    {left, top, back}, //5
+    {left, bottom, front}, //6
+    {left, bottom, back} //7
 };
 
 //lt rt lb rb
 constexpr int cubeFace[6][4] = {
-{4,0,2,6},//front
-{5,1,7,3},//back
-{0,1,3,2},//right
-{4,5,7,6},//left
-{0,1,5,4},//top
-{2,3,7,6}//bottom
+    {4, 0, 2, 6}, //front
+    {5, 1, 7, 3}, //back
+    {0, 1, 3, 2}, //right
+    {4, 5, 7, 6}, //left
+    {0, 1, 5, 4}, //top
+    {2, 3, 7, 6} //bottom
 };
 
 float sampleBrt(const Vec3f center) {
     auto brt = 0.0f;
     for (auto i : cubeVert) {
-        const Vec3f offset{i[0],i[1],i[2]};
+        const Vec3f offset{i[0], i[1], i[2]};
         const auto pos = center + offset;
-        brt += getBrightness(pos.x,pos.y,pos.z);
+        brt += getBrightness(pos.x, pos.y, pos.z);
     }
     return brt / 8.0f;
 }
 
-Vec4f calcVertex(const Block blk,const float nbrt,const int face,const Vec3f pos,const Vec3f gPos,
-    const int id) {
+Vec4f calcVertex(const Block blk, const float nbrt, const int face, const Vec3f pos, const Vec3f gPos,
+                 const int id) {
     const auto vert = cubeFace[face][id];
-    const Vec3f offset{ cubeVert[vert][0],cubeVert[vert][1],cubeVert[vert][2] };
-    const auto vpos =pos+ offset;
-    auto brt =SmoothLighting?nbrt : sampleBrt(gPos+offset);
+    const Vec3f offset{cubeVert[vert][0], cubeVert[vert][1], cubeVert[vert][2]};
+    const auto vpos = pos + offset;
+    auto brt = SmoothLighting ? nbrt : sampleBrt(gPos + offset);
     brt /= BrightnessMax;
     if (blk != Blocks::GLOWSTONE && !AdvancedRender)brt *= 0.5f;
-    return  {vpos,brt};
+    return {vpos, brt};
 }
 
 constexpr int faceOffset[6][3] = {
-{ 0,0,1 },//front
-{0,0,-1 },//back
-{1,0,0 },//right
-{-1,0,0 },//left
-{0,1,0 },//top
-{0,-1,0 }//bottom
+    {0, 0, 1}, //front
+    {0, 0, -1}, //back
+    {1, 0, 0}, //right
+    {-1, 0, 0}, //left
+    {0, 1, 0}, //top
+    {0, -1, 0} //bottom
 };
 
-void renderFace(const Block blk,const Block nearBlk,const int texType,const int face,
-    const Vec3f pos,const Vec3f gPos) {
+void renderFace(const Block blk, const Block nearBlk, const int texType, const int face,
+                const Vec3f pos, const Vec3f gPos) {
     constexpr auto size = 1.0f / 8.0f;
-    if (!(getBlockInfo(nearBlk).isOpaque() || (blk == nearBlk &&!getBlockInfo(blk).isOpaque()))||
+    if (!(getBlockInfo(nearBlk).isOpaque() || (blk == nearBlk && !getBlockInfo(blk).isOpaque())) ||
         blk == Blocks::LEAF) {
         const auto tcx = Textures::getTexcoordX(blk, texType),
-            tcy = Textures::getTexcoordY(blk, texType);
-        const auto brt = getBrightness(gPos.x+faceOffset[face][0],gPos.y+ faceOffset[face][1],
-            gPos.z+ faceOffset[face][2]);
+                   tcy = Textures::getTexcoordY(blk, texType);
+        const auto brt = getBrightness(gPos.x + faceOffset[face][0], gPos.y + faceOffset[face][1],
+                                       gPos.z + faceOffset[face][2]);
         Vec4f vert[4]{
-            calcVertex(blk,brt,face,pos,gPos,0),
-            calcVertex(blk,brt,face,pos,gPos,1),
-            calcVertex(blk,brt,face,pos,gPos,2),
-            calcVertex(blk,brt,face,pos,gPos,3)
+            calcVertex(blk, brt, face, pos, gPos, 0),
+            calcVertex(blk, brt, face, pos, gPos, 1),
+            calcVertex(blk, brt, face, pos, gPos, 2),
+            calcVertex(blk, brt, face, pos, gPos, 3)
         };
 
         va.addPrimitive(4, {
-            tcx, tcy, vert[0].t,vert[0].t,vert[0].t,vert[0].x,vert[0].y,vert[0].z, 0.0f,
-            tcx + size, tcy, vert[1].t,vert[1].t,vert[1].t,vert[1].x,vert[1].y,vert[1].z, 0.0f,
-            tcx, tcy + size, vert[2].t,vert[2].t,vert[2].t,vert[2].x,vert[2].y,vert[2].z, 0.0f,
-            tcx+size, tcy + size, vert[3].t,vert[3].t,vert[3].t,vert[3].x,vert[3].y,vert[3].z, 0.0f
-            });
+            tcx, tcy, vert[0].t, vert[0].t, vert[0].t, vert[0].x, vert[0].y, vert[0].z, 0.0f,
+            tcx + size, tcy, vert[1].t, vert[1].t, vert[1].t, vert[1].x, vert[1].y, vert[1].z, 0.0f,
+            tcx, tcy + size, vert[2].t, vert[2].t, vert[2].t, vert[2].x, vert[2].y, vert[2].z, 0.0f,
+            tcx + size, tcy + size, vert[3].t, vert[3].t, vert[3].t, vert[3].x, vert[3].y, vert[3].z, 0.0f
+        });
     }
 }
 
-int getTexType(const Block blk,const int nx,const int ny,const int nz) {
-    return (NiceGrass && blk == Blocks::GRASS && getBlock(nx,ny,nz)==Blocks::GRASS)?1:2;
+int getTexType(const Block blk, const int nx, const int ny, const int nz) {
+    return (NiceGrass && blk == Blocks::GRASS && getBlock(nx, ny, nz) == Blocks::GRASS) ? 1 : 2;
 }
 
-void renderBlock(const int x,const int y,const int z,const Chunk* const chunkptr) {
+void renderBlock(const int x, const int y, const int z, const Chunk* const chunkptr) {
     const auto cx = chunkptr->cx, cy = chunkptr->cy, cz = chunkptr->cz;
     const auto gx = cx * 16 + x, gy = cy * 16 + y, gz = cz * 16 + z;
 
@@ -571,12 +571,12 @@ void renderBlock(const int x,const int y,const int z,const Chunk* const chunkptr
         y > 0 ? chunkptr->getBlock(x, y - 1, z) : getBlock(gx, gy - 1, gz, Blocks::ROCK)
     };
 
-    const Vec3f pos(x,y,z),gPos(gx,gy,gz);
+    const Vec3f pos(x, y, z), gPos(gx, gy, gz);
 
     renderFace(blk[0], blk[1], getTexType(blk[0], gx, gy, gz + 1), 0, pos, gPos);
-    renderFace(blk[0], blk[2], getTexType(blk[0], gx, gy, gz-1), 1, pos, gPos);
-    renderFace(blk[0], blk[3], getTexType(blk[0], gx+1, gy, gz), 2, pos, gPos);
-    renderFace(blk[0], blk[4], getTexType(blk[0], gx-1, gy, gz), 3, pos, gPos);
+    renderFace(blk[0], blk[2], getTexType(blk[0], gx, gy, gz - 1), 1, pos, gPos);
+    renderFace(blk[0], blk[3], getTexType(blk[0], gx + 1, gy, gz), 2, pos, gPos);
+    renderFace(blk[0], blk[4], getTexType(blk[0], gx - 1, gy, gz), 3, pos, gPos);
     renderFace(blk[0], blk[5], 1, 4, pos, gPos);
     renderFace(blk[0], blk[6], 3, 5, pos, gPos);
 }
