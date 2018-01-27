@@ -140,7 +140,7 @@ void renderPrimitive(const QuadPrimitive& p) {
             length + 1.0f, 0.0, texBase, col3, col3, col3, x + length + 0.5f, y - 0.5f, z - 0.5f, 5.0f
         });
     default: ;
-    };
+    }
 }
 
 void renderPrimitiveDepth(const QuadPrimitiveDepth& p) {
@@ -182,7 +182,7 @@ void renderPrimitiveDepth(const QuadPrimitiveDepth& p) {
             x + length + 0.5f, y + 0.5f, z - 0.5f, x + length + 0.5f, y - 0.5f, z - 0.5f
         });
     default: ;
-    };
+    }
 }
 
 //合并面大法好！！！
@@ -487,10 +487,10 @@ constexpr float cubeVert[8][3] = {
     {left, bottom, back} //7
 };
 
-//lt rt lb rb
+//lt rt rb lb
 constexpr int cubeFace[6][4] = {
     {4, 0, 2, 6}, //front
-    {5, 1, 7, 3}, //back
+    {5, 1, 3, 7}, //back
     {0, 1, 3, 2}, //right
     {4, 5, 7, 6}, //left
     {0, 1, 5, 4}, //top
@@ -512,9 +512,9 @@ Vec4f calcVertex(const Block blk, const float nbrt, const int face, const Vec3f 
     const auto vert = cubeFace[face][id];
     const Vec3f offset{cubeVert[vert][0], cubeVert[vert][1], cubeVert[vert][2]};
     const auto vpos = pos + offset;
-    auto brt = SmoothLighting ? nbrt : sampleBrt(gPos + offset);
+    auto brt = SmoothLighting ? sampleBrt(gPos + offset):nbrt;
     brt /= BrightnessMax;
-    if (blk != Blocks::GLOWSTONE && !AdvancedRender)brt *= 0.5f;
+    if (blk == Blocks::GLOWSTONE)brt *= 2.0f;
     return {vpos, brt};
 }
 
@@ -544,10 +544,10 @@ void renderFace(const Block blk, const Block nearBlk, const int texType, const i
         };
 
         va.addPrimitive(4, {
-            tcx, tcy, vert[0].t, vert[0].t, vert[0].t, vert[0].x, vert[0].y, vert[0].z, 0.0f,
-            tcx + size, tcy, vert[1].t, vert[1].t, vert[1].t, vert[1].x, vert[1].y, vert[1].z, 0.0f,
-            tcx, tcy + size, vert[2].t, vert[2].t, vert[2].t, vert[2].x, vert[2].y, vert[2].z, 0.0f,
-            tcx + size, tcy + size, vert[3].t, vert[3].t, vert[3].t, vert[3].x, vert[3].y, vert[3].z, 0.0f
+            tcx + size, tcy + size, vert[0].t, vert[0].t, vert[0].t, vert[0].x, vert[0].y, vert[0].z, 0.0f,
+            tcx, tcy + size, vert[1].t, vert[1].t, vert[1].t, vert[1].x, vert[1].y, vert[1].z, 0.0f,
+            tcx, tcy, vert[2].t, vert[2].t, vert[2].t, vert[2].x, vert[2].y, vert[2].z, 0.0f,
+            tcx + size, tcy, vert[3].t, vert[3].t, vert[3].t, vert[3].x, vert[3].y, vert[3].z, 0.0f
         });
     }
 }
@@ -573,10 +573,10 @@ void renderBlock(const int x, const int y, const int z, const Chunk* const chunk
 
     const Vec3f pos(x, y, z), gPos(gx, gy, gz);
 
-    renderFace(blk[0], blk[1], getTexType(blk[0], gx, gy, gz + 1), 0, pos, gPos);
-    renderFace(blk[0], blk[2], getTexType(blk[0], gx, gy, gz - 1), 1, pos, gPos);
-    renderFace(blk[0], blk[3], getTexType(blk[0], gx + 1, gy, gz), 2, pos, gPos);
-    renderFace(blk[0], blk[4], getTexType(blk[0], gx - 1, gy, gz), 3, pos, gPos);
+    renderFace(blk[0], blk[1], getTexType(blk[0], gx, gy-1, gz + 1), 0, pos, gPos);
+    renderFace(blk[0], blk[2], getTexType(blk[0], gx, gy-1, gz - 1), 1, pos, gPos);
+    renderFace(blk[0], blk[3], getTexType(blk[0], gx + 1, gy-1, gz), 2, pos, gPos);
+    renderFace(blk[0], blk[4], getTexType(blk[0], gx - 1, gy-1, gz), 3, pos, gPos);
     renderFace(blk[0], blk[5], 1, 4, pos, gPos);
     renderFace(blk[0], blk[6], 3, 5, pos, gPos);
 }
