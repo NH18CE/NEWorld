@@ -96,7 +96,7 @@ void Player::init(double x, double y, double z) {
 
 void Player::spawn() {
     xpos = 0.0;
-    ypos = 60.0;
+    ypos = 128.0;
     zpos = 0.0;
     jump = 0.0;
     InitHitbox(playerbox);

@@ -69,7 +69,7 @@ namespace World {
     void Chunk::buildTerrain(bool initIfEmpty) {
         //Fast generate parts
         //Part1 out of the terrain bound
-        if (cy > 4) {
+        if (cy > 16) {
             mIsEmpty = true;
             if (initIfEmpty) {
                 std::fill_n(mBlocks, 4096, Blocks::AIR);

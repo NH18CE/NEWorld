@@ -22,15 +22,17 @@
 
 //Perlin Noise 2D
 namespace WorldGen {
+
     double perm[256];
     int seed;
     double NoiseScaleX = 64;
     double NoiseScaleZ = 64;
-    int WaterLevel = 30;
+    int WaterLevel = 96;
 
     void perlinNoiseInit(int mapseed) {
         fastSrand(mapseed);
-        for (double& i : perm) { i = rnd() * 256.0; }
+        for (int i = 0; i < 256; i++)
+            perm[i] = rnd() * 256.0;
         seed = mapseed;
     }
 
@@ -45,7 +47,7 @@ namespace WorldGen {
     double InterpolatedNoise(double x, double y) {
         int int_X, int_Y;
         double fractional_X, fractional_Y, v1, v2, v3, v4, i1, i2;
-        int_X = (int)floor(x); //ä¸è¦é—®æˆ‘ä¸ºæ¯›ç”¨floorï¼Œc++é»˜è®¤å±…ç„¶TMçš„æ˜¯å‘é›¶å–æ•´çš„
+        int_X = (int)floor(x); //²»ÒªÎÊÎÒÎªÃ«ÓÃfloor£¬c++Ä¬ÈÏ¾ÓÈ»TMµÄÊÇÏòÁãÈ¡ÕûµÄ
         fractional_X = x - int_X;
         int_Y = (int)floor(y);
         fractional_Y = y - int_Y;
@@ -67,4 +69,5 @@ namespace WorldGen {
         }
         return total;
     }
+
 }
