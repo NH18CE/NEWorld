@@ -123,7 +123,7 @@ void saveoption(INI::Parser& parser, const char* section, const char* name, cons
 }
 
 void saveOptions() {
-    INI::Parser options("Configs/options.ini");
+    INI::Parser options{};
     options.top() = {};
     saveoption(options, "Localization", "Language", std::string(I18N::getCurLang()));
     saveoption(options, "Rendering", "FOV", FOVyNormal);

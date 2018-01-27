@@ -44,12 +44,13 @@ bool I18N::loadLang(const std::string& lang) {
     if (file.good()) {
         INI::Parser map(file);
         kvs = std::move(map.top()("Translations").values);
+        curLang = lang;
         return true;
     }
     return false;
 }
 
-const std::string& I18N::getCurLang() noexcept { return curLang; }
+std::string I18N::getCurLang() noexcept { return curLang; }
 
 void I18N::setCurLang(std::string nv) { curLang = std::move(nv); }
 

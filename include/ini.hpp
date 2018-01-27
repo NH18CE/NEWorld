@@ -57,6 +57,7 @@ namespace INI {
 
     class Parser {
     public:
+        Parser() = default;
         Parser(const char* fn);
         Parser(std::istream& f) : f_(&f), ln_(0) { parse(top_); }
         Level& top() { return top_; }

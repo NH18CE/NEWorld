@@ -31,7 +31,7 @@ namespace I18N {
     NW_API bool load();
     NW_API bool loadLang(const std::string& lang);
     NW_API void setCurLang(std::string nv);
-    NW_API const std::string& getCurLang() noexcept;
+    NW_API std::string getCurLang() noexcept;
     NW_API std::string get(const std::string& key);
     NW_API void iterate(std::function<void(const LangInfo&)> fcn);
 };
