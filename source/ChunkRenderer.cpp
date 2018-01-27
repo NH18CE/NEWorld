@@ -474,7 +474,7 @@ void ChunkRenderer::renderDepthModel(Chunk* c) {
     c->vbo[3].update(va);
 }
 
-constexpr auto right = 0.5f, left = -0.5f, top = 0.5f, bottom = -0.5f, front = 0.5f, back = -0.5f;
+constexpr auto off=0.5f,right = off, left = -off, top = off, bottom = -off, front = off, back = -off;
 
 constexpr float cubeVert[8][3] = {
     {right, top, front}, //0
@@ -507,15 +507,18 @@ float sampleBrt(const Vec3f center) {
     return brt / 8.0f;
 }
 
+constexpr float faceBrightness[6] = {
+    1.0f, 0.5f, 0.7f, 0.7f, 1.0f, 0.2f
+};
+
 Vec4f calcVertex(const Block blk, const float nbrt, const int face, const Vec3f pos, const Vec3f gPos,
                  const int id) {
     const auto vert = cubeFace[face][id];
     const Vec3f offset{cubeVert[vert][0], cubeVert[vert][1], cubeVert[vert][2]};
     const auto vpos = pos + offset;
-    auto brt = SmoothLighting ? sampleBrt(gPos + offset):nbrt;
+    auto brt = SmoothLighting ? sampleBrt(gPos + offset) : nbrt;
     brt /= BrightnessMax;
-    if (blk == Blocks::GLOWSTONE)brt *= 2.0f;
-    return {vpos, brt};
+    return {vpos, brt * faceBrightness[face]};
 }
 
 constexpr int faceOffset[6][3] = {
@@ -527,11 +530,17 @@ constexpr int faceOffset[6][3] = {
     {0, -1, 0} //bottom
 };
 
+bool testFace(const Block blk, const Block nearBlk) {
+    const auto b = getBlockInfo(blk), nb = getBlockInfo(nearBlk);
+    if(b.isSolid() && nb.isSolid()) return !(b.isOpaque() && nb.isOpaque());
+    if (!b.isSolid() && !nb.isSolid()) return blk != nearBlk;
+    return b.isSolid();
+}
+
 void renderFace(const Block blk, const Block nearBlk, const int texType, const int face,
                 const Vec3f pos, const Vec3f gPos) {
     constexpr auto size = 1.0f / 8.0f;
-    if (!(getBlockInfo(nearBlk).isOpaque() || (blk == nearBlk && !getBlockInfo(blk).isOpaque())) ||
-        blk == Blocks::LEAF) {
+    if (testFace(blk,nearBlk)) {
         const auto tcx = Textures::getTexcoordX(blk, texType),
                    tcy = Textures::getTexcoordY(blk, texType);
         const auto brt = getBrightness(gPos.x + faceOffset[face][0], gPos.y + faceOffset[face][1],
@@ -543,11 +552,13 @@ void renderFace(const Block blk, const Block nearBlk, const int texType, const i
             calcVertex(blk, brt, face, pos, gPos, 3)
         };
 
+        const float faceFlag = face;
+
         va.addPrimitive(4, {
-            tcx + size, tcy + size, vert[0].t, vert[0].t, vert[0].t, vert[0].x, vert[0].y, vert[0].z, 0.0f,
-            tcx, tcy + size, vert[1].t, vert[1].t, vert[1].t, vert[1].x, vert[1].y, vert[1].z, 0.0f,
-            tcx, tcy, vert[2].t, vert[2].t, vert[2].t, vert[2].x, vert[2].y, vert[2].z, 0.0f,
-            tcx + size, tcy, vert[3].t, vert[3].t, vert[3].t, vert[3].x, vert[3].y, vert[3].z, 0.0f
+            tcx + size, tcy + size, vert[0].t, vert[0].t, vert[0].t, vert[0].x, vert[0].y, vert[0].z, faceFlag,
+            tcx, tcy + size, vert[1].t, vert[1].t, vert[1].t, vert[1].x, vert[1].y, vert[1].z, faceFlag,
+            tcx, tcy, vert[2].t, vert[2].t, vert[2].t, vert[2].x, vert[2].y, vert[2].z, faceFlag,
+            tcx + size, tcy, vert[3].t, vert[3].t, vert[3].t, vert[3].x, vert[3].y, vert[3].z, faceFlag
         });
     }
 }
@@ -573,10 +584,10 @@ void renderBlock(const int x, const int y, const int z, const Chunk* const chunk
 
     const Vec3f pos(x, y, z), gPos(gx, gy, gz);
 
-    renderFace(blk[0], blk[1], getTexType(blk[0], gx, gy-1, gz + 1), 0, pos, gPos);
-    renderFace(blk[0], blk[2], getTexType(blk[0], gx, gy-1, gz - 1), 1, pos, gPos);
-    renderFace(blk[0], blk[3], getTexType(blk[0], gx + 1, gy-1, gz), 2, pos, gPos);
-    renderFace(blk[0], blk[4], getTexType(blk[0], gx - 1, gy-1, gz), 3, pos, gPos);
+    renderFace(blk[0], blk[1], getTexType(blk[0], gx, gy - 1, gz + 1), 0, pos, gPos);
+    renderFace(blk[0], blk[2], getTexType(blk[0], gx, gy - 1, gz - 1), 1, pos, gPos);
+    renderFace(blk[0], blk[3], getTexType(blk[0], gx + 1, gy - 1, gz), 2, pos, gPos);
+    renderFace(blk[0], blk[4], getTexType(blk[0], gx - 1, gy - 1, gz), 3, pos, gPos);
     renderFace(blk[0], blk[5], 1, 4, pos, gPos);
     renderFace(blk[0], blk[6], 3, 5, pos, gPos);
 }
@@ -610,7 +621,7 @@ void ChunkRenderer::renderChunk(Chunk* c) {
             for (z = 0; z < 16; z++) {
                 Block curr = c->getBlock(x, y, z);
                 if (curr == Blocks::AIR) continue;
-                if (!getBlockInfo(curr).isSolid()) renderBlock(x, y, z, c);
+                if (getBlockInfo(curr).isTranslucent() && !getBlockInfo(curr).isSolid()) renderBlock(x, y, z, c);
             }
         }
     }
