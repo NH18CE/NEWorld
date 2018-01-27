@@ -18,18 +18,24 @@
 // 
 
 #pragma once
-struct Uncopyable {
+#include <Config/Config.hpp>
+
+struct NW_API Uncopyable {
     Uncopyable() = default;
+    ~Uncopyable() = default;
     Uncopyable(const Uncopyable&) = delete;
     Uncopyable(Uncopyable&&) = default;
     Uncopyable& operator=(const Uncopyable&) = delete;
     Uncopyable& operator=(Uncopyable&&) = default;
 };
 
-class Singletion : Uncopyable {
+class NW_API Singletion {
 protected:
     Singletion() = default;
+    ~Singletion() = default;
 public:
+    Singletion(const Singletion&) = delete;
     Singletion(Singletion&&) = delete;
+    Singletion& operator=(const Singletion&) = delete;
     Singletion& operator=(Singletion&&) = delete;
 };

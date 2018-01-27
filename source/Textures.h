@@ -80,8 +80,8 @@ namespace Textures {
 
     void Init();
     uint8_t getTextureIndex(Block blockname, uint8_t side);
-    double getTexcoordX(item item, uint8_t side);
-    double getTexcoordY(item item, uint8_t side);
+    float getTexcoordX(item item, uint8_t side);
+    float getTexcoordY(item item, uint8_t side);
     void LoadRGBImage(TEXTURE_RGB& tex, const std::string& Filename);
     void LoadRGBAImage(TEXTURE_RGBA& tex, const std::string& Filename, const std::string& MkFilename);
 

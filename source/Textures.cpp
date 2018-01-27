@@ -88,15 +88,15 @@ namespace Textures {
         }
     }
 
-    double getTexcoordX(item item, uint8_t side) {
+    float getTexcoordX(item item, uint8_t side) {
         if (isBlock(item)) //如果为方块
-            return (getTextureIndex(item, side) & 7) / 8.0;
+            return (getTextureIndex(item, side) & 7) / 8.0f;
         return NULLBLOCK;
     }
 
-    double getTexcoordY(item item, uint8_t side) {
+    float getTexcoordY(item item, uint8_t side) {
         if (isBlock(item)) //如果为方块
-            return (getTextureIndex(item, side) >> 3) / 8.0;
+            return (getTextureIndex(item, side) >> 3) / 8.0f;
         return NULLBLOCK;
     }
 

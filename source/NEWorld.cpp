@@ -122,7 +122,7 @@ void saveoption(INI::Parser& parser, const char* section, const char* name, cons
 void saveOptions() {
     INI::Parser options("Configs/options.ini");
     options.top() = {};
-    saveoption(options, "Localization", "Language", I18N::getCurLang);
+    saveoption(options, "Localization", "Language", I18N::getCurLang());
     saveoption(options, "Rendering", "FOV", FOVyNormal);
     saveoption(options, "Rendering", "RenderDistance", viewdistance);
     saveoption(options, "Rendering", "Sensitivity", mousemove);

@@ -474,11 +474,93 @@ void ChunkRenderer::renderDepthModel(Chunk* c) {
     c->vbo[3].update(va);
 }
 
+constexpr auto right = 0.5f, left = -0.5f, top = 0.5f, bottom = -0.5f, front = 0.5f, back = -0.5f;
 
-void renderblock(int x, int y, int z, Chunk* chunkptr) {
-    float colors, color1, color2, color3, color4, tcx, tcy;
-    int cx = chunkptr->cx, cy = chunkptr->cy, cz = chunkptr->cz;
-    int gx = cx * 16 + x, gy = cy * 16 + y, gz = cz * 16 + z;
+constexpr float cubeVert[8][3]={
+{right,top,front},//0
+{right,top,back},//1
+{right,bottom,front},//2
+{right,bottom,back},//3
+{ left,top,front },//4
+{ left,top,back },//5
+{ left,bottom,front },//6
+{ left,bottom,back }//7
+};
+
+//lt rt lb rb
+constexpr int cubeFace[6][4] = {
+{4,0,2,6},//front
+{5,1,7,3},//back
+{0,1,3,2},//right
+{4,5,7,6},//left
+{0,1,5,4},//top
+{2,3,7,6}//bottom
+};
+
+float sampleBrt(const Vec3f center) {
+    auto brt = 0.0f;
+    for (auto i : cubeVert) {
+        const Vec3f offset{i[0],i[1],i[2]};
+        const auto pos = center + offset;
+        brt += getBrightness(pos.x,pos.y,pos.z);
+    }
+    return brt / 8.0f;
+}
+
+Vec4f calcVertex(const Block blk,const float nbrt,const int face,const Vec3f pos,const Vec3f gPos,
+    const int id) {
+    const auto vert = cubeFace[face][id];
+    const Vec3f offset{ cubeVert[vert][0],cubeVert[vert][1],cubeVert[vert][2] };
+    const auto vpos =pos+ offset;
+    auto brt =SmoothLighting?nbrt : sampleBrt(gPos+offset);
+    brt /= BrightnessMax;
+    if (blk != Blocks::GLOWSTONE && !AdvancedRender)brt *= 0.5f;
+    return  {vpos,brt};
+}
+
+constexpr int faceOffset[6][3] = {
+{ 0,0,1 },//front
+{0,0,-1 },//back
+{1,0,0 },//right
+{-1,0,0 },//left
+{0,1,0 },//top
+{0,-1,0 }//bottom
+};
+
+void renderFace(const Block blk,const Block nearBlk,const int texType,const int face,
+    const Vec3f pos,const Vec3f gPos) {
+    constexpr auto size = 1.0f / 8.0f;
+    if (!(getBlockInfo(nearBlk).isOpaque() || (blk == nearBlk &&!getBlockInfo(blk).isOpaque()))||
+        blk == Blocks::LEAF) {
+        const auto tcx = Textures::getTexcoordX(blk, texType),
+            tcy = Textures::getTexcoordY(blk, texType);
+        const auto brt = getBrightness(gPos.x+faceOffset[face][0],gPos.y+ faceOffset[face][1],
+            gPos.z+ faceOffset[face][2]);
+        Vec4f vert[4]{
+            calcVertex(blk,brt,face,pos,gPos,0),
+            calcVertex(blk,brt,face,pos,gPos,1),
+            calcVertex(blk,brt,face,pos,gPos,2),
+            calcVertex(blk,brt,face,pos,gPos,3)
+        };
+
+        va.addPrimitive(4, {
+            tcx, tcy, vert[0].t,vert[0].t,vert[0].t,vert[0].x,vert[0].y,vert[0].z, 0.0f,
+            tcx + size, tcy, vert[1].t,vert[1].t,vert[1].t,vert[1].x,vert[1].y,vert[1].z, 0.0f,
+            tcx, tcy + size, vert[2].t,vert[2].t,vert[2].t,vert[2].x,vert[2].y,vert[2].z, 0.0f,
+            tcx+size, tcy + size, vert[3].t,vert[3].t,vert[3].t,vert[3].x,vert[3].y,vert[3].z, 0.0f
+            });
+    }
+}
+
+int getTexType(const Block blk,const int nx,const int ny,const int nz) {
+    return (NiceGrass && blk == Blocks::GRASS && getBlock(nx,ny,nz)==Blocks::GRASS)?1:2;
+}
+
+void renderBlock(const int x,const int y,const int z,const Chunk* const chunkptr) {
+    const auto cx = chunkptr->cx, cy = chunkptr->cy, cz = chunkptr->cz;
+    const auto gx = cx * 16 + x, gy = cy * 16 + y, gz = cz * 16 + z;
+
+    //front back right left top bottom
     Block blk[7] = {
         chunkptr->getBlock(x, y, z),
         z < 15 ? chunkptr->getBlock(x, y, z + 1) : getBlock(gx, gy, gz + 1, Blocks::ROCK),
@@ -489,327 +571,15 @@ void renderblock(int x, int y, int z, Chunk* chunkptr) {
         y > 0 ? chunkptr->getBlock(x, y - 1, z) : getBlock(gx, gy - 1, gz, Blocks::ROCK)
     };
 
-    Brightness brt[7] = {
-        chunkptr->getBrightness(x, y, z),
-        z < 15 ? chunkptr->getBrightness(x, y, z + 1) : getBrightness(gx, gy, gz + 1),
-        z > 0 ? chunkptr->getBrightness(x, y, z - 1) : getBrightness(gx, gy, gz - 1),
-        x < 15 ? chunkptr->getBrightness(x + 1, y, z) : getBrightness(gx + 1, gy, gz),
-        x > 0 ? chunkptr->getBrightness(x - 1, y, z) : getBrightness(gx - 1, gy, gz),
-        y < 15 ? chunkptr->getBrightness(x, y + 1, z) : getBrightness(gx, gy + 1, gz),
-        y > 0 ? chunkptr->getBrightness(x, y - 1, z) : getBrightness(gx, gy - 1, gz)
-    };
+    const Vec3f pos(x,y,z),gPos(gx,gy,gz);
 
-    constexpr auto size = 1 / 8.0f;
-
-    if (NiceGrass && blk[0] == Blocks::GRASS && getBlock(gx, gy - 1, gz + 1, Blocks::ROCK, chunkptr) == Blocks::
-        GRASS) {
-        tcx = Textures::getTexcoordX(blk[0], 1);
-        tcy = Textures::getTexcoordY(blk[0], 1);
-    }
-    else {
-        tcx = Textures::getTexcoordX(blk[0], 2);
-        tcy = Textures::getTexcoordY(blk[0], 2);
-    }
-
-    // Front Face
-    if (!(getBlockInfo(blk[1])
-            .
-            isOpaque() || (blk[1] == blk[0] &&
-                !getBlockInfo(blk[0]).isOpaque()
-            )
-        )
-        ||
-        blk[0] == Blocks::LEAF
-    ) {
-        colors = brt[1];
-        color1 = colors;
-        color2 = colors;
-        color3 = colors;
-        color4 = colors;
-
-        if (blk[0] != Blocks::GLOWSTONE && SmoothLighting) {
-            color1 = (colors + getBrightness(gx, gy - 1, gz + 1) + getBrightness(gx - 1, gy, gz + 1) +
-                getBrightness(gx - 1, gy - 1, gz + 1)) / 4.0;
-            color2 = (colors + getBrightness(gx, gy - 1, gz + 1) + getBrightness(gx + 1, gy, gz + 1) +
-                getBrightness(gx + 1, gy - 1, gz + 1)) / 4.0;
-            color3 = (colors + getBrightness(gx, gy + 1, gz + 1) + getBrightness(gx + 1, gy, gz + 1) +
-                getBrightness(gx + 1, gy + 1, gz + 1)) / 4.0;
-            color4 = (colors + getBrightness(gx, gy + 1, gz + 1) + getBrightness(gx - 1, gy, gz + 1) +
-                getBrightness(gx - 1, gy + 1, gz + 1)) / 4.0;
-        }
-
-        color1 /= BrightnessMax;
-        color2 /= BrightnessMax;
-        color3 /= BrightnessMax;
-        color4 /= BrightnessMax;
-        if (blk[0] != Blocks::GLOWSTONE && !AdvancedRender) {
-            color1 *= 0.5;
-            color2 *= 0.5;
-            color3 *= 0.5;
-            color4 *= 0.5;
-        }
-
-        va.addPrimitive(4, {
-            tcx, tcy, color1, color1, color1, -0.5f + x, -0.5f + y, 0.5f + z, 0.0f,
-            tcx + size, tcy, color2, color2, color2, 0.5f + x, -0.5f + y, 0.5f + z, 0.0f,
-            tcx + size, tcy + size, color3, color3, color3, 0.5f + x, 0.5f + y, 0.5f + z, 0.0f,
-            tcx, tcy + size, color4, color4, color4, -0.5f + x, 0.5f + y, 0.5f + z, 0.0f
-        });
-    }
-
-    if (NiceGrass && blk[0] == Blocks::GRASS && getBlock(gx, gy - 1, gz - 1, Blocks::ROCK, chunkptr) == Blocks::
-        GRASS) {
-        tcx = Textures::getTexcoordX(blk[0], 1);
-        tcy = Textures::getTexcoordY(blk[0], 1);
-    }
-    else {
-        tcx = Textures::getTexcoordX(blk[0], 2);
-        tcy = Textures::getTexcoordY(blk[0], 2);
-    }
-
-    // Back Face
-    if (!(getBlockInfo(blk[2]).isOpaque() || (blk[2] == blk[0] && !getBlockInfo(blk[0]).isOpaque()
-            )
-        )
-        ||
-        blk[0] == Blocks::LEAF
-    ) {
-        colors = brt[2];
-        color1 = colors;
-        color2 = colors;
-        color3 = colors;
-        color4 = colors;
-
-        if (blk[0] != Blocks::GLOWSTONE && SmoothLighting) {
-            color1 = (colors + getBrightness(gx, gy - 1, gz - 1) + getBrightness(gx - 1, gy, gz - 1) +
-                getBrightness(gx - 1, gy - 1, gz - 1)) / 4.0;
-            color2 = (colors + getBrightness(gx, gy + 1, gz - 1) + getBrightness(gx - 1, gy, gz - 1) +
-                getBrightness(gx - 1, gy + 1, gz - 1)) / 4.0;
-            color3 = (colors + getBrightness(gx, gy + 1, gz - 1) + getBrightness(gx + 1, gy, gz - 1) +
-                getBrightness(gx + 1, gy + 1, gz - 1)) / 4.0;
-            color4 = (colors + getBrightness(gx, gy - 1, gz - 1) + getBrightness(gx + 1, gy, gz - 1) +
-                getBrightness(gx + 1, gy - 1, gz - 1)) / 4.0;
-        }
-
-        color1 /= BrightnessMax;
-        color2 /= BrightnessMax;
-        color3 /= BrightnessMax;
-        color4 /= BrightnessMax;
-        if (blk[0] != Blocks::GLOWSTONE && !AdvancedRender) {
-            color1 *= 0.5;
-            color2 *= 0.5;
-            color3 *= 0.5;
-            color4 *= 0.5;
-        }
-
-        va.addPrimitive(4, {
-            tcx + size, tcy, color1, color1, color1, -0.5f + x, -0.5f + y, -0.5f + z, 1.0f,
-            tcx + size, tcy + size, color2, color2, color2, -0.5f + x, 0.5f + y, -0.5f + z, 1.0f,
-            tcx, tcy + size, color3, color3, color3, 0.5f + x, 0.5f + y, -0.5f + z, 1.0f,
-            tcx, tcy, color4, color4, color4, 0.5f + x, -0.5f + y, -0.5f + z, 1.0f
-        });
-    }
-
-    if (NiceGrass && blk[0] == Blocks::GRASS && getBlock(gx + 1, gy - 1, gz, Blocks::ROCK, chunkptr) == Blocks::
-        GRASS) {
-        tcx = Textures::getTexcoordX(blk[0], 1);
-        tcy = Textures::getTexcoordY(blk[0], 1);
-    }
-    else {
-        tcx = Textures::getTexcoordX(blk[0], 2);
-        tcy = Textures::getTexcoordY(blk[0], 2);
-    }
-
-    // Right face
-    if (!(getBlockInfo(blk[3])
-            .
-            isOpaque() || (blk[3] == blk[0] && !
-                getBlockInfo(blk[0]).
-                isOpaque()
-            )
-        )
-        ||
-        blk[0] == Blocks::LEAF
-    ) {
-        colors = brt[3];
-        color1 = colors;
-        color2 = colors;
-        color3 = colors;
-        color4 = colors;
-
-        if (blk[0] != Blocks::GLOWSTONE && SmoothLighting) {
-            color1 = (colors + getBrightness(gx + 1, gy - 1, gz) + getBrightness(gx + 1, gy, gz - 1) +
-                getBrightness(gx + 1, gy - 1, gz - 1)) / 4.0;
-            color2 = (colors + getBrightness(gx + 1, gy + 1, gz) + getBrightness(gx + 1, gy, gz - 1) +
-                getBrightness(gx + 1, gy + 1, gz - 1)) / 4.0;
-            color3 = (colors + getBrightness(gx + 1, gy + 1, gz) + getBrightness(gx + 1, gy, gz + 1) +
-                getBrightness(gx + 1, gy + 1, gz + 1)) / 4.0;
-            color4 = (colors + getBrightness(gx + 1, gy - 1, gz) + getBrightness(gx + 1, gy, gz + 1) +
-                getBrightness(gx + 1, gy - 1, gz + 1)) / 4.0;
-        }
-
-        color1 /= BrightnessMax;
-        color2 /= BrightnessMax;
-        color3 /= BrightnessMax;
-        color4 /= BrightnessMax;
-        if (blk[0] != Blocks::GLOWSTONE && !AdvancedRender) {
-            color1 *= 0.7;
-            color2 *= 0.7;
-            color3 *= 0.7;
-            color4 *= 0.7;
-        }
-
-        va.addPrimitive(4, {
-            tcx + size, tcy, color1, color1, color1, 0.5f + x, -0.5f + y, -0.5f + z, 2.0f,
-            tcx + size, tcy + size, color2, color2, color2, 0.5f + x, 0.5f + y, -0.5f + z, 2.0f,
-            tcx, tcy + size, color3, color3, color3, 0.5f + x, 0.5f + y, 0.5f + z, 2.0f,
-            tcx, tcy, color4, color4, color4, 0.5f + x, -0.5f + y, 0.5f + z, 2.0f
-        });
-    }
-
-    if (NiceGrass && blk[0] == Blocks::GRASS && getBlock(gx - 1, gy - 1, gz, Blocks::ROCK, chunkptr) == Blocks::
-        GRASS) {
-        tcx = Textures::getTexcoordX(blk[0], 1);
-        tcy = Textures::getTexcoordY(blk[0], 1);
-    }
-    else {
-        tcx = Textures::getTexcoordX(blk[0], 2);
-        tcy = Textures::getTexcoordY(blk[0], 2);
-    }
-
-    // Left Face
-    if (!(getBlockInfo(blk[4])
-            .
-            isOpaque() || (blk[4] == blk[0] &&
-                !getBlockInfo(blk[0]).isOpaque()
-            )
-        )
-        ||
-        blk[0] == Blocks::LEAF
-    ) {
-        colors = brt[4];
-        color1 = colors;
-        color2 = colors;
-        color3 = colors;
-        color4 = colors;
-
-        if (blk[0] != Blocks::GLOWSTONE && SmoothLighting) {
-            color1 = (colors + getBrightness(gx - 1, gy - 1, gz) + getBrightness(gx - 1, gy, gz - 1) +
-                getBrightness(gx - 1, gy - 1, gz - 1)) / 4.0;
-            color2 = (colors + getBrightness(gx - 1, gy - 1, gz) + getBrightness(gx - 1, gy, gz + 1) +
-                getBrightness(gx - 1, gy - 1, gz + 1)) / 4.0;
-            color3 = (colors + getBrightness(gx - 1, gy + 1, gz) + getBrightness(gx - 1, gy, gz + 1) +
-                getBrightness(gx - 1, gy + 1, gz + 1)) / 4.0;
-            color4 = (colors + getBrightness(gx - 1, gy + 1, gz) + getBrightness(gx - 1, gy, gz - 1) +
-                getBrightness(gx - 1, gy + 1, gz - 1)) / 4.0;
-        }
-
-        color1 /= BrightnessMax;
-        color2 /= BrightnessMax;
-        color3 /= BrightnessMax;
-        color4 /= BrightnessMax;
-        if (blk[0] != Blocks::GLOWSTONE && !AdvancedRender) {
-            color1 *= 0.7;
-            color2 *= 0.7;
-            color3 *= 0.7;
-            color4 *= 0.7;
-        }
-
-        va.addPrimitive(4, {
-            tcx, tcy, color1, color1, color1, -0.5f + x, -0.5f + y, -0.5f + z, 3.0f,
-            tcx + size, tcy, color2, color2, color2, -0.5f + x, -0.5f + y, 0.5f + z, 3.0f,
-            tcx + size, tcy + size, color3, color3, color3, -0.5f + x, 0.5f + y, 0.5f + z, 3.0f,
-            tcx, tcy + size, color4, color4, color4, -0.5f + x, 0.5f + y, -0.5f + z, 3.0f
-        });
-    }
-
-    tcx = Textures::getTexcoordX(blk[0], 1);
-    tcy = Textures::getTexcoordY(blk[0], 1);
-
-    // Top Face
-    if (!(getBlockInfo(blk[5])
-            .
-            isOpaque() || (blk[5] == blk[0] &&
-                !getBlockInfo(blk[0]).isOpaque()
-            )
-        )
-        ||
-        blk[0] == Blocks::LEAF
-    ) {
-        colors = brt[5];
-        color1 = colors;
-        color2 = colors;
-        color3 = colors;
-        color4 = colors;
-
-        if (blk[0] != Blocks::GLOWSTONE && SmoothLighting) {
-            color1 = (color1 + getBrightness(gx, gy + 1, gz - 1) + getBrightness(gx - 1, gy + 1, gz) +
-                getBrightness(gx - 1, gy + 1, gz - 1)) / 4.0;
-            color2 = (color2 + getBrightness(gx, gy + 1, gz + 1) + getBrightness(gx - 1, gy + 1, gz) +
-                getBrightness(gx - 1, gy + 1, gz + 1)) / 4.0;
-            color3 = (color3 + getBrightness(gx, gy + 1, gz + 1) + getBrightness(gx + 1, gy + 1, gz) +
-                getBrightness(gx + 1, gy + 1, gz + 1)) / 4.0;
-            color4 = (color4 + getBrightness(gx, gy + 1, gz - 1) + getBrightness(gx + 1, gy + 1, gz) +
-                getBrightness(gx + 1, gy + 1, gz - 1)) / 4.0;
-        }
-
-        color1 /= BrightnessMax;
-        color2 /= BrightnessMax;
-        color3 /= BrightnessMax;
-        color4 /= BrightnessMax;
-
-        va.addPrimitive(4, {
-            tcx + size, tcy + size, color1, color1, color1, -0.5f + x, 0.5f + y, -0.5f + z, 4.0f,
-            tcx + size, tcy + size, color2, color2, color2, -0.5f + x, 0.5f + y, 0.5f + z, 4.0f,
-            tcx + size, tcy + size, color3, color3, color3, 0.5f + x, 0.5f + y, 0.5f + z, 4.0f,
-            tcx + size, tcy + size, color4, color4, color4, 0.5f + x, 0.5f + y, -0.5f + z, 4.0f
-        });
-    }
-
-    tcx = Textures::getTexcoordX(blk[0], 3);
-    tcy = Textures::getTexcoordY(blk[0], 3);
-
-    // Bottom Face
-    if (!(getBlockInfo(blk[6])
-            .
-            isOpaque() || (blk[6] == blk[0] &&
-                !getBlockInfo(blk[0]).isOpaque()
-            )
-        )
-        ||
-        blk[0] == Blocks::LEAF
-    ) {
-        colors = brt[6];
-        color1 = colors;
-        color2 = colors;
-        color3 = colors;
-        color4 = colors;
-
-        if (blk[0] != Blocks::GLOWSTONE && SmoothLighting) {
-            color1 = (colors + getBrightness(gx, gy - 1, gz - 1) + getBrightness(gx - 1, gy - 1, gz) +
-                getBrightness(gx - 1, gy - 1, gz - 1)) / 4.0;
-            color2 = (colors + getBrightness(gx, gy - 1, gz - 1) + getBrightness(gx + 1, gy - 1, gz) +
-                getBrightness(gx + 1, gy - 1, gz - 1)) / 4.0;
-            color3 = (colors + getBrightness(gx, gy - 1, gz + 1) + getBrightness(gx + 1, gy - 1, gz) +
-                getBrightness(gx + 1, gy - 1, gz + 1)) / 4.0;
-            color4 = (colors + getBrightness(gx, gy - 1, gz + 1) + getBrightness(gx - 1, gy - 1, gz) +
-                getBrightness(gx - 1, gy - 1, gz + 1)) / 4.0;
-        }
-
-        color1 /= BrightnessMax;
-        color2 /= BrightnessMax;
-        color3 /= BrightnessMax;
-        color4 /= BrightnessMax;
-
-        va.addPrimitive(4, {
-            tcx + size, tcy + size, color1, color1, color1, -0.5f + x, -0.5f + y, -0.5f + z, 5.0f,
-            tcx + size, tcy + size, color2, color2, color2, 0.5f + x, -0.5f + y, -0.5f + z, 5.0f,
-            tcx + size, tcy + size, color3, color3, color3, 0.5f + x, -0.5f + y, 0.5f + z, 5.0f,
-            tcx + size, tcy, color4, color4, color4, -0.5f + x, -0.5f + y, 0.5f + z, 5.0f
-        });
-    }
+    renderFace(blk[0], blk[1], getTexType(blk[0], gx, gy, gz + 1), 0, pos, gPos);
+    renderFace(blk[0], blk[2], getTexType(blk[0], gx, gy, gz-1), 1, pos, gPos);
+    renderFace(blk[0], blk[3], getTexType(blk[0], gx+1, gy, gz), 2, pos, gPos);
+    renderFace(blk[0], blk[4], getTexType(blk[0], gx-1, gy, gz), 3, pos, gPos);
+    renderFace(blk[0], blk[5], 1, 4, pos, gPos);
+    renderFace(blk[0], blk[6], 3, 5, pos, gPos);
 }
-
 
 void ChunkRenderer::renderChunk(Chunk* c) {
     int x, y, z;
@@ -820,7 +590,7 @@ void ChunkRenderer::renderChunk(Chunk* c) {
             for (z = 0; z < 16; z++) {
                 const Block curr = c->getBlock(x, y, z);
                 if (curr == Blocks::AIR) continue;
-                if (!getBlockInfo(curr).isTranslucent()) renderblock(x, y, z, c);
+                if (!getBlockInfo(curr).isTranslucent()) renderBlock(x, y, z, c);
             }
         }
     }
@@ -830,7 +600,7 @@ void ChunkRenderer::renderChunk(Chunk* c) {
             for (z = 0; z < 16; z++) {
                 Block curr = c->getBlock(x, y, z);
                 if (curr == Blocks::AIR) continue;
-                if (getBlockInfo(curr).isTranslucent() && getBlockInfo(curr).isSolid()) renderblock(x, y, z, c);
+                if (getBlockInfo(curr).isTranslucent() && getBlockInfo(curr).isSolid()) renderBlock(x, y, z, c);
             }
         }
     }
@@ -840,7 +610,7 @@ void ChunkRenderer::renderChunk(Chunk* c) {
             for (z = 0; z < 16; z++) {
                 Block curr = c->getBlock(x, y, z);
                 if (curr == Blocks::AIR) continue;
-                if (!getBlockInfo(curr).isSolid()) renderblock(x, y, z, c);
+                if (!getBlockInfo(curr).isSolid()) renderBlock(x, y, z, c);
             }
         }
     }

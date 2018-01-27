@@ -270,7 +270,7 @@ namespace World {
         }
     }
 
-    Block getBlock(int x, int y, int z, Block mask, Chunk* ci) {
+    Block getBlock(int x, int y, int z, Block mask,const Chunk* ci) {
         //获取方块
         int cx = getChunkPos(x), cy = getChunkPos(y), cz = getChunkPos(z);
         if (!ci || cx != ci->cx || cy != ci->cy || cz != ci->cz)

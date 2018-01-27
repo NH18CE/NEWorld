@@ -57,9 +57,9 @@ namespace World {
         void load(bool initIfEmpty = true);
         void buildRender();
 
-        Block getBlock(int x, int y, int z) { return mBlocks[x << 8 ^ y << 4 ^ z]; }
+        Block getBlock(int x, int y, int z) const { return mBlocks[x << 8 ^ y << 4 ^ z]; }
 
-        Brightness getBrightness(int x, int y, int z) { return mBrightness[x << 8 ^ y << 4 ^ z]; }
+        Brightness getBrightness(int x, int y, int z) const { return mBrightness[x << 8 ^ y << 4 ^ z]; }
 
         void setblock(int x, int y, int z, Block iblock) {
             if (iblock == Blocks::TNT) {
