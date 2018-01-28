@@ -1,0 +1,16 @@
+image: Visual Studio 2017
+version: '{build}'
+cache: c:\tools\vcpkg\installed\
+platform:
+  - Win32
+  - x64
+configuration:
+  - Debug
+  - Release
+clone_folder: C:\NEWorld
+clone_depth: 1
+install:
+  - vcpkg install bzip2 freetype glew glfw3 libpng zlib
+build:
+  project: NEWorld.sln
+  verbosity: minimal
