@@ -58,6 +58,74 @@ namespace {
 
         QuadPrimitiveDepth() : x(0), y(0), z(0), length(0), direction(0) { }
     };
+
+	class ChunkRenderData {
+	public:
+		Block* mBlocks;
+		Brightness* mBrightness;
+
+		ChunkRenderData(int cx, int cy, int cz) {
+			mBlocks = new Block[18 * 18 * 18];
+			mBrightness = new Brightness[18 * 18 * 18];
+
+			World::Chunk* chunkptr[3][3][3];
+
+			for (int x = -1; x <= 1; x++)
+				for (int y = -1; y <= 1; y++)
+					for (int z = -1; z <= 1; z++)
+						chunkptr[x + 1][y + 1][z + 1] = World::getChunkPtr(x + cx, y + cy, z + cz);
+
+			for (int x = 0; x < 18; x++) {
+				int rcx = 1, bx = x - 1;
+				if (x == 0)
+					rcx = 0, bx += 16;
+				else if (x == 18 - 1)
+					rcx = 2, bx -= 16;
+
+				for (int y = 0; y < 18; y++) {
+					int rcy = 1, by = y - 1;
+					if (y == 0)
+						rcy = 0, by += 16;
+					else if (y == 18 - 1)
+						rcy = 2, by -= 16;
+
+					for (int z = 0; z < 18; z++) {
+						int rcz = 1, bz = z - 1;
+						if (z == 0)
+							rcz = 0, bz += 16;
+						else if (z == 18 - 1)
+							rcz = 2, bz -= 16;
+
+						if (chunkptr[rcx][rcy][rcz] == nullptr) {
+							mBlocks[x * 18 * 18 + y * 18 + z] = Blocks::ROCK;
+							mBrightness[x * 18 * 18 + y * 18 + z] = World::skylight;
+						} else if (chunkptr[rcx][rcy][rcz] == World::emptyChunkPtr) {
+							mBlocks[x * 18 * 18 + y * 18 + z] = Blocks::AIR;
+							mBrightness[x * 18 * 18 + y * 18 + z] = (rcy - 1 + cy < 0) ? World::BrightnessMin : World::skylight;
+						} else {
+							mBlocks[x * 18 * 18 + y * 18 + z] = chunkptr[rcx][rcy][rcz]->getBlock(bx, by, bz);
+							mBrightness[x * 18 * 18 + y * 18 + z] = chunkptr[rcx][rcy][rcz]->getBrightness(bx, by, bz);
+						}
+					}
+				}
+			}
+		}
+
+		~ChunkRenderData() {
+			delete[] mBlocks;
+			delete[] mBrightness;
+		}
+
+		Block getBlock(int x, int y, int z) {
+			assert(x >= -1 && x <= 16 && y >= -1 && y <= 16 && z >= -1 && z <= 16);
+			return mBlocks[(x + 1) * 18 * 18 + (y + 1) * 18 + (z + 1)];
+		}
+
+		Brightness getBrightness(int x, int y, int z) {
+			assert(x >= -1 && x <= 16 && y >= -1 && y <= 16 && z >= -1 && z <= 16);
+			return mBrightness[(x + 1) * 18 * 18 + (y + 1) * 18 + (z + 1)];
+		}
+	};
 }
 
 /*
@@ -186,228 +254,156 @@ void renderPrimitiveDepth(const QuadPrimitiveDepth& p) {
 }
 
 //合并面大法好！！！
-void ChunkRenderer::mergeFaceRender(Chunk* c) {
-    //话说我注释一会中文一会英文是不是有点奇怪。。。
-    // -- qiaozhanrong
-    constexpr VertexFormat fmt(3, 3, 0, 3, 1);
-    int cx = c->cx, cy = c->cy, cz = c->cz;
-    int gx = 0, gy = 0, gz = 0;
-    int x = 0, y = 0, z = 0, br;
-    int col0 = 0, col1 = 0, col2 = 0, col3 = 0;
-    Block bl, neighbour;
-    uint8_t face = 0;
-    bool valid = false;
-    for (int steps = 0; steps < 3; steps++) {
-        QuadPrimitive cur{};
-        int curLMx = bl = neighbour = 0;
-        //Linear merge
-        va.setFormat(fmt);
-        for (int d = 0; d < 6; d++) {
-            cur.direction = d;
-            if (d == 2) face = 1;
-            else if (d == 3) face = 3;
-            else face = 2;
-            //Render current face
-            for (int i = 0; i < 16; i++)
-                for (int j = 0; j < 16; j++) {
-                    for (int k = 0; k < 16; k++) {
-                        //Get position & brightness
-                        if (d == 0) {
-                            //x+
-                            x = i, y = j, z = k;
-                            gx = cx * 16 + x;
-                            gy = cy * 16 + y;
-                            gz = cz * 16 + z;
-                            br = getBrightness(gx + 1, gy, gz, c);
-                            if (SmoothLighting) {
-                                col0 = br + getBrightness(gx + 1, gy - 1, gz, c) + getBrightness(
-                                    gx + 1, gy, gz - 1, c) + getBrightness(gx + 1, gy - 1, gz - 1, c);
-                                col1 = br + getBrightness(gx + 1, gy + 1, gz, c) + getBrightness(
-                                    gx + 1, gy, gz - 1, c) + getBrightness(gx + 1, gy + 1, gz - 1, c);
-                                col2 = br + getBrightness(gx + 1, gy + 1, gz, c) + getBrightness(
-                                    gx + 1, gy, gz + 1, c) + getBrightness(gx + 1, gy + 1, gz + 1, c);
-                                col3 = br + getBrightness(gx + 1, gy - 1, gz, c) + getBrightness(
-                                    gx + 1, gy, gz + 1, c) + getBrightness(gx + 1, gy - 1, gz + 1, c);
-                            }
-                            else col0 = col1 = col2 = col3 = br * 4;
-                        }
-                        else if (d == 1) {
-                            //x-
-                            x = i, y = j, z = k;
-                            gx = cx * 16 + x;
-                            gy = cy * 16 + y;
-                            gz = cz * 16 + z;
-                            br = getBrightness(gx - 1, gy, gz, c);
-                            if (SmoothLighting) {
-                                col0 = br + getBrightness(gx - 1, gy + 1, gz, c) + getBrightness(
-                                    gx - 1, gy, gz - 1, c) + getBrightness(gx - 1, gy + 1, gz - 1, c);
-                                col1 = br + getBrightness(gx - 1, gy - 1, gz, c) + getBrightness(
-                                    gx - 1, gy, gz - 1, c) + getBrightness(gx - 1, gy - 1, gz - 1, c);
-                                col2 = br + getBrightness(gx - 1, gy - 1, gz, c) + getBrightness(
-                                    gx - 1, gy, gz + 1, c) + getBrightness(gx - 1, gy - 1, gz + 1, c);
-                                col3 = br + getBrightness(gx - 1, gy + 1, gz, c) + getBrightness(
-                                    gx - 1, gy, gz + 1, c) + getBrightness(gx - 1, gy + 1, gz + 1, c);
-                            }
-                            else col0 = col1 = col2 = col3 = br * 4;
-                        }
-                        else if (d == 2) {
-                            //y+
-                            x = j, y = i, z = k;
-                            gx = cx * 16 + x;
-                            gy = cy * 16 + y;
-                            gz = cz * 16 + z;
-                            br = getBrightness(gx, gy + 1, gz, c);
-                            if (SmoothLighting) {
-                                col0 = br + getBrightness(gx + 1, gy + 1, gz, c) + getBrightness(
-                                    gx, gy + 1, gz - 1, c) + getBrightness(gx + 1, gy + 1, gz - 1, c);
-                                col1 = br + getBrightness(gx - 1, gy + 1, gz, c) + getBrightness(
-                                    gx, gy + 1, gz - 1, c) + getBrightness(gx - 1, gy + 1, gz - 1, c);
-                                col2 = br + getBrightness(gx - 1, gy + 1, gz, c) + getBrightness(
-                                    gx, gy + 1, gz + 1, c) + getBrightness(gx - 1, gy + 1, gz + 1, c);
-                                col3 = br + getBrightness(gx + 1, gy + 1, gz, c) + getBrightness(
-                                    gx, gy + 1, gz + 1, c) + getBrightness(gx + 1, gy + 1, gz + 1, c);
-                            }
-                            else col0 = col1 = col2 = col3 = br * 4;
-                        }
-                        else if (d == 3) {
-                            //y-
-                            x = j, y = i, z = k;
-                            gx = cx * 16 + x;
-                            gy = cy * 16 + y;
-                            gz = cz * 16 + z;
-                            br = getBrightness(gx, gy - 1, gz, c);
-                            if (SmoothLighting) {
-                                col0 = br + getBrightness(gx - 1, gy - 1, gz, c) + getBrightness(
-                                    gx, gy - 1, gz - 1, c) + getBrightness(gx - 1, gy - 1, gz - 1, c);
-                                col1 = br + getBrightness(gx + 1, gy - 1, gz, c) + getBrightness(
-                                    gx, gy - 1, gz - 1, c) + getBrightness(gx + 1, gy - 1, gz - 1, c);
-                                col2 = br + getBrightness(gx + 1, gy - 1, gz, c) + getBrightness(
-                                    gx, gy - 1, gz + 1, c) + getBrightness(gx + 1, gy - 1, gz + 1, c);
-                                col3 = br + getBrightness(gx - 1, gy - 1, gz, c) + getBrightness(
-                                    gx, gy - 1, gz + 1, c) + getBrightness(gx - 1, gy - 1, gz + 1, c);
-                            }
-                            else col0 = col1 = col2 = col3 = br * 4;
-                        }
-                        else if (d == 4) {
-                            //z+
-                            x = k, y = j, z = i;
-                            gx = cx * 16 + x;
-                            gy = cy * 16 + y;
-                            gz = cz * 16 + z;
-                            br = getBrightness(gx, gy, gz + 1, c);
-                            if (SmoothLighting) {
-                                col0 = br + getBrightness(gx - 1, gy, gz + 1, c) + getBrightness(
-                                    gx, gy + 1, gz + 1, c) + getBrightness(gx - 1, gy + 1, gz + 1, c);
-                                col1 = br + getBrightness(gx - 1, gy, gz + 1, c) + getBrightness(
-                                    gx, gy - 1, gz + 1, c) + getBrightness(gx - 1, gy - 1, gz + 1, c);
-                                col2 = br + getBrightness(gx + 1, gy, gz + 1, c) + getBrightness(
-                                    gx, gy - 1, gz + 1, c) + getBrightness(gx + 1, gy - 1, gz + 1, c);
-                                col3 = br + getBrightness(gx + 1, gy, gz + 1, c) + getBrightness(
-                                    gx, gy + 1, gz + 1, c) + getBrightness(gx + 1, gy + 1, gz + 1, c);
-                            }
-                            else col0 = col1 = col2 = col3 = br * 4;
-                        }
-                        else if (d == 5) {
-                            //z-
-                            x = k, y = j, z = i;
-                            gx = cx * 16 + x;
-                            gy = cy * 16 + y;
-                            gz = cz * 16 + z;
-                            br = getBrightness(gx, gy, gz - 1, c);
-                            if (SmoothLighting) {
-                                col0 = br + getBrightness(gx - 1, gy, gz - 1, c) + getBrightness(
-                                    gx, gy - 1, gz - 1, c) + getBrightness(gx - 1, gy - 1, gz - 1, c);
-                                col1 = br + getBrightness(gx - 1, gy, gz - 1, c) + getBrightness(
-                                    gx, gy + 1, gz - 1, c) + getBrightness(gx - 1, gy + 1, gz - 1, c);
-                                col2 = br + getBrightness(gx + 1, gy, gz - 1, c) + getBrightness(
-                                    gx, gy + 1, gz - 1, c) + getBrightness(gx + 1, gy + 1, gz - 1, c);
-                                col3 = br + getBrightness(gx + 1, gy, gz - 1, c) + getBrightness(
-                                    gx, gy - 1, gz - 1, c) + getBrightness(gx + 1, gy - 1, gz - 1, c);
-                            }
-                            else col0 = col1 = col2 = col3 = br * 4;
-                        }
-                        //Get block ID
-                        bl = c->getBlock(x, y, z);
-                        TextureID tex = Textures::getTextureIndex(bl, face);
-                        neighbour = getBlock(gx + delta[d][0], gy + delta[d][1], gz + delta[d][2], Blocks::ROCK, c);
-                        if (NiceGrass && bl == Blocks::GRASS) {
-                            if (d == 0 && getBlock(gx + 1, gy - 1, gz, Blocks::ROCK, c) == Blocks::GRASS)
-                                tex =
-                                    Textures::getTextureIndex(bl, 1);
-                            else if (d == 1 && getBlock(gx - 1, gy - 1, gz, Blocks::ROCK, c) == Blocks::GRASS)
-                                tex =
-                                    Textures::getTextureIndex(bl, 1);
-                            else if (d == 4 && getBlock(gx, gy - 1, gz + 1, Blocks::ROCK, c) == Blocks::GRASS)
-                                tex =
-                                    Textures::getTextureIndex(bl, 1);
-                            else if (d == 5 && getBlock(gx, gy - 1, gz - 1, Blocks::ROCK, c) == Blocks::GRASS)
-                                tex =
-                                    Textures::getTextureIndex(bl, 1);
-                        }
-                        //Render
-                        const Blocks::SingleBlock& info = getBlockInfo(bl);
-                        if (bl == Blocks::AIR || (bl == neighbour && bl != Blocks::LEAF) || getBlockInfo(neighbour).
-                            isOpaque() ||
-                            (steps == 0 && info.isTranslucent()) ||
-                            (steps == 1 && (!info.isTranslucent() || !info.isSolid())) ||
-                            (steps == 2 && (!info.isTranslucent() || info.isSolid()))) {
-                            //Not valid block
-                            if (valid) {
-                                if (getBlockInfo(neighbour).isOpaque() && !cur.once) {
-                                    if (curLMx < cur.length) curLMx = cur.length;
-                                    curLMx++;
-                                }
-                                else {
-                                    renderPrimitive(cur);
-                                    valid = false;
-                                }
-                            }
-                            continue;
-                        }
-                        if (valid) {
-                            if (col0 != col1 || col1 != col2 || col2 != col3 || cur.once || tex != cur.tex || col0
-                                != cur.col0) {
-                                renderPrimitive(cur);
-                                cur.x = x;
-                                cur.y = y;
-                                cur.z = z;
-                                cur.length = curLMx = 0;
-                                cur.tex = tex;
-                                cur.col0 = col0;
-                                cur.col1 = col1;
-                                cur.col2 = col2;
-                                cur.col3 = col3;
-                                if (col0 != col1 || col1 != col2 || col2 != col3) cur.once = true;
-                                else cur.once = false;
-                            }
-                            else {
-                                if (curLMx > cur.length) cur.length = curLMx;
-                                cur.length++;
-                            }
-                        }
-                        else {
-                            valid = true;
-                            cur.x = x;
-                            cur.y = y;
-                            cur.z = z;
-                            cur.length = curLMx = 0;
-                            cur.tex = tex;
-                            cur.col0 = col0;
-                            cur.col1 = col1;
-                            cur.col2 = col2;
-                            cur.col3 = col3;
-                            if (col0 != col1 || col1 != col2 || col2 != col3) cur.once = true;
-                            else cur.once = false;
-                        }
-                    }
-                    if (valid) {
-                        renderPrimitive(cur);
-                        valid = false;
-                    }
-                }
-        }
-        c->vbo[steps].update(va);
-    }
+void ChunkRenderer::mergeFaceRender(World::Chunk* c) {
+	//话说我注释一会中文一会英文是不是有点奇怪。。。
+	// -- qiaozhanrong
+
+	int cx = c->cx, cy = c->cy, cz = c->cz;
+	ChunkRenderData rd(cx, cy, cz);
+	int x = 0, y = 0, z = 0, cur_l_mx, br;
+	int col0 = 0, col1 = 0, col2 = 0, col3 = 0;
+	QuadPrimitive cur;
+	Block bl, neighbour;
+	int face = 0;
+	TextureID tex;
+	bool valid = false;
+
+	for (int steps = 0; steps < 3; steps++) {
+		cur = QuadPrimitive();
+		cur_l_mx = bl = neighbour = 0;
+		//Linear merge
+		va.setFormat(VertexFormat(3, 3, 0, 3, 1));
+		for (int d = 0; d < 6; d++) {
+			cur.direction = d;
+			if (d == 2) face = 1;
+			else if (d == 3) face = 3;
+			else face = 2;
+			//Render current face
+			for (int i = 0; i < 16; i++) for (int j = 0; j < 16; j++) {
+				for (int k = 0; k < 16; k++) {
+					//Get position & brightness
+					if (d == 0) { //x+
+						x = i, y = j, z = k;
+						br = rd.getBrightness(x + 1, y, z);
+						if (SmoothLighting) {
+							col0 = br + rd.getBrightness(x + 1, y - 1, z) + rd.getBrightness(x + 1, y, z - 1) + rd.getBrightness(x + 1, y - 1, z - 1);
+							col1 = br + rd.getBrightness(x + 1, y + 1, z) + rd.getBrightness(x + 1, y, z - 1) + rd.getBrightness(x + 1, y + 1, z - 1);
+							col2 = br + rd.getBrightness(x + 1, y + 1, z) + rd.getBrightness(x + 1, y, z + 1) + rd.getBrightness(x + 1, y + 1, z + 1);
+							col3 = br + rd.getBrightness(x + 1, y - 1, z) + rd.getBrightness(x + 1, y, z + 1) + rd.getBrightness(x + 1, y - 1, z + 1);
+						}
+						else col0 = col1 = col2 = col3 = br * 4;
+					}
+					else if (d == 1) { //x-
+						x = i, y = j, z = k;
+						br = rd.getBrightness(x - 1, y, z);
+						if (SmoothLighting) {
+							col0 = br + rd.getBrightness(x - 1, y + 1, z) + rd.getBrightness(x - 1, y, z - 1) + rd.getBrightness(x - 1, y + 1, z - 1);
+							col1 = br + rd.getBrightness(x - 1, y - 1, z) + rd.getBrightness(x - 1, y, z - 1) + rd.getBrightness(x - 1, y - 1, z - 1);
+							col2 = br + rd.getBrightness(x - 1, y - 1, z) + rd.getBrightness(x - 1, y, z + 1) + rd.getBrightness(x - 1, y - 1, z + 1);
+							col3 = br + rd.getBrightness(x - 1, y + 1, z) + rd.getBrightness(x - 1, y, z + 1) + rd.getBrightness(x - 1, y + 1, z + 1);
+						}
+						else col0 = col1 = col2 = col3 = br * 4;
+					}
+					else if (d == 2) { //y+
+						x = j, y = i, z = k;
+						br = rd.getBrightness(x, y + 1, z);
+						if (SmoothLighting) {
+							col0 = br + rd.getBrightness(x + 1, y + 1, z) + rd.getBrightness(x, y + 1, z - 1) + rd.getBrightness(x + 1, y + 1, z - 1);
+							col1 = br + rd.getBrightness(x - 1, y + 1, z) + rd.getBrightness(x, y + 1, z - 1) + rd.getBrightness(x - 1, y + 1, z - 1);
+							col2 = br + rd.getBrightness(x - 1, y + 1, z) + rd.getBrightness(x, y + 1, z + 1) + rd.getBrightness(x - 1, y + 1, z + 1);
+							col3 = br + rd.getBrightness(x + 1, y + 1, z) + rd.getBrightness(x, y + 1, z + 1) + rd.getBrightness(x + 1, y + 1, z + 1);
+						}
+						else col0 = col1 = col2 = col3 = br * 4;
+					}
+					else if (d == 3) { //y-
+						x = j, y = i, z = k;
+						br = rd.getBrightness(x, y - 1, z);
+						if (SmoothLighting) {
+							col0 = br + rd.getBrightness(x - 1, y - 1, z) + rd.getBrightness(x, y - 1, z - 1) + rd.getBrightness(x - 1, y - 1, z - 1);
+							col1 = br + rd.getBrightness(x + 1, y - 1, z) + rd.getBrightness(x, y - 1, z - 1) + rd.getBrightness(x + 1, y - 1, z - 1);
+							col2 = br + rd.getBrightness(x + 1, y - 1, z) + rd.getBrightness(x, y - 1, z + 1) + rd.getBrightness(x + 1, y - 1, z + 1);
+							col3 = br + rd.getBrightness(x - 1, y - 1, z) + rd.getBrightness(x, y - 1, z + 1) + rd.getBrightness(x - 1, y - 1, z + 1);
+						}
+						else col0 = col1 = col2 = col3 = br * 4;
+					}
+					else if (d == 4) { //z+
+						x = k, y = j, z = i;
+						br = rd.getBrightness(x, y, z + 1);
+						if (SmoothLighting) {
+							col0 = br + rd.getBrightness(x - 1, y, z + 1) + rd.getBrightness(x, y + 1, z + 1) + rd.getBrightness(x - 1, y + 1, z + 1);
+							col1 = br + rd.getBrightness(x - 1, y, z + 1) + rd.getBrightness(x, y - 1, z + 1) + rd.getBrightness(x - 1, y - 1, z + 1);
+							col2 = br + rd.getBrightness(x + 1, y, z + 1) + rd.getBrightness(x, y - 1, z + 1) + rd.getBrightness(x + 1, y - 1, z + 1);
+							col3 = br + rd.getBrightness(x + 1, y, z + 1) + rd.getBrightness(x, y + 1, z + 1) + rd.getBrightness(x + 1, y + 1, z + 1);
+						}
+						else col0 = col1 = col2 = col3 = br * 4;
+					}
+					else if (d == 5) { //z-
+						x = k, y = j, z = i;
+						br = rd.getBrightness(x, y, z - 1);
+						if (SmoothLighting) {
+							col0 = br + rd.getBrightness(x - 1, y, z - 1) + rd.getBrightness(x, y - 1, z - 1) + rd.getBrightness(x - 1, y - 1, z - 1);
+							col1 = br + rd.getBrightness(x - 1, y, z - 1) + rd.getBrightness(x, y + 1, z - 1) + rd.getBrightness(x - 1, y + 1, z - 1);
+							col2 = br + rd.getBrightness(x + 1, y, z - 1) + rd.getBrightness(x, y + 1, z - 1) + rd.getBrightness(x + 1, y + 1, z - 1);
+							col3 = br + rd.getBrightness(x + 1, y, z - 1) + rd.getBrightness(x, y - 1, z - 1) + rd.getBrightness(x + 1, y - 1, z - 1);
+						}
+						else col0 = col1 = col2 = col3 = br * 4;
+					}
+					//Get block ID
+					bl = rd.getBlock(x, y, z);
+					tex = Textures::getTextureIndex(bl, face);
+					neighbour = rd.getBlock(x + delta[d][0], y + delta[d][1], z + delta[d][2]);
+					if (NiceGrass && bl == Blocks::GRASS) {
+						if (d == 0 && rd.getBlock(x + 1, y - 1, z) == Blocks::GRASS) tex = Textures::getTextureIndex(bl, 1);
+						else if (d == 1 && rd.getBlock(x - 1, y - 1, z) == Blocks::GRASS) tex = Textures::getTextureIndex(bl, 1);
+						else if (d == 4 && rd.getBlock(x, y - 1, z + 1) == Blocks::GRASS) tex = Textures::getTextureIndex(bl, 1);
+						else if (d == 5 && rd.getBlock(x, y - 1, z - 1) == Blocks::GRASS) tex = Textures::getTextureIndex(bl, 1);
+					}
+					//Render
+					const Blocks::SingleBlock& info = getBlockInfo(bl);
+					if (bl == Blocks::AIR || bl == neighbour && bl != Blocks::LEAF || getBlockInfo(neighbour).isOpaque() ||
+						steps == 0 && info.isTranslucent() ||
+						steps == 1 && (!info.isTranslucent() || !info.isSolid()) ||
+						steps == 2 && (!info.isTranslucent() || info.isSolid())) {
+						//Not valid block
+						if (valid) {
+							if (getBlockInfo(neighbour).isOpaque() && !cur.once) {
+								if (cur_l_mx < cur.length) cur_l_mx = cur.length;
+								cur_l_mx++;
+							}
+							else {
+								renderPrimitive(cur);
+								valid = false;
+							}
+						}
+						continue;
+					}
+					if (valid) {
+						if (col0 != col1 || col1 != col2 || col2 != col3 || cur.once || tex != cur.tex || col0 != cur.col0) {
+							renderPrimitive(cur);
+							cur.x = x; cur.y = y; cur.z = z; cur.length = cur_l_mx = 0;
+							cur.tex = tex; cur.col0 = col0; cur.col1 = col1; cur.col2 = col2; cur.col3 = col3;
+							if (col0 != col1 || col1 != col2 || col2 != col3) cur.once = true; else cur.once = false;
+						}
+						else {
+							if (cur_l_mx > cur.length) cur.length = cur_l_mx;
+							cur.length++;
+						}
+					}
+					else {
+						valid = true;
+						cur.x = x; cur.y = y; cur.z = z; cur.length = cur_l_mx = 0;
+						cur.tex = tex; cur.col0 = col0; cur.col1 = col1; cur.col2 = col2; cur.col3 = col3;
+						if (col0 != col1 || col1 != col2 || col2 != col3) cur.once = true; else cur.once = false;
+					}
+				}
+				if (valid) {
+					renderPrimitive(cur);
+					valid = false;
+				}
+			}
+		}
+		c->vbo[steps].update(va);
+	}
 }
 
 void ChunkRenderer::renderDepthModel(Chunk* c) {
