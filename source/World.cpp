@@ -77,7 +77,7 @@ namespace World {
     Chunk* addChunk(int x, int y, int z) {
         const auto cid = getChunkID(x, y, z); //Chunk ID
         const auto pos = binarySearchChunks(loadedChunks, cid);
-        if (loadedChunks > 0 && chunks[pos.second]->id == cid) {
+        if (loadedChunks && chunks[pos.second]->id == cid) {
             printf("[Console][Error]");
             printf("Chunk(%d,%d,%d)has been loaded,when adding chunk.\n", x, y, z);
             return chunks[pos.second];
@@ -439,6 +439,7 @@ namespace World {
                 delete chunks[i];
 
         free(chunks);
+        worldSave.release();
         chunks = nullptr;
         loadedChunks = 0;
         chunkArraySize = 0;
@@ -593,4 +594,46 @@ namespace World {
             }
         }
     }
+
+    class ClientWorker {
+    public:
+        static constexpr Vec3i chunkCentre = { 7, 7, 7 };
+
+        void sortChunkLoadList(int xpos, int ypos, int zpos) {
+            int cx, cy, cz;
+            int xd, yd, zd, distsqr;
+
+            int cxp = getChunkPos(xpos);
+            int cyp = getChunkPos(ypos);
+            int czp = getChunkPos(zpos);
+            chunkLoadList.clear();
+            for (cx = cxp - viewdistance - 1; cx <= cxp + viewdistance; cx++)
+                for (cy = cyp - viewdistance - 1; cy <= cyp + viewdistance; cy++)
+                    for (cz = czp - viewdistance - 1; cz <= czp + viewdistance; cz++)
+                        if (!cpArray.get(cx, cy, cz)) {
+                            xd = cx * 16 + 7 - xpos;
+                            yd = cy * 16 + 7 - ypos;
+                            zd = cz * 16 + 7 - zpos;
+                            distsqr = xd * xd + yd * yd + zd * zd;
+                            chunkLoadList.insert(distsqr, { cx, cy, cz });
+                        }
+        }
+
+        void clientChunkWork(const Vec3i& pos, unsigned int id, unsigned int step) {
+            const auto p = pos / 16;
+            chunkBuildRenderList.clear();
+            chunkUnloadList.clear();
+            for (int ci = id; ci < loadedChunks; ci += step) {
+                const auto c = chunks[ci]->getPos();
+                const auto cbd = c.chebyshevDistance(p);
+                //sortChunkBuildRenderListStep
+                if (chunks[ci]->mIsUpdated && cbd <= viewdistance)
+                    chunkBuildRenderList.insert((c * 16 + chunkCentre - pos).lengthSqr(), chunks[ci]);
+                //sortChunkUnloadListStep
+                else if (!(cbd >= viewdistance + 2))
+                    chunkUnloadList.insert((c * 16 + chunkCentre - pos).lengthSqr(), chunks[ci]);
+            }
+        }
+    };
+
 }

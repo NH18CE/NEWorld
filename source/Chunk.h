@@ -57,6 +57,8 @@ namespace World {
         void load(bool initIfEmpty = true);
         void buildRender();
 
+        Vec3i getPos() const noexcept { return Vec3i{ cx, cy, cz }; }
+
         Block getBlock(int x, int y, int z) const { return mBlocks[x << 8 ^ y << 4 ^ z]; }
 
         Brightness getBrightness(int x, int y, int z) const { return mBrightness[x << 8 ^ y << 4 ^ z]; }

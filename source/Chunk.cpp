@@ -72,16 +72,16 @@ namespace World {
         if (cy > 16) {
             mIsEmpty = true;
             if (initIfEmpty) {
-                std::fill_n(mBlocks, 4096, Blocks::AIR);
-                std::fill_n(mBrightness, 4096, skylight);
+                std::fill_n(mBlocks, 4096, Block(Blocks::AIR));
+                std::fill_n(mBrightness, 4096, Brightness(skylight));
             }
             return;
         }
         if (cy < 0) {
             mIsEmpty = true;
             if (initIfEmpty) {
-                std::fill_n(mBlocks, 4096, Blocks::AIR);
-                std::fill_n(mBrightness, 4096, BrightnessMin);
+                std::fill_n(mBlocks, 4096, Block(Blocks::AIR));
+                std::fill_n(mBrightness, 4096, Brightness(BrightnessMin));
             }
             return;
         }
@@ -91,13 +91,13 @@ namespace World {
         if (cy > cur.high) {
             mIsEmpty = true;
             if (initIfEmpty) {
-                std::fill_n(mBlocks, 4096, Blocks::AIR);
-                std::fill_n(mBrightness, 4096, skylight);
+                std::fill_n(mBlocks, 4096, Block(Blocks::AIR));
+                std::fill_n(mBrightness, 4096, Brightness(skylight));
             }
         }
         if (cy < cur.low) {
-            std::fill_n(mBlocks, 4096, Blocks::ROCK);
-            std::fill_n(mBrightness, 4096, BrightnessMin);
+            std::fill_n(mBlocks, 4096, Block(Blocks::ROCK));
+            std::fill_n(mBrightness, 4096, Brightness(BrightnessMin));
             if (cy == 0)
                 for (int x = 0; x < 16; x++)
                     for (int z = 0; z < 16; z++)
@@ -108,8 +108,8 @@ namespace World {
 
         //Normal Calc
         //Init
-        std::fill_n(mBlocks, 4096, Blocks::AIR);
-        std::fill_n(mBrightness, 4096, 0);
+        std::fill_n(mBlocks, 4096, Block(Blocks::AIR));
+        std::fill_n(mBrightness, 4096, Brightness(0));
 
         int x, z, h = 0, sh = 0, wh = 0;
         int minh, maxh, cur_br;

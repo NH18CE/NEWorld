@@ -35,7 +35,7 @@ class Frsutum;
 
 namespace World {
     // POD ONLY!
-    template <class Tk, class Td, size_t Size, template<class> class Compare = std::less>
+    template <class Tk, class Td, int Size, template<class> class Compare = std::less>
     class OrderedList {
     public:
         OrderedList() noexcept : mSize(0), mComp() { }
@@ -67,7 +67,7 @@ namespace World {
 
         void clear() noexcept { mSize = 0; }
     private:
-        size_t mSize;
+        int mSize;
         ArrayType mList;
         Compare<Tk> mComp;
     };
@@ -78,9 +78,9 @@ namespace World {
     constexpr Brightness BrightnessMin = 2; //Mimimum brightness
     constexpr Brightness BrightnessDec = 1; //Brightness decrease
     inline Brightness skylight = 15; //Sky light level
-    constexpr int maxChunkLoads = 64;
-    constexpr int maxChunkUnloads = 64;
-    constexpr int maxChunkRenders = 1;
+    constexpr int maxChunkLoads = 128;
+    constexpr int maxChunkUnloads = 128;
+    constexpr int maxChunkRenders = 4;
 
     extern Chunk** chunks;
     extern int loadedChunks;

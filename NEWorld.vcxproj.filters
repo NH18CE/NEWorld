@@ -54,6 +54,9 @@
     <Filter Include="Source\Settings">
       <UniqueIdentifier>{2677d105-1822-4f9f-8b2d-4b024eb9df14}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Game\ThreadWorker">
+      <UniqueIdentifier>{c799f76b-039b-4848-a54e-c49e88b21644}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Object.h">
@@ -162,6 +165,9 @@
     </ClInclude>
     <ClInclude Include="source\WorldSave.h">
       <Filter>Source\Game\World</Filter>
+    </ClInclude>
+    <ClInclude Include="source\World\ThreadWorker.h">
+      <Filter>Source\Game\ThreadWorker</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -281,6 +287,9 @@
     </ClCompile>
     <ClCompile Include="source\WorldSave.cpp">
       <Filter>Source\Game\World</Filter>
+    </ClCompile>
+    <ClCompile Include="source\World\ThreadWorker.cpp">
+      <Filter>Source\Game\ThreadWorker</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
