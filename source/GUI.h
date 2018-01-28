@@ -77,8 +77,8 @@ namespace GUI {
         //控件基类，只要是控件都得继承这个
         virtual ~Controls() { }
 
-        int id, xmin, ymin, xmax, ymax;
-        Form* parent;
+        int id{}, xmin{}, ymin{}, xmax{}, ymax{};
+        Form* parent{};
 
         virtual void update() { } //莫非这个就是传说中的虚函数？
         virtual void render() { } //貌似是的！
@@ -87,8 +87,8 @@ namespace GUI {
         void updatepos();
         void resize(int xi_r, int xa_r, int yi_r, int ya_r, double xi_b, double xa_b, double yi_b, double ya_b);
     private:
-        int mXminR, mYminR, mXmaxR, mYmaxR;
-        double _xmin_b, _ymin_b, _xmax_b, _ymax_b;
+        int mXminR{}, mYminR{}, mXmaxR{}, mYmaxR{};
+        double _xmin_b{}, _ymin_b{}, _xmax_b{}, _ymax_b{};
     };
 
     class Label : public Controls {
@@ -121,8 +121,8 @@ namespace GUI {
     public:
         //该控件的中文名我不造
         std::string text;
-        int barwidth;
-        int barpos;
+        int barwidth{};
+        int barpos{};
         bool mouseon, focused, pressed, enabled;
 
         Trackbar() : mouseon(false), focused(false), pressed(false), enabled(false) { };
@@ -148,9 +148,9 @@ namespace GUI {
     class Vscroll : public Controls {
     public:
         //垂直滚动条
-        int barheight, barpos;
+        int barheight{}, barpos{};
         bool mouseon, focused, pressed, enabled;
-        bool defaultv, msup, msdown, psup, psdown;
+        bool defaultv{}, msup{}, msdown{}, psup{}, psdown{};
 
         Vscroll() : mouseon(false), focused(false), pressed(false), enabled(false) { };
         Vscroll(int h, int s,
@@ -162,7 +162,7 @@ namespace GUI {
     class Imagebox : public Controls {
     public:
         //图片框
-        float txmin, txmax, tymin, tymax;
+        float txmin{}, txmax{}, tymin{}, tymax{};
         TextureID imageid;
 
         Imagebox() : imageid(0) { };

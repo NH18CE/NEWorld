@@ -35,7 +35,6 @@ void saveOptions();
 
 void ApplicationBeforeLaunch() {
     loadOptions();
-    I18N::load();
 
     filesystem::create_directory("Configs");
     filesystem::create_directory("Worlds");

@@ -37,30 +37,31 @@ namespace {
         }
         return ret;
     }
-}
 
-bool I18N::loadLang(const std::string& lang) {
-    std::ifstream file("Lang/" + lang + ".ini");
-    if (file.good()) {
-        INI::Parser map(file);
-        kvs = std::move(map.top()("Translations").values);
-        curLang = lang;
-        return true;
+    bool loadLang(const std::string& lang) {
+        std::ifstream file("Lang/" + lang + ".ini");
+        if (file.good()) {
+            INI::Parser map(file);
+            kvs = std::move(map.top()("Translations").values);
+            curLang = lang;
+            return true;
+        }
+        return false;
     }
-    return false;
 }
 
 std::string I18N::getCurLang() noexcept { return curLang; }
 
-void I18N::setCurLang(std::string nv) { curLang = std::move(nv); }
+void I18N::setCurLang(const std::string& nv) {
+    curLang = nv;
+    loadLang(curLang);
+}
 
-bool I18N::load() { return loadLang(curLang); }
-
-std::string I18N::get(const std::string& key) {
-    const auto iter = kvs.find(key);
-    if (iter != kvs.end())
-        return iter->second;
-    return key;
+const std::string& I18N::get(const std::string& key) {
+    auto iter = kvs.find(key);
+    if (iter == kvs.end())
+        iter = kvs.insert({ key, "" }).first;
+    return iter->second;
 }
 
 void I18N::iterate(std::function<void(const LangInfo&)> fcn) {
