@@ -78,7 +78,11 @@ public:
     auto insert(const T* iter, T&& v) { return emplace(iter, std::move(v)); }
     auto erase(T* iter) {
         iter->~T();
-        for (auto i = iter + 1; i < end(); ++i)  *(i - 1) = std::move(*i);
+        if constexpr(std::is_trivially_copyable_v<T>)
+            std::memmove(iter, iter + 1, (end() - iter - 1) * sizeof(T));
+        else
+            for (auto i = iter + 1; i < end(); ++i)  *(i - 1) = std::move(*i);
+        mSize--;
     }
 private:
     T* mData;
@@ -117,7 +121,7 @@ private:
                 mData = reinterpret_cast<T*>(vectorRealloc(mData, cap, sizeof(T)));
                 mCapcity = cap;
             }
-            std::memmove(mData + insPos + n, mData + insPos, mSize - insPos);
+            std::memmove(mData + insPos + n, mData + insPos, (mSize - insPos) * sizeof(T));
         }
         else {
             if (mSize + n > mCapcity) {

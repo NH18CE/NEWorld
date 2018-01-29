@@ -115,7 +115,7 @@
       <Filter>源文件\Module</Filter>
     </ClCompile>
     <ClCompile Include="source\Std\VectorBase.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\Std</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

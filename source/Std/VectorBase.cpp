@@ -29,7 +29,7 @@ void* vectorAlloc(size_t size, size_t item) {
 }
 
 void* vectorRealloc(void* old, size_t size, size_t item) {
-    const auto ret = std::realloc(old, size * item);
+    const auto ret = old ? std::realloc(old, size * item) : std::malloc(size * item);
     if (!ret)
         throw std::bad_alloc();
     return ret;

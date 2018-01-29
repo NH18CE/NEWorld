@@ -82,7 +82,7 @@ namespace World {
     constexpr int maxChunkUnloads = 128;
     constexpr int maxChunkRenders = 4;
 
-    inline std::vector<Chunk*> chunks;
+    inline Vector<Chunk*> chunks;
     extern HeightMap hMap;
     extern CPARegionalCache cpArray;
 
