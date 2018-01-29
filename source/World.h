@@ -25,7 +25,7 @@
 #include "Hitbox.h"
 #include "Blocks.h"
 #include "Player.h"
-#include "Particles.h"
+#include "Std/VectorBase.h"
 #include "Items.h"
 #include "Math/Vector.h"
 #include <array>
@@ -82,8 +82,7 @@ namespace World {
     constexpr int maxChunkUnloads = 128;
     constexpr int maxChunkRenders = 4;
 
-    extern Chunk** chunks;
-    extern int loadedChunks;
+    inline std::vector<Chunk*> chunks;
     extern HeightMap hMap;
     extern CPARegionalCache cpArray;
 
@@ -117,8 +116,8 @@ namespace World {
     void updateblock(int x, int y, int z, bool blockchanged, int depth = 0);
     Block getBlock(int x, int y, int z, Block mask = Blocks::AIR, const Chunk* ci = nullptr);
     Brightness getBrightness(int x, int y, int z, Chunk* ci = nullptr);
-    void setblock(int x, int y, int z, Block blockname, Chunk* cptr = nullptr);
-    void setbrightness(int x, int y, int z, Brightness brightness, Chunk* cptr = nullptr);
+    void setblock(int x, int y, int z, Block Blockname, Chunk* cptr = nullptr);
+    void setbrightness(int x, int y, int z, Brightness Brightness, Chunk* cptr = nullptr);
 
     inline void pickleaf() {
         if (rnd() < 0.2) {

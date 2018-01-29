@@ -18,7 +18,8 @@
 // 
 
 #pragma once
-#pragma comment(linker, "/SUBSYSTEM:\"WINDOWS\" /ENTRY:\"mainCRTStartup\"")
+//#pragma comment(linker, "/SUBSYSTEM:\"WINDOWS\" /ENTRY:\"mainCRTStartup\"")
+#pragma comment(linker, "/SUBSYSTEM:\"CONSOLE\" /ENTRY:\"mainCRTStartup\"")
 #include "StdInclude.h"
 #include "Typedefs.h"
 #include "FunctionsKit.h"

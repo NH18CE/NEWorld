@@ -35,6 +35,8 @@
     <ClInclude Include="source\Math\Matrix.h" />
     <ClInclude Include="source\Math\Vector.h" />
     <ClInclude Include="source\Module\Module.h" />
+    <ClInclude Include="source\Std\Math.h" />
+    <ClInclude Include="source\Std\VectorBase.h" />
     <ClInclude Include="source\Utils\Concept.h" />
     <ClInclude Include="source\Utils\Dylib.h" />
   </ItemGroup>
@@ -43,6 +45,7 @@
     <ClCompile Include="source\AudioSystem.cpp" />
     <ClCompile Include="source\I18N.cpp" />
     <ClCompile Include="source\Module\Module.cpp" />
+    <ClCompile Include="source\Std\VectorBase.cpp" />
     <ClCompile Include="source\Utils\Dylib.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -25,13 +25,12 @@ namespace WorldRenderer {
     int ListRenderChunks(int cx, int cy, int cz, int renderdistance, double curtime, bool frustest) {
         int renderedChunks = 0;
         RenderChunkList.clear();
-        for (int i = 0; i < World::loadedChunks; i++) {
-            if (!World::chunks[i]->mIsRenderBuilt || World::chunks[i]->mIsEmpty) continue;
-            if (World::chunkInRange(World::chunks[i]->cx, World::chunks[i]->cy, World::chunks[i]->cz,
-                                    cx, cy, cz, renderdistance)) {
-                if (!frustest || World::chunks[i]->visible) {
+        for (auto& x : World::chunks) {
+            if (!x->mIsRenderBuilt || x->mIsEmpty) continue;
+            if (World::chunkInRange(x->cx, x->cy, x->cz, cx, cy, cz, renderdistance)) {
+                if (!frustest || x->visible) {
                     renderedChunks++;
-                    RenderChunkList.emplace_back(World::chunks[i], (curtime - lastupdate) * 30.0);
+                    RenderChunkList.emplace_back(x, (curtime - lastupdate) * 30.0);
                 }
             }
         }

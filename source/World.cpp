@@ -28,9 +28,6 @@ namespace World {
     std::string worldname;
     std::unique_ptr<WorldSave> worldSave;
 
-    Chunk** chunks;
-    int loadedChunks, chunkArraySize;
-
     namespace ChunkPointerCache {
         namespace {
             thread_local Chunk* ptr = nullptr;
@@ -50,86 +47,62 @@ namespace World {
     HeightMap hMap;
     std::vector<unsigned int> vbuffersShouldDelete;
 
-    void expandChunkArray(int cc);
-    void reduceChunkArray(int cc);
-
     void init() {
         filesystem::create_directory("Worlds/" + worldname);
         WorldGen::perlinNoiseInit(3404);
         cpArray.create((viewdistance + 2) * 2);
         hMap.setSize((viewdistance + 2) * 2 * 16);
         hMap.create();
+        chunks.reserve(4096);
         worldSave = std::make_unique<WorldSave>("Worlds/" + worldname);
     }
+    
+    auto upperBound(const ChunkID cid) {
+        return std::upper_bound(chunks.begin(), chunks.end(), cid, [](const ChunkID id, const Chunk* v) { return id < v->id; });
+    }
 
-    inline std::pair<int, int> binarySearchChunks(const int len, const ChunkID cid) {
-        int first = 0;
-        int last = len - 1;
-        int middle = (first + last) / 2;
-        while (first <= last && chunks[middle]->id != cid) {
-            if (chunks[middle]->id > cid) { last = middle - 1; }
-            if (chunks[middle]->id < cid) { first = middle + 1; }
-            middle = (first + last) / 2;
-        }
-        return std::make_pair(first, middle);
+    auto lowerBound(const ChunkID cid) {
+        return std::lower_bound(chunks.begin(), chunks.end(), cid, [](const Chunk* v, const ChunkID id) { return v->id < id; });
     }
 
     Chunk* addChunk(int x, int y, int z) {
         const auto cid = getChunkID(x, y, z); //Chunk ID
-        const auto pos = binarySearchChunks(loadedChunks, cid);
-        if (loadedChunks && chunks[pos.second]->id == cid) {
-            printf("[Console][Error]");
-            printf("Chunk(%d,%d,%d)has been loaded,when adding chunk.\n", x, y, z);
-            return chunks[pos.second];
-        }
+        auto iter = chunks.insert(upperBound(cid), new Chunk(x, y, z, cid));
+        cpArray.AddChunk(*iter, x, y, z);
+        return ChunkPointerCache::write(cid, *iter);
+    }
 
-        expandChunkArray(1);
-        for (auto i = loadedChunks - 1; i >= pos.first + 1; i--) { chunks[i] = chunks[i - 1]; }
-        chunks[pos.first] = new Chunk(x, y, z, cid);
-        cpArray.AddChunk(chunks[pos.first], x, y, z);
-        return ChunkPointerCache::write(cid, chunks[pos.first]);
+    Chunk* refChunk(int x, int y, int z) {
+        auto cptr = getChunkPtr(x, y, z);
+        if (cptr == emptyChunkPtr) {
+            cptr = addChunk(x, y, z);
+            cptr->load();
+            cptr->mIsEmpty = false;
+        }
+        return cptr;
     }
 
     void deleteChunk(int x, int y, int z) {
         const auto cid = getChunkID(x, y, z);
-        if (const auto index = binarySearchChunks(loadedChunks, cid).second; chunks[index]->id == cid) {
-            delete chunks[index];
-            for (auto i = index; i < loadedChunks - 1; i++)
-                chunks[i] = chunks[i + 1];
-            cpArray.DeleteChunk(x, y, z);
-            reduceChunkArray(1);
-        }
+        if (const auto iter = lowerBound(cid); iter != chunks.end())
+            if ((*iter)->id == cid) {
+                delete *iter;
+                chunks.erase(iter);
+            }
     }
 
     Chunk* getChunkPtr(int x, int y, int z) {
         const auto cid = getChunkID(x, y, z);
         if (const auto ret = ChunkPointerCache::fetch(cid); ret) return ret;
         if (const auto ret = cpArray.get(x, y, z); ret) return ChunkPointerCache::write(cid, ret);
-        if (loadedChunks > 0)
-            if (const auto chk = chunks[binarySearchChunks(loadedChunks, cid).second]; chk->id == cid) {
-                cpArray.set(x, y, z, chk);
-                return ChunkPointerCache::write(cid, chk);
-            }
+        if (!chunks.empty())
+            if (const auto iter = lowerBound(cid); iter != chunks.end()) 
+                if ((*iter)->id == cid) {
+                    cpArray.set(x, y, z, *iter);
+                    return ChunkPointerCache::write(cid, *iter);
+                }
         return nullptr;
     }
-
-    void expandChunkArray(const int cc) {
-        loadedChunks += cc;
-        if (loadedChunks > chunkArraySize) {
-            if (chunkArraySize < 1024) chunkArraySize = 1024;
-            do chunkArraySize <<= 1;
-            while (chunkArraySize < loadedChunks);
-            if (const auto cp = static_cast<Chunk**>(realloc(chunks, chunkArraySize * sizeof(Chunk*))); cp &&
-                loadedChunks != 0)
-                chunks = cp;
-            else if (loadedChunks) {
-                destroyAllChunks();
-                throw std::bad_alloc();
-            }
-        }
-    }
-
-    void reduceChunkArray(int cc) { loadedChunks -= cc; }
 
     std::vector<Hitbox::AABB> getHitboxes(const Hitbox::AABB& box) {
         //返回与box相交的所有方块AABB
@@ -188,13 +161,8 @@ namespace World {
         int by = getBlockPos(y);
         int bz = getBlockPos(z);
 
-        Chunk* cptr = getChunkPtr(cx, cy, cz);
+        Chunk* cptr = refChunk(cx, cy, cz);
         if (cptr != nullptr) {
-            if (cptr == emptyChunkPtr) {
-                cptr = addChunk(cx, cy, cz);
-                cptr->load();
-                cptr->mIsEmpty = false;
-            }
             Brightness oldbrightness = cptr->getBrightness(bx, by, bz);
             bool skylighted = true;
             int yi = y + 1;
@@ -303,13 +271,7 @@ namespace World {
             cptr->setblock(bx, by, bz, Blockname);
             updateblock(x, y, z, true);
         }
-        Chunk* i = getChunkPtr(cx, cy, cz);
-        if (i == emptyChunkPtr) {
-            Chunk* cp = addChunk(cx, cy, cz);
-            cp->load();
-            cp->mIsEmpty = false;
-            i = cp;
-        }
+        Chunk* i = refChunk(cx, cy, cz);
         if (i != nullptr) {
             i->setblock(bx, by, bz, Blockname);
             updateblock(x, y, z, true);
@@ -323,13 +285,7 @@ namespace World {
 
         if (cptr != nullptr && cptr != emptyChunkPtr &&
             cx == cptr->cx && cy == cptr->cy && cz == cptr->cz) { cptr->setbrightness(bx, by, bz, Brightness); }
-        Chunk* i = getChunkPtr(cx, cy, cz);
-        if (i == emptyChunkPtr) {
-            Chunk* cp = addChunk(cx, cy, cz);
-            cp->load();
-            cp->mIsEmpty = false;
-            i = cp;
-        }
+        Chunk* i = refChunk(cx, cy, cz);
         if (i != nullptr) { i->setbrightness(bx, by, bz, Brightness); }
     }
 
@@ -361,13 +317,7 @@ namespace World {
     }
 
     void setChunkUpdated(int x, int y, int z, bool value) {
-        auto i = getChunkPtr(x, y, z);
-        if (i == emptyChunkPtr) {
-            auto cp = addChunk(x, y, z);
-            cp->load();
-            cp->mIsEmpty = false;
-            i = cp;
-        }
+        auto i = refChunk(x, y, z);
         if (i != nullptr) i->mIsUpdated = value;
     }
 
@@ -377,7 +327,7 @@ namespace World {
         int czp = getChunkPos(zpos);
 
         chunkBuildRenderList.clear();
-        for (int ci = 0; ci < loadedChunks; ci++) {
+        for (int ci = 0; ci < chunks.size(); ci++) {
             if (chunks[ci]->mIsUpdated) {
                 int cx = chunks[ci]->cx;
                 int cy = chunks[ci]->cy;
@@ -402,7 +352,7 @@ namespace World {
         int czp = getChunkPos(zpos);
 
         chunkUnloadList.clear();
-        for (int ci = 0; ci < loadedChunks; ci++) {
+        for (int ci = 0; ci < chunks.size(); ci++) {
             cx = chunks[ci]->cx;
             cy = chunks[ci]->cy;
             cz = chunks[ci]->cz;
@@ -419,30 +369,28 @@ namespace World {
         for (cx = cxp - viewdistance - 1; cx <= cxp + viewdistance; cx++)
             for (cy = cyp - viewdistance - 1; cy <= cyp + viewdistance; cy++)
                 for (cz = czp - viewdistance - 1; cz <= czp + viewdistance; cz++)
-                    if (!cpArray.get(cx, cy, cz)) {
+                    if (auto chk = getChunkPtr(cx, cy, cz); !chk) {
                         xd = cx * 16 + 7 - xpos;
                         yd = cy * 16 + 7 - ypos;
                         zd = cz * 16 + 7 - zpos;
                         distsqr = xd * xd + yd * yd + zd * zd;
-                        chunkLoadList.insert(distsqr, {cx, cy, cz});
+                        chunkLoadList.insert(distsqr, { cx, cy, cz });
                     }
+                    else
+                        cpArray.set(cx, cy, cz, chk);
     }
 
     void calcVisible(double xpos, double ypos, double zpos, Frustum& frus) {
         Chunk::setRelativeBase(xpos, ypos, zpos, frus);
-        for (int ci = 0; ci != loadedChunks; ci++) chunks[ci]->calcVisible();
+        for (auto& x : chunks) x->calcVisible();
     }
 
     void destroyAllChunks() {
-        for (int i = 0; i != loadedChunks; i++)
-            if (!chunks[i]->mIsEmpty)
-                delete chunks[i];
-
-        free(chunks);
+        for (auto& x : chunks)
+            if (!x->mIsEmpty)
+                delete x;
+        chunks.clear();
         worldSave.release();
-        chunks = nullptr;
-        loadedChunks = 0;
-        chunkArraySize = 0;
         hMap.destroy();
         worldSave.reset();
 
@@ -539,7 +487,7 @@ namespace World {
 
     void randomChunkUpdation() noexcept {
         //随机状态更新
-        for (int i = 0; i < loadedChunks; i++) {
+        for (int i = 0; i < chunks.size(); i++) {
             int cx = chunks[i]->cx;
             int cy = chunks[i]->cy;
             int cz = chunks[i]->cz;
@@ -585,7 +533,7 @@ namespace World {
             deleteChunk(cp->cx, cp->cy, cp->cz);
 
         //加载区块(Load chunks)
-        for (auto&& [dist, pos] : chunkLoadList) {
+        for (auto&&[dist, pos] : chunkLoadList) {
             auto c = addChunk(pos.x, pos.y, pos.z);
             c->load(false);
             if (c->mIsEmpty) {
@@ -610,20 +558,21 @@ namespace World {
             for (cx = cxp - viewdistance - 1; cx <= cxp + viewdistance; cx++)
                 for (cy = cyp - viewdistance - 1; cy <= cyp + viewdistance; cy++)
                     for (cz = czp - viewdistance - 1; cz <= czp + viewdistance; cz++)
-                        if (!cpArray.get(cx, cy, cz)) {
-                            xd = cx * 16 + 7 - xpos;
-                            yd = cy * 16 + 7 - ypos;
-                            zd = cz * 16 + 7 - zpos;
-                            distsqr = xd * xd + yd * yd + zd * zd;
-                            chunkLoadList.insert(distsqr, { cx, cy, cz });
-                        }
+                        if (!cpArray.get(cx, cy, cz)) 
+                            if (!chunkLoaded(cx, cy, cz)) {
+                                xd = cx * 16 + 7 - xpos;
+                                yd = cy * 16 + 7 - ypos;
+                                zd = cz * 16 + 7 - zpos;
+                                distsqr = xd * xd + yd * yd + zd * zd;
+                                chunkLoadList.insert(distsqr, { cx, cy, cz });
+                            }
         }
 
         void clientChunkWork(const Vec3i& pos, unsigned int id, unsigned int step) {
             const auto p = pos / 16;
             chunkBuildRenderList.clear();
             chunkUnloadList.clear();
-            for (int ci = id; ci < loadedChunks; ci += step) {
+            for (int ci = id; ci < chunks.size(); ci += step) {
                 const auto c = chunks[ci]->getPos();
                 const auto cbd = c.chebyshevDistance(p);
                 //sortChunkBuildRenderListStep

@@ -24,6 +24,7 @@
 #include "Menus.h"
 #include "Command.h"
 #include "Setup.h"
+#include "Particles.h"
 
 ThreadFunc updateThreadFunc(void*);
 
@@ -500,10 +501,9 @@ public:
             World::updateChunkLoading();
 
         //加载动画
-        for (int i = 0; i < World::loadedChunks; i++) {
-            World::Chunk* cp = World::chunks[i];
-            if (cp->loadAnim <= 0.3f) cp->loadAnim = 0.0f;
-            else cp->loadAnim *= 0.6f;
+        for (auto& x : World::chunks) {
+            if (x->loadAnim <= 0.3f) x->loadAnim = 0.0f;
+            else x->loadAnim *= 0.6f;
         }
 
         World::randomChunkUpdation();
@@ -1155,7 +1155,7 @@ public:
             debugText(ss.str(), false);
             ss.str("");
 
-            ss << "load:" << World::loadedChunks << " unload:" << World::unloadedChunks
+            ss << "load:" << World::chunks.size() << " unload:" << World::unloadedChunks
                 << " render:" << WorldRenderer::RenderChunkList.size() << " update:" << World::updatedChunks;
             debugText(ss.str(), false);
             ss.str("");
