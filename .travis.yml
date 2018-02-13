@@ -2,9 +2,8 @@ language: generic
 sudo: required
 dist: trusty
 cache:
-  directories:	
-    - RakNet		
-    - flatbuffers		
+  directories:
+    - rpclib
     - bin/CMakeFiles/
 matrix:
   include:
@@ -35,34 +34,17 @@ install:
   - sudo cp -r /usr/include/freetype2/* /usr/include/
   - sudo cp -r /usr/include/freetype2 /usr/include/freetype
   - |
-    if [ ! -f ./RakNet/cached_mark ];
+    if [ ! -f ./rpclib/cached_mark ];
     then
-    git clone https://github.com/OculusVR/RakNet.git
-    cd ./RakNet
-    cmake .
-    make
-    make install
+    git clone https://github.com/rpclib/rpclib.git
+    cd ./rpclib
+    cmake . -DBUILD_SHARED_LIBS=ON
+    make -j8
+    make install 
     touch cached_mark
     cd ..
     fi
-  - |
-    if [ ! -f ./flatbuffers/cached_mark ];
-    then
-    git clone https://github.com/google/flatbuffers.git
-    cd ./flatbuffers
-    cmake .
-    make
-    touch cached_mark
-    cd ..
-    fi
-  - export NEWORLD_PATH=/home/travis/build/Infinideastudio/NEWorld
-  - export CPLUS_INCLUDE_PATH=$NEWORLD_PATH/RakNet/include:$NEWORLD_PATH/flatbuffers/include/
-  - export LIBRARY_PATH=$NEWORLD_PATH/flatbuffers/:$NEWORLD_PATH/RakNet/Lib/DLL/
 script:
-  - cd ./src/protocol
-  - python ./make_fb.py ../../flatbuffers/
-  - cd ../../
   - cd ./release/
-  - cmake .. -Wno-dev
-  - make
-  - cd ..
+  - cmake .
+  - make -j8
