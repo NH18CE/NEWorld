@@ -38,9 +38,8 @@ install:
     then
     git clone https://github.com/rpclib/rpclib.git
     cd ./rpclib
-    cmake . -DBUILD_SHARED_LIBS=ON
-    make -j8
-    make install 
+    cmake . -DBUILD_SHARED_LIBS=ON && make -j8
+    sudo make install 
     touch cached_mark
     cd ..
     fi
