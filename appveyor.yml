@@ -6,7 +6,6 @@ platform:
   - x64
 configuration:
   - Debug
-  - Profiling
   - Release
 clone_folder: C:\NEWorld
 clone_depth: 1
