@@ -3,7 +3,6 @@ sudo: required
 dist: trusty
 cache:
   directories:
-    - rpclib
     - bin/CMakeFiles/
 matrix:
   include:
